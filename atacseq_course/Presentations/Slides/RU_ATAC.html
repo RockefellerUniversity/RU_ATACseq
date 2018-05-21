@@ -13,15 +13,26 @@ class: center, middle, inverse, title-slide
 
 # Analysis of ATAC-seq data in R and Bioconductor
 ### Rockefeller University, Bioinformatics Resource Centre
-### <a href="http://rockefelleruniversity.github.io/RU_ChIPseq/" class="uri">http://rockefelleruniversity.github.io/RU_ChIPseq/</a>
+### <a href="http://rockefelleruniversity.github.io/RU_ATACseq/" class="uri">http://rockefelleruniversity.github.io/RU_ATACseq/</a>
 
 ---
 
 
 
 
----
 ## ATAC-seq
+
+ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing) uses a transposase to efficiently fragment accessible DNA prior to sequencing and so provides a method to map the accessible/open chromatin genome wide.
+
+In contrast to other techniques, ATAC-seq has several advantages including
+
+* Low input material required (&gt; 50,000 cells)
+* Rapid experiment protocol (~ 4 hrs.)
+
+
+&lt;div align="center"&gt;
+&lt;img src="imgs/ATACseqP.jpeg" alt="offset" height="300" width="600"&gt;
+&lt;/div&gt;
 
 ---
 ## ATAC-seq, MNase-seq and DNase-seq
@@ -76,6 +87,13 @@ Finally I have processed some of the data from Christina Leslie' lab at MSKCC ex
 The raw data and processed BAM file is available from Encodes portal
 
 * T-Reg - [ENCSR724UJS](https://www.encodeproject.org/experiments/ENCSR724UJS/)
+
+In todays practical we will work with some of the ATAC-seq data of T-regulatory cells from Christina Leslie's lab.
+
+FQ files can be found can be found [here for read1](https://www.encodeproject.org/files/ENCFF175VOD/@@download/ENCFF175VOD.fastq.gz) and [here for read2](https://www.encodeproject.org/files/ENCFF447BGX/@@download/ENCFF447BGX.fastq.gz).
+
+We will also work with the aligned data as a BAM file [which can be found here.](https://www.encodeproject.org/files/ENCFF053CGD/@@download/ENCFF053CGD.bam)
+
 
 ---
 ### The Reference Data
@@ -138,7 +156,7 @@ We will process one sample of the Greenleaf data from fastq to BAM to allow us t
 
 ### Creating a reference genome
 
-First we will need to create a reference genome to align our ATAC-seq data.  We can create a FASTA file for alignment as we did previously for the ChIPseq analysis.
+First we will need to create a reference genome to align our ATAC-seq data.  [We can create a FASTA file for alignment as we did previously for the ChIPseq analysis.](https://rockefelleruniversity.github.io/RU_ChIPseq/chipseq_course/Presentations/Slides/ChIPseq_In_Bioconductor.html#25)
 
 Here as we are working with human data we use the **BSgenome.Hsapiens.UCSC.hg19** library for the hg19 genome build.
 
@@ -241,7 +259,7 @@ align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ---
 ### Sorting and Indexing
 
-Following alignment we would want to sort and index our BAM file for use with external tool.
+Following alignment [we would want to sort and index our BAM file for use with external tool.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#10)
 
 First we sort our aligned data by sequence order (not Read Name here).
 
@@ -267,7 +285,7 @@ sortedBAM &lt;- "~/Downloads/demo/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_5
 ---
 ### Distribution of mapped reads
 
-In ATAC-seq we will want to check the distribution of mapped reads across chromosomes.
+In ATAC-seq we will want to check the distribution of mapped reads across chromosomes. [We can check the number of mapped reads on every chromosome using the **idxstatsBam()** function.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#15)
 
 ATAC-seq is known have high signal on the mitochondrial chromosomes and so we can check for that here.
 
@@ -417,26 +435,44 @@ Since properly paired reads will have the same insert size length we extract ins
 
 
 ```r
-atacReads_read1 &lt;- GenomicAlignments::first(atacReads)
+atacReads_read1 &lt;- first(atacReads)
 insertSizes &lt;- abs(elementMetadata(atacReads_read1)$isize)
 head(insertSizes)
 ```
 
+
 ```
 ## [1] 431 431 228  60 228 176
 ```
+
 ---
 ### Plotting insert sizes
 
 ATAC-seq should represent a mix of fragment lengths corresponding to nucleosome free, mononucleosome and poly-nucleosome fractions.
 
-We can use the newly acquired insert lengths for chromosome 20 to plot the distribution of all fragment lengths.
-
+We can use the **table()** function to retrieve a vector of the occurrence of each fragment length.
 
 
 ```r
 library(ggplot2)
 fragLenSizes &lt;- table(insertSizes)
+fragLenSizes[1:5]
+```
+
+```
+## insertSizes
+##   50   51   52   53   54 
+## 2470 2924 3062 2733 2497
+```
+
+---
+### Plotting insert sizes
+
+Now we can use the newly acquired insert lengths for chromosome 20 to plot the distribution of all fragment lengths.
+
+
+
+```r
 toPlot &lt;- data.frame(InsertSize=as.numeric(names(fragLenSizes)),
                             Count=as.numeric(fragLenSizes))
 fragLenPlot &lt;- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
@@ -450,7 +486,7 @@ fragLenPlot &lt;- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
 fragLenPlot+theme_bw()
 ```
 
-![](RU_ATAC_files/figure-html/processData_plottingFragmentLengths2-1.png)&lt;!-- --&gt;
+![](RU_ATAC_files/figure-html/processData_plottfingFragmentLengths2-1.png)&lt;!-- --&gt;
 ---
 ### Plotting insert sizes
 
@@ -517,17 +553,62 @@ export(atacReads_MonoNuc,monoNucBam,format = "bam")
 
 We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
 
+Here we use the **granges()** function to recreate full fragments from the paired single-end reads.
+
+
+```r
+atacReads_Open[1,]
+```
+
+```
+## GAlignmentPairs object with 1 pair, strandMode=1, and 0 metadata columns:
+##       seqnames strand :         ranges --         ranges
+##          &lt;Rle&gt;  &lt;Rle&gt; :      &lt;IRanges&gt; --      &lt;IRanges&gt;
+##   [1]    chr20      + : [60436, 60485] -- [60446, 60495]
+##   -------
+##   seqinfo: 25 sequences from an unspecified genome
+```
+
+```r
+atacFragments_Open &lt;- granges(atacReads_Open)
+atacFragments_Open[1,]
+```
+
+```
+## GRanges object with 1 range and 0 metadata columns:
+##       seqnames         ranges strand
+##          &lt;Rle&gt;      &lt;IRanges&gt;  &lt;Rle&gt;
+##   [1]    chr20 [60436, 60495]      +
+##   -------
+##   seqinfo: 25 sequences from an unspecified genome
+```
+
+---
+### Creating an open region bigWig.
+
+We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
+
 Additional normalisation to total mapped reads could be applied at this point.
 
 
 ```r
-openRegionBigWig &lt;- gsub("\\.bam","_openRegions\\.bw",sortedBAM)
 openRegionRPMBigWig &lt;- gsub("\\.bam","_openRegionsRPM\\.bw",sortedBAM)
-atacFragments_Open &lt;- granges(atacReads_Open)
 myCoverage &lt;- coverage(atacFragments_Open,
                        weight = (10^6/length(atacFragments_Open)))
-export.bw(,openRegionBigWig)
+export.bw(myCoverage,openRegionRPMBigWig)
 ```
+
+&lt;div align="center"&gt;
+&lt;img src="imgs/final.png" alt="offset" height="300" width="600"&gt;
+&lt;/div&gt;
+
+---
+
+# Time for an exercise.
+
+[Link_to_exercises](../../Exercises/ATACseq_part1_exercises.html)
+
+[Link_to_answers](../../Answers/ATACseq_part1_answers.html)
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

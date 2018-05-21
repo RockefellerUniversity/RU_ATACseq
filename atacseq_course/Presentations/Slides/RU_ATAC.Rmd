@@ -1,7 +1,7 @@
 ---
 title: "Analysis of ATAC-seq data in R and Bioconductor"
 author: "Rockefeller University, Bioinformatics Resource Centre"
-date: "http://rockefelleruniversity.github.io/RU_ChIPseq/"
+date: "http://rockefelleruniversity.github.io/RU_ATACseq/"
 output: 
   xaringan::moon_reader:
     lib_dir: libs
@@ -25,8 +25,19 @@ knitr::opts_chunk$set(echo = TRUE)
 AsSlides <- TRUE
 ```
 
----
 ## ATAC-seq
+
+ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing) uses a transposase to efficiently fragment accessible DNA prior to sequencing and so provides a method to map the accessible/open chromatin genome wide.
+
+In contrast to other techniques, ATAC-seq has several advantages including
+
+* Low input material required (> 50,000 cells)
+* Rapid experiment protocol (~ 4 hrs.)
+
+
+<div align="center">
+<img src="imgs/ATACseqP.jpeg" alt="offset" height="300" width="600">
+</div>
 
 ---
 ## ATAC-seq, MNase-seq and DNase-seq
@@ -81,6 +92,13 @@ Finally I have processed some of the data from Christina Leslie' lab at MSKCC ex
 The raw data and processed BAM file is available from Encodes portal
 
 * T-Reg - [ENCSR724UJS](https://www.encodeproject.org/experiments/ENCSR724UJS/)
+
+In todays practical we will work with some of the ATAC-seq data of T-regulatory cells from Christina Leslie's lab.
+
+FQ files can be found can be found [here for read1](https://www.encodeproject.org/files/ENCFF175VOD/@@download/ENCFF175VOD.fastq.gz) and [here for read2](https://www.encodeproject.org/files/ENCFF447BGX/@@download/ENCFF447BGX.fastq.gz).
+
+We will also work with the aligned data as a BAM file [which can be found here.](https://www.encodeproject.org/files/ENCFF053CGD/@@download/ENCFF053CGD.bam)
+
 
 ---
 ### The Reference Data
@@ -143,7 +161,7 @@ We will process one sample of the Greenleaf data from fastq to BAM to allow us t
 
 ### Creating a reference genome
 
-First we will need to create a reference genome to align our ATAC-seq data.  We can create a FASTA file for alignment as we did previously for the ChIPseq analysis.
+First we will need to create a reference genome to align our ATAC-seq data.  [We can create a FASTA file for alignment as we did previously for the ChIPseq analysis.](https://rockefelleruniversity.github.io/RU_ChIPseq/chipseq_course/Presentations/Slides/ChIPseq_In_Bioconductor.html#25)
 
 Here as we are working with human data we use the **BSgenome.Hsapiens.UCSC.hg19** library for the hg19 genome build.
 
@@ -244,7 +262,7 @@ align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ---
 ### Sorting and Indexing
 
-Following alignment we would want to sort and index our BAM file for use with external tool.
+Following alignment [we would want to sort and index our BAM file for use with external tool.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#10)
 
 First we sort our aligned data by sequence order (not Read Name here).
 
@@ -268,7 +286,7 @@ sortedBAM <- "~/Downloads/demo/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_
 ---
 ### Distribution of mapped reads
 
-In ATAC-seq we will want to check the distribution of mapped reads across chromosomes.
+In ATAC-seq we will want to check the distribution of mapped reads across chromosomes. [We can check the number of mapped reads on every chromosome using the **idxstatsBam()** function.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#15)
 
 ATAC-seq is known have high signal on the mitochondrial chromosomes and so we can check for that here.
 
@@ -371,22 +389,39 @@ Now we have read in the paired aligned data into R, we can retreive the insert s
 
 Since properly paired reads will have the same insert size length we extract insert sizes from read1.
 
-```{r processData_extractingRead1, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData"}
+```{r processData_extractingReadsss1, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_readingInData"}
+atacReads_read1 <- first(atacReads)
+insertSizes <- abs(elementMetadata(atacReads_read1)$isize)
+head(insertSizes)
+```
+
+```{r processData_extractingRead1, echo=FALSE,eval=TRUE,cache=TRUE,dependson="processData_readingInData"}
 atacReads_read1 <- GenomicAlignments::first(atacReads)
 insertSizes <- abs(elementMetadata(atacReads_read1)$isize)
 head(insertSizes)
 ```
+
 ---
 ### Plotting insert sizes
 
 ATAC-seq should represent a mix of fragment lengths corresponding to nucleosome free, mononucleosome and poly-nucleosome fractions.
 
-We can use the newly acquired insert lengths for chromosome 20 to plot the distribution of all fragment lengths.
+We can use the **table()** function to retrieve a vector of the occurrence of each fragment length.
 
-
-```{r processData_plottingFragmentLengths, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
+```{r processData_plottingFrffagmentLengths, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
 library(ggplot2)
 fragLenSizes <- table(insertSizes)
+fragLenSizes[1:5]
+
+```
+
+---
+### Plotting insert sizes
+
+Now we can use the newly acquired insert lengths for chromosome 20 to plot the distribution of all fragment lengths.
+
+
+```{r processData_plottingFrdagmentLengths, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
 toPlot <- data.frame(InsertSize=as.numeric(names(fragLenSizes)),
                             Count=as.numeric(fragLenSizes))
 fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
@@ -396,7 +431,7 @@ fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
 ### Plotting insert sizes
 
 
-```{r processData_plottingFragmentLengths2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
+```{r processData_plottfingFragmentLengths2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
 
 fragLenPlot+theme_bw()
 
@@ -433,7 +468,7 @@ We may wish to divide our aligned reads into reads representing nucleosome free 
 
 Here we create BAM files for the reads representing nucleosome free, mono and di nucleosome by using insert sizes to filter read.
 
-```{r processData_createOpenRegionBAM, echo=TRUE,eval=FALSE,cache=TRUE,dependson=c("processData_extractingRead1","processData_readingInData")}
+```{r processData_createOpenRegionBAM, echo=TRUE,eval=TRUE,cache=TRUE,dependson=c("processData_extractingRead1","processData_readingInData")}
 atacReads_Open <- atacReads[insertSizes < 100,]
 atacReads_MonoNuc <- atacReads[insertSizes > 180 &
                                  insertSizes < 240,]
@@ -461,14 +496,37 @@ export(atacReads_MonoNuc,monoNucBam,format = "bam")
 
 We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
 
+Here we use the **granges()** function to recreate full fragments from the paired single-end reads.
+
+```{r processData_createOpenRegionBigWig_2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_createOpenRegionBAM"}
+atacReads_Open[1,]
+atacFragments_Open <- granges(atacReads_Open)
+atacFragments_Open[1,]
+```
+
+---
+### Creating an open region bigWig.
+
+We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
+
 Additional normalisation to total mapped reads could be applied at this point.
 
-```{r processData_createOpenRegionBigWig_2, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBAM"}
-openRegionBigWig <- gsub("\\.bam","_openRegions\\.bw",sortedBAM)
+```{r processData_createOpenRegionBigWig_21, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"}
 openRegionRPMBigWig <- gsub("\\.bam","_openRegionsRPM\\.bw",sortedBAM)
-atacFragments_Open <- granges(atacReads_Open)
 myCoverage <- coverage(atacFragments_Open,
                        weight = (10^6/length(atacFragments_Open)))
-export.bw(,openRegionBigWig)
+export.bw(myCoverage,openRegionRPMBigWig)
 ```
+
+<div align="center">
+<img src="imgs/final.png" alt="offset" height="300" width="600">
+</div>
+
+---
+
+# Time for an exercise.
+
+[Link_to_exercises](../../Exercises/ATACseq_part1_exercises.html)
+
+[Link_to_answers](../../Answers/ATACseq_part1_answers.html)
 
