@@ -563,12 +563,12 @@ MacsCalls_Anno &lt;-  annotatePeak(MacsCalls,
 ```
 
 ```
-&gt;&gt; preparing features information...		 2018-05-25 11:20:24 
-&gt;&gt; identifying nearest features...		 2018-05-25 11:20:25 
-&gt;&gt; calculating distance from peak to TSS...	 2018-05-25 11:20:25 
-&gt;&gt; assigning genomic annotation...		 2018-05-25 11:20:25 
-&gt;&gt; assigning chromosome lengths			 2018-05-25 11:20:39 
-&gt;&gt; done...					 2018-05-25 11:20:39 
+&gt;&gt; preparing features information...		 2018-05-25 11:40:20 
+&gt;&gt; identifying nearest features...		 2018-05-25 11:40:20 
+&gt;&gt; calculating distance from peak to TSS...	 2018-05-25 11:40:21 
+&gt;&gt; assigning genomic annotation...		 2018-05-25 11:40:21 
+&gt;&gt; assigning chromosome lengths			 2018-05-25 11:40:33 
+&gt;&gt; done...					 2018-05-25 11:40:33 
 ```
 
 ```r
@@ -1151,12 +1151,12 @@ anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain,
 ```
 
 ```
-&gt;&gt; preparing features information...		 2018-05-25 11:21:22 
-&gt;&gt; identifying nearest features...		 2018-05-25 11:21:22 
-&gt;&gt; calculating distance from peak to TSS...	 2018-05-25 11:21:23 
-&gt;&gt; assigning genomic annotation...		 2018-05-25 11:21:23 
-&gt;&gt; assigning chromosome lengths			 2018-05-25 11:21:32 
-&gt;&gt; done...					 2018-05-25 11:21:32 
+&gt;&gt; preparing features information...		 2018-05-25 11:41:07 
+&gt;&gt; identifying nearest features...		 2018-05-25 11:41:07 
+&gt;&gt; calculating distance from peak to TSS...	 2018-05-25 11:41:07 
+&gt;&gt; assigning genomic annotation...		 2018-05-25 11:41:07 
+&gt;&gt; assigning chromosome lengths			 2018-05-25 11:41:16 
+&gt;&gt; done...					 2018-05-25 11:41:16 
 ```
 
 ```r
@@ -1183,9 +1183,9 @@ Since we have subset regions to those within +/- 500bp of a TSS we can use a sta
 
 ```r
 library(clusterProfiler)
-goInBrain &lt;- enrichGO(DB_ATAC$geneId, 
+go &lt;- enrichGO(DB_ATAC$geneId, 
                 OrgDb = "org.Mm.eg.db",ont = "BP",maxGSSize = 5000)
-goInBrain[1:2,1:6]
+go[1:2,1:6]
 ```
 
 ```

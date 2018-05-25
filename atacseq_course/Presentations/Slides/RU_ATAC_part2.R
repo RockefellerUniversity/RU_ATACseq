@@ -242,9 +242,9 @@ DB_ATAC[1,]
 
 ## ----processData_DEseq2_functionalEnrichmentAnalysisd, echo=TRUE,eval=TRUE,cache=TRUE, dependson="processData_DEseq2_functionalEnrichmentAnalysiss",message=FALSE,warning=FALSE----
 library(clusterProfiler)
-goInBrain <- enrichGO(DB_ATAC$geneId, 
+go <- enrichGO(DB_ATAC$geneId, 
                 OrgDb = "org.Mm.eg.db",ont = "BP",maxGSSize = 5000)
-goInBrain[1:2,1:6]
+go[1:2,1:6]
 
 
 ## ----processData_motifCutsa, echo=TRUE,eval=TRUE,cache=TRUE,message=FALSE,warning=FALSE----
