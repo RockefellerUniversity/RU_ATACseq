@@ -1,0 +1,186 @@
+---
+title: "ATAC-seq in Bioconductor exercises"
+author: "Tom Carroll"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,eval=T)
+```
+
+In todays session we will work with some of the ATAC-seq data of T-regulatory cells from Christina Leslie's lab.
+
+Aligned data as a BAM file [can be found here.](https://www.encodeproject.org/files/ENCFF053CGD/@@download/ENCFF053CGD.bam)
+
+The peak calls for ATAC-seq data [can be found here](https://www.encodeproject.org/files/ENCFF520GRD/@@download/ENCFF520GRD.bed.gz)
+
+## ATAC-seq analysis.
+
+1. Plot the nucleosome free abd mono-nucleosome signals over mouse genome mm10 TSS regions from the T-reg ATAC-seq data for chromosomes chr1 to chr19.
+
+```{r, include=FALSE}
+library(GenomicRanges)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicAlignments)
+library(soGGi)
+library(ggplot2)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+library(MotifDb)
+library(Biostrings)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(ChIPQC)
+library(rtracklayer)
+library(DESeq2)
+```
+
+```{r instalcscldcsceBSded,cache=TRUE,eval=FALSE}
+library(soGGi)
+library(ggplot2)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+genesLocations <- genes(TxDb.Mmusculus.UCSC.mm10.knownGene)
+tssLocations <- resize(genesLocations,fix="start",width = 1)
+tssLocations <- tssLocations[seqnames(tssLocations) %in% paste0("chr",1:19)]
+ 
+sortedBAM <- "~/Downloads/ENCFF053CGD.bam"
+indexBam(sortedBAM)
+
+nucFree <- regionPlot(bamFile = sortedBAM,
+                        testRanges = tssLocations,
+                        style = "point",
+                        format="bam",
+                        paired=TRUE,
+                        minFragmentLength = 0,
+                        maxFragmentLength = 100,
+                        forceFragment = 50)
+
+monoNuc <- regionPlot(bamFile = sortedBAM,
+                        testRanges = tssLocations,
+                        style = "point",
+                        format="bam",
+                        paired=TRUE,
+                        minFragmentLength = 180,
+                      maxFragmentLength = 240,
+                      forceFragment = 80)
+
+save(nucFree,file="../Data/nucFree_Treg.RData")
+save(monoNuc,file="../Data/monoNuc_Treg.RData")
+
+
+```
+
+```{r instalcscldcsceBSdead,cache=TRUE,eval=TRUE}
+load(file="../Data/nucFree_Treg.RData")
+load(file="../Data/monoNuc_Treg.RData")
+plotRegion(nucFree)+theme_bw()
+plotRegion(monoNuc)+theme_bw()
+
+```
+2. Extract the FRIP and Duplication rate for the Encode T-reg ATAC-seq BAM and associated peaks for chromosome 10.
+
+```{r instaaxscslldebbBSccdxxed,cache=TRUE,eval=FALSE,dependson="instalcscldcsceBSded"}
+library(ChIPQC)
+library(rtracklayer)
+openRegionPeaks <- "~/Downloads//ENCFF520GRD.bed.gz"
+
+qcRes <- ChIPQCsample(sortedBAM,
+                      peaks = openRegionPeaks,
+                      annotation ="mm10",
+                      chromosomes = "chr10",
+                      verboseT = FALSE)
+save(qcRes,file="../Data/chipqc_Treg.RData")
+```
+
+```{r instaaxscslldebbzBSccdxxed,cache=TRUE,dependson="instalcscldcsceBSded"}
+load(file="../Data/chipqc_Treg.RData")
+myMetrics <- QCmetrics(qcRes)
+myMetrics[c("RiP%")]
+flgCounts <- flagtagcounts(qcRes)
+DupRate <- flgCounts["DuplicateByChIPQC"]/flgCounts["Mapped"]
+DupRate*100
+```
+
+3. For the Treg data produce a plot of transposase cut-sites for nucleosome free fragments around CTCF motifs on chromosome 18. Use the motif "Hsapiens-JASPAR_2014-CTCF-MA0139.1" from MotifDB package.
+
+```{r instaaxscslldeabbBSccded, eval=TRUE,dependson="instalcscldcsceBSded"}
+sortedBAM <- "~/Downloads/ENCFF053CGD.bam"
+chrLens <- seqlengths(BamFile(sortedBAM))
+param=ScanBamParam(flag=scanBamFlag(isProperPair =TRUE), 
+                    what=c("qname","mapq","isize"), 
+                   which=GRanges("chr18", IRanges(1,chrLens["chr18"])))
+atacReads <- readGAlignmentPairs(sortedBAM,param = param)
+insertSizes <- abs(elementMetadata(GenomicAlignments::first(atacReads))$isize)
+atacReads_Open <- atacReads[insertSizes < 100]
+read1 <- GenomicAlignments::first(atacReads_Open)
+read2 <- second(atacReads_Open)
+Firsts <- resize(granges(read1),fix="start",1)
+First_Pos_toCut <- shift(granges(Firsts[strand(read1) == "+"]),
+                                         4)
+First_Neg_toCut <- shift(granges(Firsts[strand(read1) == "-"]),
+                                         -5)
+
+Seconds <- resize(granges(read2),fix="start",1)
+Second_Pos_toCut <- shift(granges(Seconds[strand(read2) == "+"]),
+                                4)
+Second_Neg_toCut <- shift(granges(Seconds[strand(read2) == "-"]),
+                                -5)
+
+test_toCut <- c(First_Pos_toCut,First_Neg_toCut,
+                Second_Pos_toCut,Second_Neg_toCut)
+cutsCoverage <- coverage(test_toCut)
+cutsCoverage18 <- cutsCoverage["chr18"]
+
+library(MotifDb)
+library(Biostrings)
+library(BSgenome.Mmusculus.UCSC.mm10)
+CTCF <- query(MotifDb, c("CTCF"))
+ctcfMotif <- CTCF[["Hsapiens-JASPAR_2014-CTCF-MA0139.1"]]
+myRes <- matchPWM(ctcfMotif,BSgenome.Mmusculus.UCSC.mm10[["chr18"]])
+toCompare <- GRanges("chr18",ranges(myRes))
+CTCF_Cuts_open <- regionPlot(cutsCoverage18,
+                         testRanges = toCompare,
+                         style = "point",
+                         format="rlelist",distanceAround = 500)
+save(CTCF_Cuts_open,file="../Data/cuts_Treg.RData")
+plotRegion(CTCF_Cuts_open)+theme_bw()
+```
+
+
+4. Load the counts for Encode Kidney, Liver and Hindbrain. Identify ATACseq sites significantly higher in Liver compared to Hindbrain (padj < 0.05 and padj is not NA) and perform a functional enrichment test using RGreat to identify BioCyc Pathways enriched in these sites.
+
+Counts are in **../Data/myCounts.RData**
+
+```{r instacsxsjiijcsllBSded}
+library(DESeq2)
+load("../Data/myCounts.RData")
+
+Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
+                  "Liver","Liver"))
+metaData <- data.frame(Group,row.names=colnames(myCounts))
+
+atacDDS <- DESeqDataSetFromMatrix(assay(myCounts),
+                                  metaData,
+                                  ~Group,
+                                  rowRanges=rowRanges(myCounts))
+atacDDS <- DESeq(atacDDS)
+
+LiverMinusHindbrain <- results(atacDDS,
+                                c("Group","Liver","HindBrain"),
+                               format="GRanges")
+LiverMinusHindbrain <- LiverMinusHindbrain[
+                                order(LiverMinusHindbrain$pvalue)
+                         ]
+LiverMinusHindbrain <- LiverMinusHindbrain[
+                          (!is.na(LiverMinusHindbrain$padj) 
+                           & LiverMinusHindbrain$padj < 0.05)
+                          & LiverMinusHindbrain$log2FoldChange > 0]
+
+library(rGREAT)
+great_Job <- submitGreatJob(LiverMinusHindbrain, species = "mm10",request_interval = 4)
+availableCategories(great_Job)
+great_ResultTable = getEnrichmentTables(great_Job, category = "Pathway Data")
+names(great_ResultTable)          
+great_ResultTable[["BioCyc Pathway"]][1:4, ]
+```
+
+
