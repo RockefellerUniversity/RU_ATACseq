@@ -1,9 +1,10 @@
 ---
-title: "Analysis of ATAC-seq data in R and Bioconductor"
+title: "Analysis of ATAC-seq data in R and Bioconductor<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>"
 author: "Rockefeller University, Bioinformatics Resource Centre"
-date: "http://rockefelleruniversity.github.io/RU_ATACseq/"
+date: "http://rockefelleruniversity.github.io/Bioconductor_Introduction/"
 output: 
   xaringan::moon_reader:
+    css: ["default", "metropolisCustom.css", "metropolis-fontsCustom.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -43,7 +44,7 @@ In contrast to other techniques, ATAC-seq has several advantages including
 ## ATAC-seq, MNase-seq and DNase-seq
 
 <div align="center">
-<img src="https://www.the-scientist.com/January2016/LT2_2.jpg" alt="offset" height="300" width="600">
+<img src="imgs/mnATAC.jpg" alt="offset" height="300" width="600">
 </div>
 
 * DNase-seq - Enzymatic digestion to extract signal from open chromatin around transcription factor binding sites.
