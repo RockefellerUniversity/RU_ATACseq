@@ -54,7 +54,7 @@ In contrast to other techniques, ATAC-seq has several advantages including
 * ATAC-seq - Uses transposases and offers a method to simultaneously extract signal from transcription factors binding sites and nucleosome positions from a single sample.
 
 ---
-# Working with ATAC-seq data in R/Bioconductor
+## Working with ATAC-seq data
 
 
 In this session we will look at some of the basics of ATAC-seq processing in R using some publically available data.
@@ -62,7 +62,7 @@ In this session we will look at some of the basics of ATAC-seq processing in R u
 We will look at the alignment, post-alignment processing and plotting of ATAC-seq data over TSSs.
 
 ---
-### The Sequencing Data.
+## The Sequencing Data.
 
 In the ATACseq session we will make use of three sets of published data.
 
@@ -102,7 +102,7 @@ We will also work with the aligned data as a BAM file [which can be found here.]
 
 
 ---
-### The Reference Data
+## The Reference Data
 
 For ATAC-seq analysis we will require a few pieces of reference data. 
 
@@ -115,7 +115,7 @@ This includes-
 * Blacklists - Artefact regions specific to genomes. These can be found in [Encode portal here](https://www.encodeproject.org/annotations/ENCSR636HFF/)
 
 ---
-### Processed Data.
+## Processed Data.
 
 We start with public sequencing data in links below and use reference data in Bioconductor.
 
@@ -160,7 +160,7 @@ We will process one sample of the Greenleaf data from fastq to BAM to allow us t
 
 ---
 
-### Creating a reference genome
+## Creating a reference genome
 
 First we will need to create a reference genome to align our ATAC-seq data.  [We can create a FASTA file for alignment as we did previously for the ChIPseq analysis.](https://rockefelleruniversity.github.io/RU_ChIPseq/chipseq_course/Presentations/Slides/ChIPseq_In_Bioconductor.html#25)
 
@@ -179,7 +179,7 @@ writeXStringSet(mainChrSeqSet,
 
 ---
 
-# Aligning Sequence Reads to the Genome.
+## Aligning Sequence Reads.
 
 Now we have a reference genome, we can align our ATAC-seq reads
 
@@ -206,7 +206,7 @@ data.frame(FileName1,FileName2,SampleName)
 
 ---
 
-# Aligning Sequence Reads to the Genome.
+## Aligning Sequence Reads.
 
 
 We can now use the **qAlign()** function to align our data.
@@ -221,11 +221,11 @@ qAlign("sampleTable.txt","BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa")
 
 ---
 
-### Creating Rsubread index
+## Creating Rsubread index
 
 Index building is part of the **QuasR** alignment process but for Rsubread we must build our index prior to Rsubread's alignment steps.
 
-Rsubread's [**buildindex()** function simply takes the parameters of our desired index name and the FASTA file to build index from.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignmentInBioconductor.html#34). 
+Rsubread's [**buildindex()** function simply takes the parameters of our desired index name and the FASTA file to build index from.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignmentInBioconductor.html#39). 
 
 Here i additional specify the parameter **indexSplit** as TRUE in conjunction with **memory** parameter set to 1000 (1000MB) to control memory usage in Rsubread alignment step.
 
@@ -238,7 +238,7 @@ buildindex("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ```
 
 ---
-### Aligning Sequence Reads to the Genome.
+## Aligning Sequence Reads.
 
 Here we can use a standard alignment for DNA (as for ChIPseq) but we increase the maximum allowed fragment length to capture long fragments representing poly-nucleosome signal. 
 
@@ -260,8 +260,55 @@ align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
       unique=TRUE,maxFragLength = 2000)
 
 ```
+
 ---
-### Sorting and Indexing
+
+## Creating Rbowtie2 index
+
+
+To use Rbowtie2 we must also build our index prior to aligment. Here we use the [**bowtie2_build()** function specifying the parameters of our FASTA file to build index from and the desired index name](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignmentInBioconductor.html#32). 
+
+
+
+```{r indedsx, echo=TRUE,eval=FALSE}
+library(Rbowtie2)
+bowtie2_build(references="BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa", 
+              bt2Index="BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2")
+```
+
+---
+
+## Creating Rbowtie2 index
+
+
+Once we have our index we must decompress our fastq files using **gunzip()** function.
+
+
+```{r indeaax, echo=TRUE,eval=FALSE}
+gunzip("ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz")
+gunzip("ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz")
+```
+
+---
+
+## Creating Rbowtie2 index
+
+Now we can align our fastq to the genome with the **bowtie2()** function specifying our read1 and read2 to **seq1** and **seq2** parameters. 
+
+Finally we can convert the output **SAM** file to a more useable **BAM** file with **asBam()** function.
+
+
+```{r indexas, echo=TRUE,eval=FALSE}
+bowtie2(bt2Index = "BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2",
+          samOutput = "ATAC_50K_2_bowtie2.sam",
+          seq1 = "ATAC_Data/ATAC_FQs/SRR891269_1.fastq",
+          seq1 = "ATAC_Data/ATAC_FQs/SRR891269_2.fastq"
+        )
+asBam("ATAC_50K_2_bowtie2.sam")
+```
+
+---
+## Sorting and Indexing
 
 Following alignment [we would want to sort and index our BAM file for use with external tool.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#10)
 
@@ -285,7 +332,7 @@ sortedBAM <- "~/Downloads/demo/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_
 ```
 
 ---
-### Distribution of mapped reads
+## Distribution of mapped reads
 
 In ATAC-seq we will want to check the distribution of mapped reads across chromosomes. [We can check the number of mapped reads on every chromosome using the **idxstatsBam()** function.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#15)
 
@@ -299,7 +346,7 @@ mappedReads <- idxstatsBam(sortedBAM)
 ```
 
 ---
-### Distribution of mapped reads
+## Distribution of mapped reads
 
 We can now use the mapped reads data frame to make a barplot of reads across chromosomes.
 
@@ -384,7 +431,7 @@ read2[1,]
 ```
 
 ---
-### Retrieving insert sizes
+## Retrieving insert sizes
 
 Now we have read in the paired aligned data into R, we can retreive the insert sizes from the elementMetadata attached to **GAlignments** objects of each read pair.
 
@@ -403,7 +450,7 @@ head(insertSizes)
 ```
 
 ---
-### Plotting insert sizes
+## Plotting insert sizes
 
 ATAC-seq should represent a mix of fragment lengths corresponding to nucleosome free, mononucleosome and poly-nucleosome fractions.
 
@@ -417,7 +464,7 @@ fragLenSizes[1:5]
 ```
 
 ---
-### Plotting insert sizes
+## Plotting insert sizes
 
 Now we can use the newly acquired insert lengths for chromosome 20 to plot the distribution of all fragment lengths.
 
@@ -429,7 +476,7 @@ fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
 
 ```
 ---
-### Plotting insert sizes
+## Plotting insert sizes
 
 
 ```{r processData_plottfingFragmentLengths2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
@@ -438,7 +485,7 @@ fragLenPlot+theme_bw()
 
 ```
 ---
-### Plotting insert sizes
+## Plotting insert sizes
 
 
 ```{r processData_plottingFragmentLengths3, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
@@ -448,7 +495,7 @@ fragLenPlot + scale_y_continuous(trans='log2')+theme_bw()
 
 
 ---
-### Plotting insert sizes with Greenleaf open, mono- and di-nucleosome profiles
+## Plotting insert sizes (Greenleaf).
 
 This looks very similar to the image from the Greenleaf paper.
 
@@ -463,7 +510,7 @@ fragLenPlot+ scale_y_continuous(trans='log2')+
 ```
 
 ---
-### Subsetting ATAC-seq reads files by insert sizes.
+## Subsetting ATAC-seq reads files by insert sizes.
 
 We may wish to divide our aligned reads into reads representing nucleosome free and nucleosome occupied. 
 
@@ -477,7 +524,7 @@ atacReads_diNuc <- atacReads[insertSizes > 315 &
                                insertSizes < 437,]
 ```
 ---
-### Creating BAM files split by insert sizes.
+## Creating BAM files split by insert sizes.
 
 The resulting reads can be written back to BAM files for use in other parts of our analysis or for visualisation in programs such as IGV by functions in the rtracklayer package.
 
@@ -493,7 +540,7 @@ export(atacReads_MonoNuc,monoNucBam,format = "bam")
 #export(atacReads_Open,diNucBam,format = "bam")
 ```
 ---
-### Creating an open region bigWig.
+## Creating an open region bigWig.
 
 We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
 
@@ -506,7 +553,7 @@ atacFragments_Open[1,]
 ```
 
 ---
-### Creating an open region bigWig.
+## Creating an open region bigWig.
 
 We can make it significantly quicker to review the pile-up of ATAC-seq signal in a genome browser by creating a bigWig file.
 
