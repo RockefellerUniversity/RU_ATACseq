@@ -44,7 +44,7 @@ In this session we will also take some of the Encode data for Liver, Kidney and 
 ---
 
 
-### The Sequencing Data.
+## The Sequencing Data.
 
 In the ATACseq session we will make use of three sets of published data.
 
@@ -82,7 +82,7 @@ Aligned data as a BAM file [can be found here.](https://www.encodeproject.org/fi
 
 
 ---
-### Processed Data.
+## Processed Data.
 
 We start with public sequencing data in links below and use reference data in Bioconductor.
 
@@ -266,7 +266,7 @@ genesLocations
 
 
 ---
-#  Plotting regions in soGGi.
+##  Plotting regions in soGGi.
 
 We can then use the [**resize()** function](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/GenomicIntervals_In_Bioconductor.html#34) to extract the location of start of every gene (the TSSs) in a stranded manner.
 
@@ -298,7 +298,7 @@ tssLocations
 ```
 
 ---
-#  Plotting regions in soGGi.
+##  Plotting regions in soGGi.
 
 The soGGi package's **regionPlot()** function requires a BAM file of data to plot supplied to **bamFile** parameter and a GRanges to plot over supplied to **testRanges** argument.
 
@@ -315,7 +315,7 @@ allSignal &lt;- regionPlot(bamFile = sortedBAM,
 ```
 
 ---
-#  Plotting regions in soGGi.
+##  Plotting regions in soGGi.
 
 Additionally we supply information on input file format to **format** parameter, whether data is paired to **paired** parameter and type of plot to **style** parameter. We look at different **style** options in later visualisation sessions.
 
@@ -380,7 +380,7 @@ plotRegion(monoNuc)
 
 
 ---
-# Greenleaf dataset - Finding Open Regions.
+## Greenleaf dataset - Finding Open Regions.
 
 A common goal in ATAC-seq is to identify nucleosome free regions where transcription factors are binding and/or transcriptional machinery is active. This nucleosome free signal would correspond to fragments less than one nucleosome (as defined in Greenleaf paper &lt; 100bp)
 
@@ -400,7 +400,7 @@ MACS2 is well established for identifying punctate peaks found in ChIP-seq data 
 MACS2 website can be found [here]() with information on parameters and use cases.
 
 ---
-### Single end peak calling.
+## Single end peak calling.
 
 With single end sequencing from ATAC-seq we do not know how long the fragments are.
 
@@ -424,7 +424,7 @@ MACS2 callpeak -t singleEnd.bam --nomodel --shift 37
                --extsize 73 --format BAM -g MyGenome
 ```
 ---
-### Paired end peak calling.
+## Paired end peak calling.
 
 If we have sequenced paired-end data then we do know the fragment lengths and can provide BAM files to MACS2 which have been prefiltered to properly paired (and fragment size if you want to distinguish nucleosomes from nucleosome free regions)
 
@@ -452,7 +452,7 @@ MACS2 callpeak  -t ~/Downloads/Sorted_ATAC_50K_2_openRegions.bam
 ```
 
 ---
-### Paired end peak calling.
+## Paired end peak calling.
 
 Following peak calling we would get 3 files we saw in our earlier ChIPseq session.
 
@@ -551,7 +551,7 @@ It is often of interest to associate identified nucleosome free regions to genom
 Once annotated to genes or enhancers' genes, we can start to associate ATAC-seq data to characteristics of these genes. (functional annotation, expression changes, other epigenetic states)
 
 ---
-### Annotating peaks to genes.
+## Annotating peaks to genes.
 
 A simple approach to annotating nucleosome free region to genes is to associate regions to their closest gene or within a window around a genes transcriptional start site.
 
@@ -600,7 +600,7 @@ MacsCalls_Anno
 ## 5   Distal Intergenic 25.8389262
 ```
 ---
-### Displaying annotation distribution
+## Displaying annotation distribution
 
 As well as showing us a table of the annotation distribution we can visualise this using the plotAnnoPie and plotAnnoBar functions.
 
@@ -613,7 +613,7 @@ plotAnnoPie(MacsCalls_Anno)
 
 ---
 
-### Retrieving annotated Nucleosome-free regions.
+## Retrieving annotated Nucleosome-free regions.
 
 With this information we can then subset our peaks/nuc free regions to those only landing in TSS regions (+/- 500)
 
@@ -640,7 +640,7 @@ MacsGR_TSS[1,]
 ```
 
 ---
-### Functional Analysis of Nucleosome-free regions - 1.
+## Functional Analysis of Nucleosome-free regions - 1.
 
 Another common step to ATAC-seq analysis is to identify any functional enrichment in genes associated to nucleosome free regions.
 
@@ -651,7 +651,7 @@ One approach is to take the genes we identified from ChIPseeker as having nucles
 **rGREAT by default will limit our queries and so we may need to be patient. This can be adjusted in rGREAT options.**
 
 ---
-### Functional Analysis of Nucleosome-free regions - 1.
+## Functional Analysis of Nucleosome-free regions - 1.
 
 We can submit our peak calls to GREAT using the **submitGreatJob** function and review available categories of results using **availableCategories**.
 
@@ -668,7 +668,7 @@ availableCategories(great_Job)
 ## [5] "Regulatory Motifs"                "Gene Families"
 ```
 ---
-### Functional Analysis of Nucleosome-free regions - 2.
+## Functional Analysis of Nucleosome-free regions - 2.
 
 For this example we select the results tables for the GO category using getEnrichmentTables functions and then review the results for Biological processes.
 
