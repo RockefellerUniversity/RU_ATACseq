@@ -1,10 +1,10 @@
 <br>
 
-#### **ChIPseq, Session 1**
+#### **ATACAseq, Session 1**
 
-This section introduces the analysis of ChIPseq data in Bioconductor.
+This section introduces the analysis of ATACseq data in Bioconductor
 Session sections:
 
-* Preprocessing ChIPseq data in R
+* Preprocessing ATACseq data in R
 * Alignment of data
 * Creation of bigWig for visualisation

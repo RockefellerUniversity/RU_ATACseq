@@ -1,10 +1,10 @@
 <br>
 
-#### **ChIPseq, Session 1**
+#### **ATACAseq, Session 1**
 
-This section covers more in-depth QC of ChIPseq and calling peaks with MACS2.
+This section demonstrates how to assess global changes in accesibility with ATACseq data.
 Session sections:
 
-* Quality control for ChIPseq data in R
-* Overview of peak calling
-* Annotation of peaks
+* Annotating ATACseq data in R
+* Plotting nucleosome free and mono-nucleosome signal
+* Plotting cut-sites around DNA binding proteins

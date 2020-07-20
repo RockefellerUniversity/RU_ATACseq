@@ -3,6 +3,6 @@ Description:
   OverviewRmd: CourseOverview.Rmd
 Presentations:
     titles: Session1 Session2 
-    PresRmd: ChIPseq_In_Bioconductor.Rmd ChIPseq_In_Bioconductor2.Rmd 
+    PresRmd: RU_ATAC.Rmd RU_ATAC_part2.Rmd
     PresOverviewRmd: Session1Overview.Rmd Session2Overview.Rmd
-    Exercises: chipseq_part1.Rmd chipseq_part2.Rmd
+    Exercises: chipseq_part1.Rmd 
