@@ -1,5 +1,5 @@
 Description:
-  CourseName: ChIPseq with Bioconductor
+  CourseName: ATACseq with Bioconductor
   OverviewRmd: CourseOverview.Rmd
 Presentations:
     titles: Session1 Session2 
