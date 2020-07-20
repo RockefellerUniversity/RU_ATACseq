@@ -1,0 +1,89 @@
+---
+title: "Conditional branching and looping in R answers"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These answers are from the exercises about the conditions and loops sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+-- Calculate the factorial (factorial of 3 = 3 * 2 * 1) of 10 using a loop.
+
+```{r,message=T}
+
+for(x in 1:10){
+  if(x == 1){
+    factorialAnswer <- 1
+  }else{
+    factorialAnswer <- factorialAnswer * x 
+  }
+}
+factorialAnswer
+```
+-- Adjusting your answer from before, what is the first number that has a factorial greater than 1000.
+```{r,message=T}
+
+factorialAnswer <- 0
+count <- 0
+
+while(factorialAnswer <= 1000){
+  count <- count+1
+  if(count == 1){
+    factorialAnswer <- 1
+  }else{
+    factorialAnswer <- factorialAnswer * count 
+  }
+}
+count
+```
+
+-- Using an ifelse() expression, create a factor from a vector of 1 to 40 where all numbers less than 10 are "small",10 to 30 are "mid",31 to 40 are "big"
+
+```{r,message=T}
+condExercise <- 1:40
+condExercise
+vectorResult <- ifelse(condExercise<10,"small",ifelse(condExercise < 31,"mid","big"))
+temp <- factor(vectorResult,levels=c("small","mid","big"),order=T)
+temp
+```
+
+-- Read in all files from expression directory with .txt extension and create a table of gene expression results.
+
+```{r,message=T}
+
+filesToRead <- dir("ExpressionResults/",pattern = "*\\.txt",full.names=T)
+fileRead <- vector("list",length=length(filesToRead))
+for(i in 1:length(filesToRead)){
+  fileRead[[i]] <- read.delim(filesToRead[i],header=F,sep="\t")
+  colnames(fileRead[[i]]) <- c("GeneNames",basename(filesToRead[i]))
+}
+mergedTable <- NULL
+for(i in fileRead){
+  if(is.null(mergedTable)){
+    mergedTable <- i
+  }else{
+    mergedTable <- merge(mergedTable,i,by=1,all=T)
+  }
+  
+  print(nrow(mergedTable))
+}
+
+mergedTable[1:3,] 
+
+```
+-- Add annotation from Annotation.txt. How do the pathway information for genes compare between expression table and annotation table.
+ 
+```{r,message=T}
+Annotation <- read.table("ExpressionResults/Annotation.ann",sep="\t",h=T)
+annotatedExpression <- merge(Annotation,mergedTable,by=1,all.x=F,all.y=T)
+annotatedExpression[1:2,]
+
+summary(annotatedExpression$Pathway)
+summary(Annotation$Pathway)
+```
+

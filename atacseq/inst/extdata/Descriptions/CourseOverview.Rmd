@@ -1,0 +1,12 @@
+## Course Overview
+
+<br>
+[<img src="https://github.com/RockefellerUniversity/RU_ChIPseq/workflows/R-CMD-check-bioc/badge.svg">](https://github.com/RockefellerUniversity/RU_ChIPseq/actions?query=workflow%3AR-CMD-check-bioc)
+
+This course introduces ChIPseq analysis in Bioconductor.
+
+The course consists of 4 sections. This walk you through each step of a normal ChIPseq analysis workflow. It covers alignment, QC, peak calling, testing for enrichment in groups of genes, motif enrichment and differential ChIP analysis. Exercises and answer sheets are included after all subsections to practice techniques and provide future reference examples.
+
+Course material and exercises are available to view as rendered HTML at https://rockefelleruniversity.github.io/Intro_To_R_1Day/.
+All material is available to download under GPL v2 license.
+

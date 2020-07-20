@@ -1,0 +1,136 @@
+---
+title: "ChIPseq in Bioconductor exercises"
+author: "Tom Carroll"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T,eval=T)
+```
+
+
+## ChIPseq data processing
+
+In these exercises we will review some of the functionality for summarizing counts and signal across genomes and within regions.
+
+We will be using data directly downloaded from the Encode consortium.
+
+Download the fastQ for the other Myc MEL replicate from [sample ENCSR000EUA](https://www.encodeproject.org/experiments/ENCSR000EUA/). Direct link is [here](https://www.encodeproject.org/files/ENCFF001NQQ/@@download/ENCFF001NQQ.fastq.gz).
+
+The resulting FQ file is **ENCFF001NQQ.fastq.gz**.
+
+1. Read in a random sample of 10,000 reads from **ENCFF001NQQ.fastq.gz** into R.
+
+```{r installdeBSded,include=FALSE}
+suppressPackageStartupMessages(library(ShortRead))
+```
+
+```{r installBSded,cache=TRUE}
+library(ShortRead)
+fastqFile <- "~/Downloads/ENCFF001NQQ.fastq.gz"
+fqSample <- FastqSampler(fastqFile,n=10000)
+fastq <- yield(fqSample)
+```
+
+2. Produce a boxplot of quality scores across cycles.
+
+```{r installBSx2w,dependson="installBSded"}
+boxplot(as(quality(fastq),"matrix"))
+```
+
+3. Create a barplot of A,C,G,T,N occurrence in reads.
+
+```{r installBSaa2w,dependson="installBSded"}
+library(ggplot2)
+readSequences <- sread(fastq)
+readSequences_AlpFreq <- alphabetFrequency(readSequences)
+summed__AlpFreq  <- colSums(readSequences_AlpFreq)
+toPlot <- data.frame(Base=c("A","C","G","T","N"),Total=summed__AlpFreq[c("A","C","G","T","N")])
+ggplot(toPlot,aes(x=Base,y=Total,fill=Base))+geom_bar(stat="identity")+theme_minimal()+coord_flip()
+
+```
+
+
+4. Create a histogram of read scores.  
+
+```{r instalssdflBS2w}
+readQuals <- alphabetScore(quality(fastq))
+toPlot <- data.frame(ReadQ=readQuals)
+ggplot(toPlot,aes(x=ReadQ))+geom_histogram()+theme_minimal()
+```
+
+5. Create a new fastQ from file, filter reads with sum quality score less than 250 and N content greater than 50%.
+
+```{r instalssdfsqlBSss2w,eval=FALSE}
+fqStreamer <- FastqStreamer("~/Downloads/ENCFF001NQQ.fastq.gz", 1000000)
+
+while (length(fq <- yield(fqStreamer))>0) {
+    TotalReads <- TotalReads+length(fq)
+    filt1 <- fq[alphabetScore(fq) > 250 ]
+    filt2 <- filt1[alphabetFrequency(sread(filt1))[,"N"] < width(filt1)/2]
+    TotalReadsFilt <- TotalReadsFilt+length(filt2)
+    writeFastq(filt2,"filtered_ENCFF001NQQ.fastq.gz",mode="a")
+}
+TotalReads
+TotalReadsFilt
+`
+```
+
+6. Align fastQ file to mm9 genome (only chromosomes chr1 to chr19, X,Y and M) to produce a sorted, indexed BAM file.
+
+```{r instalssdflaasBSss2w,,eval=FALSE}
+library(BSgenome.Mmusculus.UCSC.mm9)
+mainChromosomes <- paste0("chr",c(1:19,"X","Y","M"))
+mainChrSeq <- lapply(mainChromosomes,function(x)BSgenome.Mmusculus.UCSC.mm9[[x]])
+names(mainChrSeq) <- mainChromosomes
+mainChrSeqSet <- DNAStringSet(mainChrSeq)
+writeXStringSet(mainChrSeqSet,
+                "BSgenome.Mmusculus.UCSC.mm9.mainChrs.fa")
+
+# Here with QuasR
+
+FileName <- "filtered_ENCFF001NQQ.fastq.gz"
+SampleName <- "Myc_Mel_2"
+sampleTable <- data.frame(FileName,SampleName)
+write.table(sampleTable,file="sampleTable.txt",sep="\t",quote=FALSE,row.names = FALSE)
+library(QuasR)
+qAlign("sampleTable.txt","BSgenome.Mmusculus.UCSC.mm9.mainChrs.fa")
+
+# Here with Rsubread
+
+library(Rsubread)
+buildindex("BSgenome.Mmusculus.UCSC.mm9.mainChrs",
+           "BSgenome.Mmusculus.UCSC.mm9.mainChrs.fa")
+align("BSgenome.Mmusculus.UCSC.mm9.mainChrs",
+      "filtered_ENCFF001NQQ.fastq.gz",
+      output_file="Myc_Mel_2.bam",
+      type="dna",phredOffset = 64)
+
+# Sort and index.
+library(Rsamtools)
+
+sortBam("Myc_Mel_2.bam","Sorted_Myc_Mel_2")
+indexBam("Sorted_Myc_Mel_2.bam")
+```
+
+7. Produce a bigWig of coverage and another of coverage normalised to total reads (as Reads Per Million). 
+
+```{r instalssdflasaBSss2w,eval=FALSE}
+mappedReads <- idxstatsBam("Sorted_Myc_Mel_2.bam")
+TotalMapped <- sum(mappedReads[,"mapped"])
+forBigWig <- coverage("SR_Myc_Mel_rep2.bam")
+export.bw(forBigWig,con="SR_Myc_Mel_rep2.bw")
+
+forBigWigNorm <- coverage("SR_Myc_Mel_rep2.bam",weight = (10^6)/TotalMapped)
+export.bw(forBigWigNorm,con="SR_Myc_Mel_rep2_weighted.bw")
+
+# or 
+forBigWig <- coverage("SR_Myc_Mel_rep2.bam")
+export.bw(forBigWig,con="SR_Myc_Mel_rep2.bw")
+forBigWigNorm <- forBigWig*((10^6)/TotalMapped)
+export.bw(forBigWigNorm,con="SR_Myc_Mel_rep2_weighted.bw")
+
+
+
+```
+

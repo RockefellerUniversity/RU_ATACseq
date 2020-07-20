@@ -1,0 +1,143 @@
+---
+title: "ChIPseq in Bioconductor exercises"
+author: "Tom Carroll"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,eval=T)
+```
+
+
+## ChIPseq data processing
+
+In these exercises we will review some of the functionality of ChIPQC, reading in peaks and annotating peaks to genes.
+
+We will be using data directly downloaded from the Encode consortium.
+
+Precomputed ChIPQC results as a list for 2 Encode CTCF samples and their input can be found in the Data directory.
+
+**Data/CTCFQC.RData**
+
+We will also perform some of our own QC on some human data of Pancreas CTCF data. We should download thew BAM file [here](https://www.encodeproject.org/files/ENCFF789ZHS/@@download/ENCFF789ZHS.bam)
+
+We can also retrieve the relevant peak calls from [here](https://www.encodeproject.org/files/ENCFF627LTJ/@@download/ENCFF627LTJ.bed.gz)
+
+1. Load the CTCFQC.RData into R
+
+```{r instalcscldeBSded,include=FALSE,eval=FALSE}
+suppressPackageStartupMessages(library(ChIPQC))
+load("../Data/CTCF_MEL_1.RData")
+ctcf1 <- singleChIPQC
+load("../Data/CTCF_MEL_2.RData")
+ctcf2 <- singleChIPQC
+load("../Data/Input_MEL.RData")
+input <- singleChIPQC
+myQClist <- list(ctcf1=ctcf1,ctcf2=ctcf2,input=input)
+save(myQClist,file="../Data/CTCFQC.RData")
+```
+
+```{r instascslldeBSccded,include=FALSE,eval=TRUE}
+suppressPackageStartupMessages(library(ChIPQC))
+```
+
+```{r instacscsllBSded}
+library(ChIPQC)
+load("../Data/CTCFQC.RData")
+```
+
+2. Produce a cross coverage plot from these samples using ChIPQC. Add metadata for antibody
+
+```{r instalcscsclBSx2w,dependson="installBSded"}
+myMeta <- data.frame(Sample=names(myQClist),Antibody=c("CTCF","CTCF","Input"))
+
+plotCC(myQClist,addMetaData = myMeta,facetBy="Sample",colourBy="Antibody")+
+  ggtitle("CTCF in Ch12 CC-plot")+
+  theme_minimal()
+```
+
+3. Create a barplot of the percentage of duplicates in samples.
+
+```{r instalscscslBSaa2w,dependson="installBSded"}
+library(ggplot2)
+myFlags <- flagtagcounts(myQClist)
+dupRates <- myFlags["DuplicateByChIPQC",]/myFlags["Mapped",]
+toPlot <- data.frame(Sample=names(dupRates),DupPercent=dupRates*100)
+toPlot <- merge(myMeta,toPlot)
+ggplot(toPlot,aes(x=Sample,y=DupPercent,fill=Antibody))+
+  geom_bar(stat="identity")+coord_flip()+theme_bw()
+```
+
+
+4. Plot the enrichment of reads over regions as seen below.
+
+```{r instalsscscsdflBS2w}
+plotRegi(myQClist)+scale_fill_gradient2(low="white",high="red",
+    mid="yellow")
+```
+
+5. Plot the SSD of the CTCF samples as seen below.
+
+```{r instalscscsssdfsqlBSss2w,eval=TRUE}
+plotSSD(myQClist)+xlim(0,10)+theme_minimal()
+```
+
+6. With the downloaded peak calls in ENCFF627LTJ.bed.gz, import into R, filter to chromosomes chr1 to chr21 and plot the number of peaks these chromosomes.
+
+```{r instalsscscsdfsqlBSss2w,eval=TRUE}
+
+myPeaks <-read.delim("~/Downloads/ENCFF627LTJ.bed.gz",header=FALSE,sep="\t")
+myPeakGR <- GRanges(myPeaks[,1],IRanges(myPeaks[,2],myPeaks[,3]))
+myPeakGR <- myPeakGR[seqnames(myPeakGR) %in% paste0("chr",1:21)]
+freqs <- table(as.vector(seqnames(myPeakGR)))
+toPlot <- data.frame(Chromosome=names(freqs),Total=as.vector(freqs))
+ggplot(toPlot,aes(x=Chromosome,y=Total))+
+  geom_bar(stat="identity")+coord_flip()+theme_minimal()
+```
+
+7. Annotate these peaks to genes using the ChIPseeker package.
+
+```{r instalssdfcscssqlBSss2w,include=FALSE}
+library(ChIPseeker)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(org.Hs.eg.db)
+```
+
+```{r instalssdcsscfsqlBSss2w,eval=TRUE}
+library(ChIPseeker)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(org.Hs.eg.db)
+peakAnno <- annotatePeak(myPeakGR, tssRegion=c(-500, 500), 
+                         TxDb=TxDb.Hsapiens.UCSC.hg38.knownGene, 
+                         annoDb="org.Hs.eg.db")
+
+```
+
+8. Create a pie chart of annotation of peaks by ChIPseeker
+
+```{r instalsscsccdfsqlBSss2w,eval=TRUE}
+plotAnnoPie(peakAnno)
+```
+
+0. Export annotated peaks to a tab separated file.
+
+```{r instalsscsccdfsqlBSsls2w,eval=TRUE}
+toWrite <- as.data.frame(peakAnno)
+write.table(toWrite,file="annotatedPeaks",row.names = FALSE,sep="\t")
+```
+
+
+10. Download the blacklist for [hg38](https://www.encodeproject.org/annotations/ENCSR636HFF/) and QC our newly downloaded BAM file in ChIPQC. To save time only run ChIPQC on chromosomes (chr10, chr11,chr12). Create cross-coverage plot using ChIPQC.
+
+```{r instalssdfsqlBSdwdwss2w,eval=TRUE,cache=TRUE,warning=FALSE,message=FALSE}
+library(rtracklayer)
+blkList <- import.bed("~/Downloads/ENCFF419RSJ.bed.gz")
+library(Rsamtools)
+# Always check or index 
+# indexBam("~/Downloads/ENCFF789ZHS.bam")
+myQCCTCF <- ChIPQCsample("~/Downloads/ENCFF789ZHS.bam",blacklist = blkList,annotation = "hg38",
+       chromosomes = c("chr10"),verboseT = FALSE)
+plotCC(myQCCTCF)
+```
+
+

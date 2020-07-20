@@ -1,0 +1,28 @@
+---
+title: "Reading and writing data in R exercises"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These exercises cover the reading and writing data sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+**Exercise 1**
+
+Have a look at all files in notepad or excel before attempting to read. The files will all be found under the **data/** directory.
+
+- Read in the tab delimited file "GeneExpression.txt"
+
+- Find the mean expression of all samples.
+
+- Read in the tab delimited file "GeneExpressionWithMethods.txt". This file contains information on analysis steps used to produce file.
+
+- Read in the tab delimited file "GeneExpressionWithNotes.txt". This file contains notes about particular genes.
+
+- Read in tab delimited file "GeneExpression.txt". Order genes by decreasing expression in Sample_1.hi Write out a new comma separated file with column titles.
+

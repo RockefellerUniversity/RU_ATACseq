@@ -1,0 +1,58 @@
+---
+title: "Matrices answers"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These answers are from the exercises about the matrices sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+These exercises cover the matrices sections of [Introduction to R]("introToR_Day1.html").
+
+**Exercise 1**
+
+- Create a matrix containing information on gene names Gene_1, Gene_2, Gene_3,Gene_4 expression values 1000, 3000, 10000, 12000 and gene lengths 100, 3000, 200, 1000
+```{r,message=T}
+geneNames <- c("Gene_1", "Gene_2", "Gene_3","Gene_4")
+expression <- c(1000, 3000, 10000, 12000)
+geneLengths <- c(100, 3000, 200, 1000)
+geneMatrix <- cbind(expression,geneLengths)
+rownames(geneMatrix) <- geneNames
+geneMatrix
+```
+- Update the matrix to contain the expression over the gene length for all genes (Length normalised expression) as final column.
+<a name="lne"></a>
+
+HINT - We calculated LNE before in [vectors exercises' bonus question](../answers/vector_answers.html#bonus)
+
+```{r,message=T}
+lne <- geneMatrix[,"expression"]/geneMatrix[,"geneLengths"]
+geneMatrix <- cbind(geneMatrix,lne)
+geneMatrix
+```
+- Create a smaller matrix containing genes longer than 200
+```{r,message=T}
+smallGeneMatrix <- geneMatrix[geneMatrix[,"geneLengths"] > 200,]
+smallGeneMatrix
+```
+- Create a smaller matrix with just expression and lne columns containing genes longer than 200 and expression greater than 300.
+```{r,message=T}
+smallGeneMatrix <- geneMatrix[geneMatrix[,"geneLengths"] > 200 & geneMatrix[,"expression"] > 300,c("expression","lne")]
+smallGeneMatrix
+```
+**Bonus Question**
+
+<a name="bonus"></a>
+- Calculate the sum of expression and length columns for only genes with length > 100.
+```{r,message=T}
+expressionSum <- sum(geneMatrix[geneMatrix[,"geneLengths"] > 100,"expression"])
+geneLengthSum <- sum(geneMatrix[geneMatrix[,"geneLengths"] > 100,"geneLengths"])
+#OR
+expressionAndGeneLengthSum <- colSums(geneMatrix[geneMatrix[,"geneLengths"] > 100,c("expression","geneLengths")])
+expressionAndGeneLengthSum
+```

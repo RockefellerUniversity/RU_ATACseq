@@ -1,0 +1,91 @@
+---
+title: "Statistics in R Answers"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These answers are from the exercises about the statistics sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+**Exercise 1**
+
+- Read in the file categoriesAndExpression.txt.
+```{r,message=T}
+ catAndExpr <- read.delim("data/categoriesAndExpression.txt")
+```
+- How many genes are ofInterest and how many in pathways.
+```{r,message=T}
+ summary(catAndExpr)
+```
+- What are quantiles of expression overall, in Glycolysis genes and in TGFb genes.
+```{r,message=T}
+ summary(catAndExpr)
+ summary(catAndExpr[catAndExpr$pathway == "Glycolysis",])
+ summary(catAndExpr[catAndExpr$pathway == "TGFb",])
+```
+- How many genes were selected and in glycolysis pathway.
+```{r,message=T}
+contingency <- ftable(catAndExpr[,c("ofInterest","pathway")])
+contingency
+#fisher.test(contingency)
+
+```
+- Given a normal distibution for the data, what is the probablity of selecting a gene with at least the expression level of "Gene13"
+```{r,message=T}
+meanExpression <- mean(catAndExpr$Expr)
+sdExpression <- sd(catAndExpr$Expr)
+Gene13Expression <- catAndExpr[catAndExpr$geneName == "Gene13",]$Expression
+1-pnorm(Gene13Expression,meanExpression,sdExpression)
+```
+
+
+- Perform a t-test to evaluate the difference between Glycolysis and TGFb pathway.
+```{r,message=T}
+glycolysisExpression <- catAndExpr[catAndExpr$pathway == "Glycolysis",]$Expression
+tgfbExpression <- catAndExpr[catAndExpr$pathway == "TGFb",]$Expression
+var.test(glycolysisExpression,tgfbExpression)
+t.test(glycolysisExpression,tgfbExpression,var.equal = FALSE)
+```
+
+
+
+**Exercise 2**
+
+- Read in the file lmExercise.txt.
+```{r,message=T}
+ lmExercise <- read.delim("data/lmExercise.txt")
+```
+
+- What is the formula for the best fit lines for X vs Y and X vs Z
+```{r,message=T}
+ lmXY <- lm(x~y,lmExercise)
+ lmXZ <- lm(x~z,lmExercise)
+lmXY
+ plot(x~y,lmExercise)
+ abline(lmXY,col="red")
+lmXZ
+plot(x~z,lmExercise)
+ abline(lmXZ,col="red")
+```
+
+- What are the Rsquared for X vs Y and X vs Z.
+```{r,message=T}
+str(summary(lmXY))
+summary(lmXY)$r.squared
+summary(lmXZ)$r.squared
+```
+
+- Predict values for X when Y is 100 and when Z is 100
+```{r,message=T}
+str(lmXY)
+predictedXfromY <- unname(lmXY$coefficients[1] + lmXY$coefficients[2]*100)
+predictedXfromZ <- unname(lmXZ$coefficients[1] + lmXZ$coefficients[2]*100)
+predictedXfromY
+predictedXfromZ
+```
+

@@ -1,0 +1,38 @@
+---
+title: "Factors and Data frames exercises"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These exercises cover the factors and dataframes sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/).
+
+**Exercise 1** - **Factors**
+
+
+- Create a ordinal factor named "Height" containing -- high, low, mid, low, mid, low, mid, high, mid, high.
+- Using a logical index, create new factor of only those from "Height"" greater than low.
+- Replace the last index in "Height" with veryHigh and create new factor with those greater than mid.
+
+**Exercise 2** - **Data frames**
+
+- Create a data frame called Annotation with a column of gene names ("Gene_1", "Gene_2", "Gene_3","Gene_4","Gene_5"),  ensembl gene names ("Ens001", "Ens003", "Ens006", "Ens007", "Ens010"),  pathway information ("Glycolysis", "TGFb", "Glycolysis", "TGFb", "Glycolysis") and  gene lengths (100, 3000, 200, 1000,1200).
+
+- Create data frame called Sample1 with ensembl gene names ("Ens001", "Ens003", "Ens006", "Ens010") and expression  (1000, 3000, 10000,5000)
+
+- Create data frame called Sample2 with ensembl gene names ("Ens001", "Ens003", "Ens006", "Ens007","Ens010") and expression  (1500, 1500, 17000,500,10000)
+
+- Create a data frame containing only those gene names common to all data frames with all information from Annotation and the expression from Sample 1 and Sample 2.
+
+- Add an extra two columns containing the length normalised expressions for Sample 1 and Sample 2
+
+- Identify the mean length normalised expression across Sample1 and Sample2 for Ens006 genes
+
+- For all genes, identify the log2 fold change in length normalised expression from Sample 1 to Sample 2.
+
+- Identify the total length of genes in Glycolysis pathway.

@@ -1,0 +1,143 @@
+---
+title: "ChIPseq in Bioconductor exercises"
+author: "Tom Carroll"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,eval=T)
+```
+
+
+## ChIPseq functional annotation and motif identification.
+
+In this practical we will investigate the motifs and pathways associated with the Ebf1 transcription factor in proB-cells  and B-cells.
+
+* Pro-B-Cell Ebf1 data has been extracted from **GSM499030**.
+* B-Cell Ebf1 data has been extracted from **GSE35857**.
+
+* **Data/ebf1_proB.bed**
+* **Data/ebf1_B.bed**
+
+1. Load the ebf1 peaks for proB and B cells into R.
+
+```{r, include=FALSE}
+library(rGREAT)
+library(rtracklayer)
+library(BSgenome.Mmusculus.UCSC.mm10)
+library(ChIPseeker)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+```
+
+```{r instalcscldcsceBSded}
+suppressPackageStartupMessages(library(rtracklayer))
+
+library(rtracklayer)
+ebf1_proB <- import.bed("../Data/ebf1_proB.bed")
+ebf1_B <- import.bed("../Data/ebf1_B.bed")
+```
+
+2. Find peaks in B cells which we also present in proB cells.
+
+```{r instaaxscslldeBSccded}
+ebf1_BCommon <- ebf1_B[ebf1_B %over% ebf1_proB]
+
+```
+
+3. Extract the sequence 100bp (+/-50bp) around the geometric centre of these peaks, write to FASTA and submit to Meme-ChIP.
+
+```{r instacsxscsllBSded}
+library(BSgenome.Mmusculus.UCSC.mm10)
+toMotif <- resize(ebf1_BCommon,100,fix="center")
+peaksSequences <- getSeq(BSgenome.Mmusculus.UCSC.mm10,
+                         toMotif)
+names(peaksSequences) <- paste0(seqnames(toMotif),":",
+                                         start(toMotif),
+                                         "-",
+                                         end(toMotif))
+writeXStringSet(peaksSequences,file="commonEBFinB.fa")
+
+```
+
+Results files from Meme-ChIP can be found [here](http://rockefelleruniversity.github.io/ebf1_motif/meme-chip.html)
+
+4. Annotate common B cell peaks to genes with TSS set as +/- 500bp
+
+```{r instacscslsxslBscsSded}
+library(ChIPseeker)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+peakAnno_Ebf1B <- annotatePeak(ebf1_BCommon, tssRegion=c(-500, 500), 
+                         TxDb=TxDb.Mmusculus.UCSC.mm10.knownGene, 
+                         annoDb="org.Mm.eg.db")
+```
+
+5. Create a barplot of the occurrence of differing annotations ("Promoter", "Distal Intergenic"  and "other"). 
+
+```{r instaxxscscsllBSdsced}
+myAnnotation <- as.data.frame(peakAnno_Ebf1B)
+simpleAnnotation <- as.vector(myAnnotation$annotation)
+simpleAnnotation[!simpleAnnotation %in% c("Promoter", "Distal Intergenic")] <- "other"
+forPlot <- data.frame(Annotation=simpleAnnotation)
+library(ggplot2)
+ggplot(forPlot,aes(x=Annotation,fill=Annotation))+geom_bar()+coord_flip()+theme_bw()+ggtitle("Simple distribution of B-cell Ebf1 binding sites")
+```
+
+6. Perform a geneset enrichment test of genes with peaks in promoter against KEGG using goseq.
+
+```{r instacxxsscsllBSdwced}
+myAnnotation_TSS <- myAnnotation[
+  myAnnotation$annotation == "Promoter",]
+genesWithPeakInTSS <- unique(myAnnotation$geneId)
+allGeneGR <- genes(TxDb.Mmusculus.UCSC.mm10.knownGene)
+allGeneIDs <- allGeneGR$gene_id
+allGenesForGOseq <- as.integer(allGeneIDs %in% genesWithPeakInTSS)
+names(allGenesForGOseq) <- allGeneIDs
+library(goseq)
+pwf=nullp(allGenesForGOseq,"mm10","knownGene",plot.fit=FALSE)
+
+Kegg_Ebf1Peaks <- goseq(pwf,"mm10","knownGene",
+                       test.cats=c("KEGG"),
+                       method="Hypergeometric")
+library(KEGG.db)
+xx <- as.list(KEGGPATHID2NAME)
+idtoName <- cbind(names(xx),unlist(xx))
+idtoName[1:5,]
+KeggN_Ebf1Peaks <- merge(idtoName,Kegg_Ebf1Peaks,by=1,all=TRUE)
+orderByP <- order(KeggN_Ebf1Peaks$over_represented_pvalue)
+KeggN_Ebf1Peaks <- KeggN_Ebf1Peaks[orderByP,]
+KeggN_Ebf1Peaks[1:5,]
+```
+
+7. Identify Ebf1 peaks  only in Bcells and Ebf1 peaks only in proB cells.
+
+
+```{r instascxsxslldeBSccded}
+ebf1_Bunique<- ebf1_B[!ebf1_B %over% ebf1_proB]
+ebf1_proBunique<- ebf1_proB[!ebf1_proB %over% ebf1_B]
+
+```
+
+8 Using rGREAT identify the MSigDB Pathways enriched in Ebf1 peaks  only in Bcells and Ebf1 peaks only in proB cells.
+
+
+```{r v}
+library(rGREAT)
+great_Job <- submitGreatJob(ebf1_Bunique,species="mm10")
+availableCategories(great_Job)
+great_ResultTable = getEnrichmentTables(great_Job,
+                                        category="Pathway Data")
+names(great_ResultTable)
+msigPath_Bcells <- great_ResultTable[["MSigDB Pathway"]]
+
+msigPath_Bcells[1:10,]
+
+great_Job <- submitGreatJob(ebf1_proBunique,species="mm10",request_interval=1)
+availableCategories(great_Job)
+great_ResultTable = getEnrichmentTables(great_Job,
+                                        category="Pathway Data")
+names(great_ResultTable)
+msigPath_proBcells <- great_ResultTable[["MSigDB Pathway"]]
+
+
+msigPath_proBcells[1:10,]
+```

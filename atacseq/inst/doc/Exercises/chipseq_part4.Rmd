@@ -1,0 +1,181 @@
+---
+title: "ChIPseq in Bioconductor exercises"
+author: "Tom Carroll"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,eval=T)
+```
+
+
+## ChIPseq with replicates
+
+In this practical we will investigate some CTCF ChIPseq for the Mel and Ch12 cellines.
+
+Peak calls can be found in **Data/CTCFpeaks/**
+
+I have also precounted CTCF signal high confidence peaks and save the results as **CTCFcounts** in an RData object called **CTCFcounts.RData**. 
+
+Information and raw/processed files can be found for [Ch12 cell line here](https://www.encodeproject.org/experiments/ENCSR000ERM/) and [Myc cell line here](https://www.encodeproject.org/experiments/ENCSR000DIP/)
+
+1. Load the CTCF peaks into a GRangesList object.
+
+```{r, include=FALSE}
+library(GenomicRanges)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicAlignments)
+library(tracktables)
+library(limma)
+```
+
+```{r instalcscldcsceBSded}
+
+library(GenomicRanges)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicAlignments)
+library(tracktables)
+library(limma)
+
+peakFiles <- dir("../Data/CTCFpeaks/",pattern="*.peaks",
+                 full.names = TRUE)
+peakFiles
+macsPeaks_DF <- list()
+for(i in 1:length(peakFiles)){
+  macsPeaks_DF[[i]] <- read.delim(peakFiles[i],
+                                  comment.char="#")
+}
+
+macsPeaks_GR <- list()
+for(i in 1:length(macsPeaks_DF)){
+     peakDFtemp <- macsPeaks_DF[[i]]
+     macsPeaks_GR[[i]] <- GRanges(
+     seqnames=peakDFtemp[,"chr"],
+     IRanges(peakDFtemp[,"start"],
+             peakDFtemp[,"end"]
+     )
+  )
+}
+fileNames <- basename(peakFiles)
+sampleNames <- gsub("_peaks.xls","",fileNames)
+macsPeaks_GRL <- GRangesList(macsPeaks_GR)
+names(macsPeaks_GRL) <- sampleNames
+
+```
+
+2. Create a bar chart of number of peaks in each sample.
+
+```{r instaaxscslldebbBSccded}
+peakNum <- lengths(macsPeaks_GRL)
+toPlot <- data.frame(Samples=names(peakNum),Total=peakNum,Cellline=c("Ch12","Ch12","Mel","Mel"))
+library(ggplot2)
+ggplot(toPlot,aes(x=Samples,y=Total,fill=Cellline))+geom_bar(stat="identity")+coord_flip()+theme_minimal()
+```
+
+3. Extract the peaks common to all replicates and cell-lines
+
+
+```{r instacsxsjiijcsllBSded}
+allPeaksSet_Overlapping <- unlist(macsPeaks_GRL)
+allPeaksSet_nR <- reduce(allPeaksSet_Overlapping)
+overlap <- list()
+for(i in 1:length(macsPeaks_GRL)){
+  overlap[[i]] <- allPeaksSet_nR %over% macsPeaks_GRL[[i]]
+}
+overlapMatrix <- do.call(cbind,overlap)
+colnames(overlapMatrix) <- names(macsPeaks_GRL)
+mcols(allPeaksSet_nR) <- overlapMatrix
+HC_CommonPeaks <- allPeaksSet_nR[
+  rowSums(as.data.frame(mcols(allPeaksSet_nR)[,c("CTCF_Ch12_1","CTCF_Ch12_2")])) >= 2 &
+  rowSums(as.data.frame(mcols(allPeaksSet_nR)[,c("CTCF_MEL_1","CTCF_MEL_2")])) >= 2  
+  ]
+
+```
+
+4. Annotate  common peaks to mm10 genes (TSS +/- 500) using ChIPseeker and create and upset plot on annotation.
+
+```{r instacsxuiscsllBSded}
+library(ChIPseeker)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+peakAnno_CTCF <- annotatePeak(HC_CommonPeaks, tssRegion=c(-500, 500), 
+                         TxDb=TxDb.Mmusculus.UCSC.mm10.knownGene, 
+                         annoDb="org.Mm.eg.db")
+upsetplot(peakAnno_CTCF)
+```
+
+
+5 Center common peaks to 100bp around geometric centre, extract sequence under region to FASTA and submit to Meme-ChIP. To save time, randomly sample 1000 sequences to submit to Meme-ChIP.
+
+```{r instjijiacsxscsllBSded,eval=FALSE}
+library(BSgenome.Mmusculus.UCSC.mm10)
+toMotif <- resize(HC_CommonPeaks,100,fix="center")
+peaksSequences <- getSeq(BSgenome.Mmusculus.UCSC.mm10,
+                         toMotif)
+names(peaksSequences) <- paste0(seqnames(toMotif),":",
+                                         start(toMotif),
+                                         "-",
+                                         end(toMotif))
+writeXStringSet(peaksSequences[sample(1:length(peaksSequences),1000)],file="commonCTCF.fa")
+
+```
+
+
+6 Load in the CTCF counts, identify peaks with higher signal in Ch12 cell line (padj <0.05, log2FoldChange > 3) and create an HTML report with tracktables.
+
+
+```{r,dwd,eval=FALSE}
+
+## For example ##
+HC_Peaks <- allPeaksSet_nR[
+  rowSums(as.data.frame(mcols(allPeaksSet_nR)[,c("CTCF_Ch12_1","CTCF_Ch12_2")])) >= 2 |
+  rowSums(as.data.frame(mcols(allPeaksSet_nR)[,c("CTCF_MEL_1","CTCF_MEL_2")])) >= 2  
+  ]
+
+library(Rsamtools)
+
+bams <- c("~/Projects/Results/chipseq/testRun/BAMs/Sorted_CTCF_Ch12_1.bam",
+          "~/Projects/Results/chipseq/testRun/BAMs/Sorted_CTCF_Ch12_2.bam",
+          "~/Projects/Results/chipseq/testRun/BAMs/Sorted_CTCF_MEL_1.bam",
+          "~/Projects/Results/chipseq/testRun/BAMs/Sorted_CTCF_MEL_2.bam")
+bamFL <- BamFileList(bams,yieldSize = 5000000)
+
+library(GenomicAlignments)
+CTCFcounts <- summarizeOverlaps(HC_Peaks,
+                              reads = bamFL,
+                              ignore.strand = TRUE)
+class(CTCFcounts)
+#save(CTCFcounts,file="../Data/CTCFcounts.RData")
+###
+load("../Data/CTCFcounts.RData")
+
+metaDataFrame <- data.frame(CellLine=c("Ch12","Ch12","Mel","Mel"))
+rownames(metaDataFrame) <- colnames(CTCFcounts)
+library(DESeq2)
+deseqCTCF <- DESeqDataSetFromMatrix(countData = assay(CTCFcounts),
+                              colData = metaDataFrame,
+                              design = ~ CellLine,
+                              rowRanges=HC_Peaks)
+deseqCTCF <- DESeq(deseqCTCF)
+Ch12MinusMel <- results(deseqCTCF,
+                        contrast = c("CellLine","Ch12","Mel"),
+                        format="GRanges")
+
+Ch12MinusMelFilt <- Ch12MinusMel[!is.na(Ch12MinusMel$pvalue) | !is.na(Ch12MinusMel$padj)]
+UpinCh12 <-  Ch12MinusMelFilt[Ch12MinusMelFilt$padj < 0.05 & Ch12MinusMelFilt$log2FoldChange > 0]
+library(tracktables)
+makebedtable(UpinCh12,"CTCF_UpinCh12.html",getwd())
+```
+
+7 Using rGreat, identify MSigDB pathways enriched for targets genes of our CTCF peaks which are significantly higher in Ch12.
+
+
+```{r,dwdui,eval=FALSE}
+library(rGREAT)
+great_Job <- submitGreatJob(UpinCh12,species="mm10")
+great_ResultTable = getEnrichmentTables(great_Job,
+                                        category="Pathway Data")
+names(great_ResultTable)
+msigPath_UpinCh12 <- great_ResultTable[["MSigDB Pathway"]]
+```

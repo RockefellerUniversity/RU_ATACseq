@@ -1,0 +1,16 @@
+base
+BiocGenerics
+BiocParallel
+S4Vectors
+IRanges
+XVector
+Biostrings
+GenomeInfoDb
+GenomicRanges
+Rsamtools
+Biobase
+matrixStats
+DelayedArray
+SummarizedExperiment
+GenomicAlignments
+ShortRead

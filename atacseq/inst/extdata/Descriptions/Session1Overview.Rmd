@@ -1,0 +1,10 @@
+<br>
+
+#### **ChIPseq, Session 1**
+
+This section introduces the analysis of ChIPseq data in Bioconductor.
+Session sections:
+
+* Preprocessing ChIPseq data in R
+* Alignment of data
+* Creation of bigWig for visualisation

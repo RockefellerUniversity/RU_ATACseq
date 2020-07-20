@@ -1,0 +1,10 @@
+<br>
+
+#### **ChIPseq, Session 1**
+
+This section covers more in-depth QC of ChIPseq and calling peaks with MACS2.
+Session sections:
+
+* Quality control for ChIPseq data in R
+* Overview of peak calling
+* Annotation of peaks

@@ -1,0 +1,171 @@
+---
+title: "ChIPseq in Bioconductor exercises (part 1)"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/RU_ChIPseq/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+params:
+  toMessage: false    
+---
+
+```{r, setup,include=FALSE}
+toMessage <- ifelse(!is.null(params$toMessage),params$toMessage,FALSE)
+message(toMessage)
+```
+
+
+## ChIPseq data processing
+
+In these exercises we will review some of the functionality for summarizing counts and signal across genomes and within regions.
+
+We will be using data directly downloaded from the Encode consortium.
+
+Download the fastQ for the other Myc MEL replicate from [sample ENCSR000EUA](https://www.encodeproject.org/experiments/ENCSR000EUA/). Direct link is [here](https://www.encodeproject.org/files/ENCFF001NQQ/@@download/ENCFF001NQQ.fastq.gz).
+
+The resulting FQ file is **ENCFF001NQQ.fastq.gz**.
+
+1. Read in a random sample of 10,000 reads from **ENCFF001NQQ.fastq.gz** into R.
+
+```{r installdeBSded,include=FALSE}
+suppressPackageStartupMessages(library(ShortRead))
+```
+
+```{r, echo=F,eval=F}
+fqSample <- FastqSampler("~/Documents/Box Sync/RU/Teaching/Compilation/Genomes_And_Datasets/ChIPseq_course/ENCFF001NQQ.fastq.gz",n=10^4)
+fastq <- yield(fqSample)
+
+writeFastq(fastq, 
+dirPath = "~/Documents/Box Sync/RU/Teaching/RU_side/RU_ChIPseq/chipseq/inst/extdata/data/sampled_ENCFF001NQQ.fastq.gz",mode = "w")
+```
+
+```{r eval=T, echo=F}
+fastq <- readFastq(dirPath = "data/sampled_ENCFF001NQQ.fastq")
+```
+
+```{r installBSded,cache=TRUE, eval=F,echo=toMessage}
+library(ShortRead)
+fastqFile <- "~/Downloads/ENCFF001NQQ.fastq.gz"
+fqSample <- FastqSampler(fastqFile,n=10000)
+fastq <- yield(fqSample)
+```
+
+2. Produce a boxplot of quality scores across cycles.
+
+```{r installBSx2w,dependson="installBSded",echo=toMessage}
+boxplot(as(quality(fastq),"matrix"))
+```
+
+3. Create a barplot of A,C,G,T,N occurrence in reads.
+
+```{r installBSaa2w,dependson="installBSded",echo=toMessage}
+library(ggplot2)
+readSequences <- sread(fastq)
+readSequences_AlpFreq <- alphabetFrequency(readSequences)
+summed__AlpFreq  <- colSums(readSequences_AlpFreq)
+toPlot <- data.frame(Base=c("A","C","G","T","N"),Total=summed__AlpFreq[c("A","C","G","T","N")])
+ggplot(toPlot,aes(x=Base,y=Total,fill=Base))+geom_bar(stat="identity")+theme_minimal()+coord_flip()
+
+```
+
+
+4. Create a histogram of read scores.  
+
+```{r instalssdflBS2w,echo=toMessage}
+readQuals <- alphabetScore(quality(fastq))
+toPlot <- data.frame(ReadQ=readQuals)
+ggplot(toPlot,aes(x=ReadQ))+geom_histogram()+theme_minimal()
+```
+
+5. Create a new fastQ from file, filter reads with sum quality score less than 250 and N content greater than 50%.
+
+```{R, eval=F,echo=F}
+
+fqStreamer <- FastqStreamer("~/Documents/Box Sync/RU/Teaching/Compilation/Genomes_And_Datasets/ChIPseq_course/ENCFF001NQQ.fastq.gz", 1000000)
+
+while (length(fq <- yield(fqStreamer))>0) {
+    TotalReads <- TotalReads+length(fq)
+    filt1 <- fq[alphabetScore(fq) > 250 ]
+    filt2 <- filt1[alphabetFrequency(sread(filt1))[,"N"] < width(filt1)/2]
+    TotalReadsFilt <- TotalReadsFilt+length(filt2)
+    writeFastq(filt2,"filtered_ENCFF001NQQ.fastq.gz",mode="a")
+}
+TotalReads
+TotalReadsFilt
+
+```
+
+```{r, echo=F}
+TotalReads=53644987
+TotalReadsFilt=46817164
+```
+
+```{r instalssdfsqlBSss2w,eval=FALSE,echo=toMessage}
+fqStreamer <- FastqStreamer("~/Downloads/ENCFF001NQQ.fastq.gz", 1000000)
+
+while (length(fq <- yield(fqStreamer))>0) {
+    TotalReads <- TotalReads+length(fq)
+    filt1 <- fq[alphabetScore(fq) > 250 ]
+    filt2 <- filt1[alphabetFrequency(sread(filt1))[,"N"] < width(filt1)/2]
+    TotalReadsFilt <- TotalReadsFilt+length(filt2)
+    writeFastq(filt2,"filtered_ENCFF001NQQ.fastq.gz",mode="a")
+}
+TotalReads
+TotalReadsFilt
+
+```
+
+6. Align fastQ file to mm10 genome (only chromosomes chr1 to chr19, X,Y and M) to produce a sorted, indexed BAM file.
+
+```{r instalssdflaasBSss2w,,eval=FALSE,echo=toMessage}
+library(BSgenome.Mmusculus.UCSC.mm10)
+mainChromosomes <- paste0("chr",c(1:19,"X","Y","M"))
+mainChrSeq <- lapply(mainChromosomes,function(x)BSgenome.Mmusculus.UCSC.mm10[[x]])
+names(mainChrSeq) <- mainChromosomes
+mainChrSeqSet <- DNAStringSet(mainChrSeq)
+writeXStringSet(mainChrSeqSet,
+                "BSgenome.Mmusculus.UCSC.mm10.mainChrs.fa")
+
+# Here with Rsubread
+
+library(Rsubread)
+buildindex("mm10_mainchrs","BSgenome.Mmusculus.UCSC.mm10.mainChrs.fa", 
+           memory=8000,
+           indexSplit=TRUE)
+
+myMapped <- align("mm10_mainchrs",
+                    "filtered_ENCFF001NQQ.fastq.gz",
+                    output_format = "BAM",
+                    output_file = "Myc_Mel_2.bam",
+                    type='dna',
+                    phredOffset = 64,
+                    nthreads = 4)
+
+# Sort and index.
+library(Rsamtools)
+
+sortBam("Myc_Mel_2.bam","Sorted_Myc_Mel_2")
+indexBam("Sorted_Myc_Mel_2.bam")
+```
+
+7. Produce a bigWig of coverage and another of coverage normalised to total reads (as Reads Per Million). 
+
+```{r instalssdflasaBSss2w,eval=FALSE,echo=toMessage}
+mappedReads <- idxstatsBam("Sorted_Myc_Mel_2.bam")
+TotalMapped <- sum(mappedReads[,"mapped"])
+forBigWig <- coverage("SR_Myc_Mel_rep2.bam")
+export.bw(forBigWig,con="SR_Myc_Mel_rep2.bw")
+
+forBigWigNorm <- coverage("SR_Myc_Mel_rep2.bam",weight = (10^6)/TotalMapped)
+export.bw(forBigWigNorm,con="SR_Myc_Mel_rep2_weighted.bw")
+
+# or 
+forBigWig <- coverage("SR_Myc_Mel_rep2.bam")
+export.bw(forBigWig,con="SR_Myc_Mel_rep2.bw")
+forBigWigNorm <- forBigWig*((10^6)/TotalMapped)
+export.bw(forBigWigNorm,con="SR_Myc_Mel_rep2_weighted.bw")
+
+```
+

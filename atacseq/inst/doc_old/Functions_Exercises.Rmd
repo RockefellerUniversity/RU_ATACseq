@@ -1,0 +1,47 @@
+---
+title: "Functions in R exercises"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These exercises cover the functions sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+-- Create a function which takes one argument and finds the smallest number whose factorial is greater than that argument.(Look at answer from previous exercises)
+
+
+-- Create a function which takes a vector argument and returns both the number of even perfect squares and a vector of  perfect squares found in the vector argument. 
+
+-- Create a function which takes an argument of the directory containing expression files and the name of the annotation file and writes a the table with all samples' expression results and all annotation to file.  (Look at answer from previous exercises)
+
+
+-- Adapt the above function to also write a  t-test result table filtered by the p-value cut-off. An additional argument specifying the allocation a samples into groups must be specified.(Look at answer from previous exercises)
+
+
+To retrieve the indicies of the **first** occurence of every element in one vector in a second vector you can use the **match()** function.
+
+```{r,message=T}
+allSamples <- c("sample1.txt","sample2.txt","sample3.txt","sample4.txt","sample5.txt","sample5.txt")
+testSamples <- c("sample1.txt","sample5.txt")
+match(testSamples,allSamples)
+allSamples[match(testSamples,allSamples)]
+```
+
+To find **all** occurences of vector in another you can use the **%in%** operator
+
+```{r,message=T}
+
+allSamples <- c("sample1.txt","sample2.txt","sample3.txt","sample4.txt","sample5.txt")
+testSamples <- c("sample1.txt","sample5.txt")
+allSamples %in% testSamples
+allSamples[allSamples %in% testSamples]
+```
+
+
+
+

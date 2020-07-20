@@ -1,0 +1,26 @@
+---
+title: "Conditional branching and looping in R exercises"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These exercises cover the Conditional branching and looping sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+
+-- Calculate the factorial (factorial of 3 = 3 * 2 * 1) of 10 using a loop.
+
+-- Adjusting your answer from before, what is the first number that has a factorial greater than 1000.
+
+-- Using an ifelse() expression, create a factor from a vector of 1 to 40 where all numbers less than 10 are "small",10 to 30 are "mid",31 to 40 are "big"
+
+
+-- Read in all files from expression directory with .txt extension and create a table of gene expression results.
+
+-- Add annotation from Annotation.txt. How do the pathway information for genes compare between expression table and annotation table.
+ 

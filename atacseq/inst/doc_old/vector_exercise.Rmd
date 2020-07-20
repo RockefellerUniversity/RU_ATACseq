@@ -1,0 +1,49 @@
+---
+title: "Vector Exercises"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/Intro_To_R_1Day/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+---
+
+<p>&nbsp;</p>
+These exercises cover the vectors sections of [Introduction to R](https://rockefelleruniversity.github.io/Intro_To_R_1Day/). 
+
+**Exercise 1**
+
+- Create a vector containing the values 1,2,3,4,5
+- Create a vector containing the values 1 to 100
+- Create a vector containing the values  0,5,10,15,20
+- Create a vector containing the values 1,1,2,2,3,3
+- Create a vector containing the values 1,1,5,7,9,10
+
+**Exercise 2**
+
+- Create a vector containing the values 1 to 10.
+- Create a new vector with all but the first and last value.
+- Create a new vector with all but the second and fifth value.
+- Create a new vector of square root of the sixth and seventh position.
+- Create a new vector of alternating positions in the vector 1 to 10 using another vector.
+
+**Exercise 3** 
+
+- Find the number of files in the present working directory.
+- List the first file in the present working directory.
+
+**Exercise 4**
+
+- Create a vector of the gene names Gene_1, Gene_2, Gene_3, Gene_4
+- Create a vector of the expression values 1000, 3000, 10000, 12000
+- Create a vector of the gene lengths 100, 3000, 200, 1000
+- Find the longest gene using logical expression.
+- Identify genes which have a length greater than 100 and expression greater than 10000
+
+**Bonus questions**
+<a name="bonus"></a>
+
+- Calculate the expression over the gene length for all genes (Length normalised expression - LNE).
+- Identify genes with a length normalised expression greater than the average.
+ 
