@@ -1,9 +1,10 @@
 ---
-title: "Analysis of ATAC-seq data in R and Bioconductor - Part2"
+title: "ATACseq In Bioconductor <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>"
 author: "Rockefeller University, Bioinformatics Resource Centre"
 date: "http://rockefelleruniversity.github.io/RU_ATACseq/"
 output: 
   xaringan::moon_reader:
+    css: ["default", "metropolisCustom.css", "metropolis-fontsCustom.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -16,9 +17,26 @@ output:
     number_sections: false  ## if you want number sections at each table header
     theme: united  # many options for theme, this one is my favorite.
     highlight: tango  # specifies the syntax highlighting style
+params:
+  isSlides: "no"
+---
 
+```{r,include=FALSE}
+suppressPackageStartupMessages(require(knitr))
+knitr::opts_chunk$set(echo = TRUE, tidy = T)
+```
+
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides != "yes"){
+  cat("# ATACseq (part 2)
 
 ---
+"    
+  )
+  
+}
+
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -36,7 +54,7 @@ library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 
 ```
 
-# Greenleaf dataset characterisation and open region finding.
+## Greenleaf dataset characterisation and open region finding
 
 In this section we will work a little more with the Greenleaf dataset. 
 
@@ -53,7 +71,7 @@ In this session we will also take some of the Encode data for Liver, Kidney and 
 ---
 
 
-### The Sequencing Data.
+## The Sequencing Data
 
 In the ATACseq session we will make use of three sets of published data.
 
@@ -91,7 +109,7 @@ Aligned data as a BAM file [can be found here.](https://www.encodeproject.org/fi
 
 
 ---
-### Processed Data.
+### Processed Data
 
 We start with public sequencing data in links below and use reference data in Bioconductor.
 
@@ -127,7 +145,7 @@ Bigwigs for IGV.
 * [Bigwigs](https://s3.amazonaws.com/rubioinformatics/ATAC_bigWigs.zip) - BigWigs to review in IGV. 
 
 ---
-## ATAC-seq
+## ATACseq
 
 <div align="center">
 <img src="https://www.the-scientist.com/January2016/LT2_2.jpg" alt="offset" height="300" width="600">
@@ -137,7 +155,7 @@ Bigwigs for IGV.
 
 
 ---
-# Working with ATAC-seq
+## Working with ATAC-seq
 
 This means our data potentially contains a mixture of signal types in our data.
 
@@ -152,7 +170,7 @@ All our data is from open chromatin where our transposase has been able to acces
 
 ---
 
-##  Evaluating signal over TSS regions.
+##  Evaluating signal over TSS regions
 
 If our shorter fragments represent the open regions around transcription factors and transcriptional machinery we would expect to see signal at transcriptional start sites.
 
@@ -164,7 +182,7 @@ Our longer fragments will represent signal around nucleosomes and so signal shou
 
 ---
 
-##  Evaluating signal over TSS regions.
+##  Evaluating signal over TSS regions
 
 We can create a meta-plot over all TSS regions to illustrate where our nucleosome free and nucleosome occupied fractions of signal are most prevalent.
 
@@ -176,7 +194,7 @@ Meta-plots average or sum signal over sets of regions to identify trends in data
 
 ---
 
-##  Plotting signal over regions in R.
+##  Plotting signal over regions in R
 
 To produce meta-plots of signal over regions we can use the **soGGi** bioconductor package. We will be using a development of soGGi however so we will need to install from the github repository.
 
@@ -193,7 +211,7 @@ install_github("ThomasCarroll/soGGi")
 
 ---
 
-##  Plotting signal over regions in R.
+##  Plotting signal over regions in R
 
 Now we have installed the **soGGi** library from github we can load as any standard library.
 
@@ -202,7 +220,7 @@ library(soGGi)
 ```
 ---
 
-##  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 The soGGi library simply requires a BAM file and a GRanges of regions over which to average signal to produce the meta-plot.
 
@@ -219,7 +237,7 @@ TxDb.Hsapiens.UCSC.hg19.knownGene
 
 ---
 
-##  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 We can extract gene locations (TSS to TTS) [using the **genes()** function and our **TxDb** object.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/GenomicFeatures_In_Bioconductor.html#15)
 
@@ -230,7 +248,7 @@ genesLocations
 
 
 ---
-#  Plotting regions in soGGi.
+## Plotting regions in soGGi
 
 We can then use the [**resize()** function](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/GenomicIntervals_In_Bioconductor.html#34) to extract the location of start of every gene (the TSSs) in a stranded manner.
 
@@ -242,7 +260,7 @@ tssLocations
 ```
 
 ---
-#  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 The soGGi package's **regionPlot()** function requires a BAM file of data to plot supplied to **bamFile** parameter and a GRanges to plot over supplied to **testRanges** argument.
 
@@ -258,7 +276,7 @@ allSignal <- regionPlot(bamFile = sortedBAM,
 ```
 
 ---
-#  Plotting regions in soGGi.
+## Plotting regions in soGGi
 
 Additionally we supply information on input file format to **format** parameter, whether data is paired to **paired** parameter and type of plot to **style** parameter. We look at different **style** options in later visualisation sessions.
 
@@ -276,7 +294,7 @@ nucFree <- regionPlot(bamFile = sortedBAM,
 class(monoNuc)
 ```
 ---
-##  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 Now we have our profile object we can create our metaplot using the **plotRegion()** function in **soGGi**.
 
@@ -295,7 +313,7 @@ plotRegion(nucFree)
 
 ---
 
-##  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 We can create a plot for our mono-nucleosome signal by adjusting our **minFragmentLength** and **maxFragmentLength** parameters to those expected for nucleosome length fragments (here 180 to 240).
 
@@ -309,7 +327,7 @@ monoNuc <- regionPlot(bamFile = sortedBAM,
 save(monoNuc,file = "../../Data/monoNuc_TSS.RData")
 ```
 ---
-##  Plotting regions in soGGi.
+##  Plotting regions in soGGi
 
 Similarly we can plot the mono-nucleosome signal over TSS locations using **plotRegion()** function.
 
@@ -326,7 +344,7 @@ plotRegion(monoNuc)
 
 
 ---
-# Greenleaf dataset - Finding Open Regions.
+## Greenleaf dataset - Finding Open Regions
 
 A common goal in ATAC-seq is to identify nucleosome free regions where transcription factors are binding and/or transcriptional machinery is active. This nucleosome free signal would correspond to fragments less than one nucleosome (as defined in Greenleaf paper < 100bp)
 
@@ -335,7 +353,7 @@ To identify open chromatin however we could simply use all reads which have been
 For the remainder of the workshop we will look at analysing the nucleosome free portions of the our ATAC-seq data.
 
 ---
-## Peak calling for nucleosome free regions.
+## Peak calling for nucleosome free regions
 
 There are many methods available to call nucleosome free regions from ATAC-seq data with many borrowed from ChIP-seq analysis.
 
@@ -346,7 +364,7 @@ MACS2 is well established for identifying punctate peaks found in ChIP-seq data 
 MACS2 website can be found [here]() with information on parameters and use cases.
 
 ---
-### Single end peak calling.
+### Single end peak calling
 
 With single end sequencing from ATAC-seq we do not know how long the fragments are.
 
@@ -368,7 +386,7 @@ MACS2 callpeak -t singleEnd.bam --nomodel --shift 37
                --extsize 73 --format BAM -g MyGenome
 ```
 ---
-### Paired end peak calling.
+## Paired end peak calling
 
 If we have sequenced paired-end data then we do know the fragment lengths and can provide BAM files to MACS2 which have been prefiltered to properly paired (and fragment size if you want to distinguish nucleosomes from nucleosome free regions)
 
@@ -394,7 +412,7 @@ MACS2 callpeak  -t ~/Downloads/Sorted_ATAC_50K_2_openRegions.bam
 ```
 
 ---
-### Paired end peak calling.
+## Paired end peak calling
 
 Following peak calling we would get 3 files we saw in our earlier ChIPseq session.
 
@@ -429,7 +447,7 @@ save(qcRes,file="../../Data/qcRes.RData")
 ```
 
 ---
-## QC for low quality, duplicates and signal distribution.
+## QC for low quality, duplicates and signal distribution
 
 We can use the ChIPQC package to capture some important metrics for our ATAC-seq data such as reads in peaks and reads in blacklist from the **QCmetrics()** function and numbers of duplicated reads from the **flagtagcounts()** funcion.
 
@@ -471,14 +489,14 @@ MacsCalls <- MacsCalls[!MacsCalls %over% blkList]
 
 ---
 
-# Greenleaf dataset - Annotating Open Regions.
+## Greenleaf dataset - Annotating Open Regions
 
 It is often of interest to associate identified nucleosome free regions to genomic features such as genes and enhancers.
 
 Once annotated to genes or enhancers' genes, we can start to associate ATAC-seq data to characteristics of these genes. (functional annotation, expression changes, other epigenetic states)
 
 ---
-### Annotating peaks to genes.
+## Annotating peaks to genes
 
 A simple approach to annotating nucleosome free region to genes is to associate regions to their closest gene or within a window around a genes transcriptional start site.
 
@@ -496,7 +514,7 @@ MacsCalls_Anno <-  annotatePeak(MacsCalls,
 MacsCalls_Anno
 ```
 ---
-### Displaying annotation distribution
+## Displaying annotation distribution
 
 As well as showing us a table of the annotation distribution we can visualise this using the plotAnnoPie and plotAnnoBar functions.
 
@@ -506,7 +524,7 @@ plotAnnoPie(MacsCalls_Anno)
 
 ---
 
-### Retrieving annotated Nucleosome-free regions.
+## Retrieving annotated Nucleosome-free regions.
 
 With this information we can then subset our peaks/nuc free regions to those only landing in TSS regions (+/- 500)
 
@@ -517,7 +535,7 @@ MacsGR_TSS[1,]
 ```
 
 ---
-### Functional Analysis of Nucleosome-free regions - 1.
+## Functional Analysis of Nucleosome-free regions
 
 Another common step to ATAC-seq analysis is to identify any functional enrichment in genes associated to nucleosome free regions.
 
@@ -528,7 +546,7 @@ One approach is to take the genes we identified from ChIPseeker as having nucles
 **rGREAT by default will limit our queries and so we may need to be patient. This can be adjusted in rGREAT options.**
 
 ---
-### Functional Analysis of Nucleosome-free regions - 1.
+## Functional Analysis of Nucleosome-free regions
 
 We can submit our peak calls to GREAT using the **submitGreatJob** function and review available categories of results using **availableCategories**.
 
@@ -538,7 +556,7 @@ great_Job <- submitGreatJob(MacsCalls, species = "hg19")
 availableCategories(great_Job)
 ```
 ---
-### Functional Analysis of Nucleosome-free regions - 2.
+## Functional Analysis of Nucleosome-free regions
 
 For this example we select the results tables for the GO category using getEnrichmentTables functions and then review the results for Biological processes.
 
@@ -558,7 +576,7 @@ In the next part we will look at how we can identify changes in open regions usi
 Here we will take an approach akin that in Diffbind and reasonably esatablished in ATAC-seq analysis. 
 
 ---
-## Identifying a set of non-redundant peaks.
+## Identifying a set of non-redundant peaks
 
 First, We will define a set of non-redundant peaks present in at least 2 samples and use these to assess changes in nuc-free ATAC-seq signal using DESeq2.
 
@@ -579,7 +597,7 @@ mcols(allPeaksSet_nR) <- overlapMatrix
 
 ```
 ---
-## Identifying a set of non-redundant peaks.
+## Identifying a set of non-redundant peaks
 
 
 ```{r processData_consensusaa, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_consensusa"}
@@ -587,7 +605,7 @@ mcols(allPeaksSet_nR) <- overlapMatrix
 allPeaksSet_nR[1:2,]
 ```
 ---
-## Identifying a set of non-redundant peaks.
+## Identifying a set of non-redundant peaks
 
 We filter out peaks in blacklists and in ChrM prior to testing to eliminate potential artefact differential calls.
 
@@ -598,7 +616,7 @@ nrToCount <- allPeaksSet_nR[!allPeaksSet_nR %over% blklist
 nrToCount
 ```
 ---
-# Counting for differential ATAC-seq.
+# Counting for differential ATAC-seq
 
 We now identify the number of samples in which our non-redundant peaks occur. Here we use the **rowSums()** function with our occurrence matrix and select those samples occuring in more than 2 samples.
 
@@ -613,7 +631,7 @@ nrToCount <- nrToCount[occurrences >= 2,]
 nrToCount
 ```
 ---
-# Counting for differential ATAC-seq.
+# Counting for differential ATAC-seq
 
 Now we have to set of regions to count in we can use **summariseOverlaps()** to count paired reads landing in peaks as we have done for ChIPseq. 
 
@@ -633,7 +651,7 @@ colnames(myCounts) <- c("HindBrain_1","HindBrain_2","Kidney_1","Kidney_2",
 save(myCounts,file="../../Data/myCounts.RData")
 ```
 ---
-## DESeq2 for differential ATAC-seq.
+## DESeq2 for differential ATAC-seq
 
 With our counts of fragments in nucleosome free regions we can now contruct a DESeq2 object.
 
@@ -654,7 +672,7 @@ atacDDS <- DESeq(atacDDS)
 
 ```
 ---
-## DESeq2 for differential ATAC-seq.
+## DESeq2 for differential ATAC-seq
 
 With the new DESeq2 object we can now test for any differences in ATAC-seq signal between groups.
 
@@ -673,7 +691,7 @@ KidneyMinusHindbrain
 ```
 
 ---
-## DESeq2 for differential ATAC-seq.
+## DESeq2 for differential ATAC-seq
 
 
 We can subset to only open regions within promoters and then create a table to review the results in IGV using makebedtable function in tracktables package. 
@@ -689,7 +707,7 @@ KidneyMinusHindbrain <- KidneyMinusHindbrain[
 makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",getwd())
 ```
 ---
-## Annotation for differential ATAC-seq.
+## Annotation for differential ATAC-seq
 
 In the final part we can annotate our differential ATAC-seq regions to genes and then use gene information to test enrichment for GO sets.
 
@@ -704,7 +722,7 @@ DB_ATAC[1,]
 ```
 
 ---
-## Annotation for differential ATAC-seq.
+## Annotation for differential ATAC-seq
 
 Since we have subset regions to those within +/- 500bp of a TSS we can use a standard enrichment analysis at this point. Here we use clusterProfiler to identify enrichment
 
@@ -761,7 +779,7 @@ library(seqLogo)
 seqLogo(ctcfMotif)
 ```
 ---
-## Searching for PWMs in DNAstring.
+## Searching for PWMs in DNAstring
 
 We can now use the **matchPWM()** function with our newly acquired CTCF PWM. 
 
@@ -777,7 +795,7 @@ myRes
 
 ---
   
-## Searching for PWMs in DNAstring.
+## Searching for PWMs in DNAstring
 
 We need to convert the Views object to a GRanges so we can use these in soGGi to plot cut sites over.
 
@@ -789,7 +807,7 @@ toCompare
 
 ---
   
-## Shifting reads for cut-sites.
+## Shifting reads for cut-sites
 
 To plot cut-sites we will wish to consider only the 5' end of reads and will need to adjust for a known offset of 5' reads to actual T5 cut-sites.
 
@@ -816,7 +834,7 @@ read2[1,]
 
 ---
   
-## Shifting reads for cut-sites.
+## Shifting reads for cut-sites
 
 Now we can shift the 5' end of both reads pairs by 4bp or -5bp depending on strand. This produces a GRanges of all our cut-sites from both reads.
 
@@ -840,7 +858,7 @@ test_toCut[1:2,]
 ```
 ---
   
-## Coverage for cut-sites.
+## Coverage for cut-sites
 
 Now we can use the GRanges of cut-site positions to produce an RLElist of cut-sites across the genome using the **coverage()** function.
 
@@ -853,7 +871,7 @@ cutsCoverage20[[1]]
 ```
 ---
   
-## Plotting for cut-sites.
+## Plotting for cut-sites
 
 We can use an RLElist with soGGi to produce a plot of cut-sites around our discovered CTCF motifs.
 
@@ -871,7 +889,7 @@ CTCF_Cuts_open <- regionPlot(cutsCoverage20,
 
 ---
   
-## Plotting for cut-sites.
+## Plotting for cut-sites
 
 Now we can now plot our cut-sites using the **plotRegion()** function.
 
@@ -883,10 +901,15 @@ plotRegion(CTCF_Cuts_open,outliers = 0.001)+
 ```
 
 ---
+## Time for an exercise!
 
-# Time for an exercise.
+Exercise on ATACseq data can be found [here](../../exercises/exercises/atacseq_part2_exercise.html)
 
-[Link_to_exercises](../../Exercises/ATACseq_part2_exercises.html)
+---
+## Answers to exercise
 
-[Link_to_answers](../../Answers/ATACseq_part2_answers.html)
+Answers can be found [here](../../exercises/answers/atacseq_part2_answers.html)
+
+R code for solutions can be found [here](../../exercises/answers/atacseq_part2_answers.R)
+
 
