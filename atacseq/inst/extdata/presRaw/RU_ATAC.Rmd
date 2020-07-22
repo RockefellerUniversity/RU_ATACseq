@@ -4,19 +4,19 @@ author: "Rockefeller University, Bioinformatics Resource Centre"
 date: "http://rockefelleruniversity.github.io/RU_ATACseq/"
 output: 
   xaringan::moon_reader:
-  css: ["default", "metropolisCustom.css", "metropolis-fontsCustom.css"]
-lib_dir: libs
-nature:
-  highlightStyle: github
-highlightLines: true
-countIncrementalSlides: false
-html_document:
-  toc: true # table of content true
-toc_float: yes
-depth: 3  # upto three depths of headings (specified by #, ## and ###)
-number_sections: false  ## if you want number sections at each table header
-theme: united  # many options for theme, this one is my favorite.
-highlight: tango  # specifies the syntax highlighting style
+    css: ["default", "metropolisCustom.css", "metropolis-fontsCustom.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+  html_document:
+    toc: true # table of content true
+    toc_float: yes
+    depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
 params:
   isSlides: "no"
 ---
