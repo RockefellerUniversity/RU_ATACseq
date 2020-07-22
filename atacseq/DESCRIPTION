@@ -1,0 +1,23 @@
+Package: atacseq
+Type: Package
+Title: ATAC with Bioconductor
+Version: 0.1.0
+Author: Thomas Carroll.
+Maintainer: Thomas Carroll <tc.infomatics@gmail>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+LazyData: TRUE
+biocViews: Training
+Depends: methods, ggplot2, rmarkdown, ShortRead, ashr, ChIPQC, DiffBind, 
+    BSgenome.Mmusculus.UCSC.hg19, Rsubread, Rbowtie2, R.utils, Rsamtools, 
+    rtracklayer, ChIPseeker, soGGi, ChIPQC, GenomicAlignments, 
+    TxDb.Hsapiens.UCSC.hg19.knownGene, DESeq2, BSgenome.Mmusculus.UCSC.mm10, 
+    tracktables, clusterProfile, TxDb.Mmusculus.UCSC.mm10.knownGene, devtools, 
+    tidyr, DT, dplyr, rGREAT, MotifDb, Biostrings
+Suggests: knitr,
+    rmarkdown,
+    testthat,
+    yaml
+SystemRequirements: R, RStudio, IGV, MACS2
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1

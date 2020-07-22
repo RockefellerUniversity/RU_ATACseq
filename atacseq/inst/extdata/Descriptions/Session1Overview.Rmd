@@ -1,0 +1,10 @@
+<br>
+
+#### **ATACAseq, Session 1**
+
+This section introduces the analysis of ATACseq data in Bioconductor
+Session sections:
+
+* Preprocessing ATACseq data in R
+* Alignment of data
+* Creation of bigWig for visualisation

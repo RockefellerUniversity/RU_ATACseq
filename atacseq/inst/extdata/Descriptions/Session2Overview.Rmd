@@ -1,0 +1,10 @@
+<br>
+
+#### **ATACAseq, Session 2**
+
+This section demonstrates how to assess global changes in accesibility with ATACseq data.
+Session sections:
+
+* Annotating ATACseq data in R
+* Plotting nucleosome free and mono-nucleosome signal
+* Plotting cut-sites around DNA binding proteins

@@ -1,0 +1,46 @@
+---
+title: "ChIPseq in Bioconductor exercises (part 1)"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/RU_ChIPseq/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+params:
+  toMessage: false    
+---
+
+```{r, setup,include=FALSE}
+toMessage <- ifelse(!is.null(params$toMessage),params$toMessage,FALSE)
+message(toMessage)
+```
+
+
+## Exercises placeholder
+
+In these exercises we will review some of the functionality for summarizing counts and signal across genomes and within regions.
+
+We will be using data directly downloaded from the Encode consortium.
+
+Download the fastQ for the other Myc MEL replicate from [sample ENCSR000EUA](https://www.encodeproject.org/experiments/ENCSR000EUA/). Direct link is [here](https://www.encodeproject.org/files/ENCFF001NQQ/@@download/ENCFF001NQQ.fastq.gz).
+
+1. Read in a random sample of 10,000 reads from **ENCFF001NQQ.fastq.gz** into R.
+
+```{r installdeBSded,include=FALSE}
+suppressPackageStartupMessages(library(ShortRead))
+```
+
+```{r, echo=F,eval=F}
+
+```
+
+```{r eval=T, echo=F}
+
+```
+
+```{r installBSded,cache=TRUE, eval=F,echo=toMessage}
+library(ShortRead)
+
+```
+
