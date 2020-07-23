@@ -1,11 +1,19 @@
 ---
-title: "ATAC-seq in Bioconductor exercises"
-author: "Tom Carroll"
-output: html_document
+title: "ATACseq in Bioconductor exercises (part 2)"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/RU_ATACseq/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+params:
+  toMessage: false    
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T,eval=T)
+```{r, setup,include=FALSE}
+toMessage <- ifelse(!is.null(params$toMessage),params$toMessage,FALSE)
+message(toMessage)
 ```
 
 In todays session we will work with some of the ATAC-seq data of T-regulatory cells from Christina Leslie's lab.
@@ -34,7 +42,9 @@ library(rtracklayer)
 library(DESeq2)
 ```
 
-```{r instalcscldcsceBSded,cache=TRUE,eval=FALSE}
+
+
+```{r instalcscldcsceBSded,cache=TRUE,eval=FALSE , echo=toMessage}
 library(soGGi)
 library(ggplot2)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
@@ -62,37 +72,62 @@ monoNuc <- regionPlot(bamFile = sortedBAM,
                         minFragmentLength = 180,
                       maxFragmentLength = 240,
                       forceFragment = 80)
+plotRegion(nucFree)+theme_bw()
+plotRegion(monoNuc)+theme_bw()
+```
 
-save(nucFree,file="../Data/nucFree_Treg.RData")
-save(monoNuc,file="../Data/monoNuc_Treg.RData")
+```{r, eval=F, echo=F}
+save(nucFree,file="data/nucFree_Treg.RData")
+save(monoNuc,file="data/monoNuc_Treg.RData")
 
 
 ```
 
-```{r instalcscldcsceBSdead,cache=TRUE,eval=TRUE}
-load(file="../Data/nucFree_Treg.RData")
-load(file="../Data/monoNuc_Treg.RData")
+```{r instalcscldcsceBSdead,cache=TRUE,eval=TRUE, echo=F}
+load(file="data/nucFree_Treg.RData")
+load(file="data/monoNuc_Treg.RData")
 plotRegion(nucFree)+theme_bw()
 plotRegion(monoNuc)+theme_bw()
 
 ```
+
+
 2. Extract the FRIP and Duplication rate for the Encode T-reg ATAC-seq BAM and associated peaks for chromosome 10.
 
-```{r instaaxscslldebbBSccdxxed,cache=TRUE,eval=FALSE,dependson="instalcscldcsceBSded"}
+```{r instaaxscslldebbBSccdxxed,cache=TRUE,eval=FALSE,dependson="instalcscldcsceBSded" , echo=toMessage}
 library(ChIPQC)
 library(rtracklayer)
-openRegionPeaks <- "~/Downloads//ENCFF520GRD.bed.gz"
+openRegionPeaks <- "~/Downloads/ENCFF520GRD.bed.gz"
 
 qcRes <- ChIPQCsample(sortedBAM,
                       peaks = openRegionPeaks,
                       annotation ="mm10",
                       chromosomes = "chr10",
                       verboseT = FALSE)
-save(qcRes,file="../Data/chipqc_Treg.RData")
+
+
+myMetrics <- QCmetrics(qcRes)
+myMetrics[c("RiP%")]
+flgCounts <- flagtagcounts(qcRes)
+DupRate <- flgCounts["DuplicateByChIPQC"]/flgCounts["Mapped"]
+DupRate*100
+
 ```
 
-```{r instaaxscslldebbzBSccdxxed,cache=TRUE,dependson="instalcscldcsceBSded"}
-load(file="../Data/chipqc_Treg.RData")
+```{r, eval=F, echo=F}
+openRegionPeaks <- "~/Downloads/ENCFF520GRD.bed.gz"
+sortedBAM <- "~/Downloads/ENCFF053CGD.bam"
+
+qcRes <- ChIPQCsample(sortedBAM,
+                      peaks = openRegionPeaks,
+                      annotation ="mm10",
+                      chromosomes = "chr10",
+                      verboseT = FALSE)
+save(qcRes,file="data/chipqc_Treg.RData")
+```
+
+```{r instaaxscslldebbzBSccdxxed,cache=TRUE,dependson="instalcscldcsceBSded", echo=f}
+load(file="data/chipqc_Treg.RData")
 myMetrics <- QCmetrics(qcRes)
 myMetrics[c("RiP%")]
 flgCounts <- flagtagcounts(qcRes)
@@ -102,7 +137,7 @@ DupRate*100
 
 3. For the Treg data produce a plot of transposase cut-sites for nucleosome free fragments around CTCF motifs on chromosome 18. Use the motif "Hsapiens-JASPAR_2014-CTCF-MA0139.1" from MotifDB package.
 
-```{r instaaxscslldeabbBSccded, eval=TRUE,dependson="instalcscldcsceBSded"}
+```{r instaaxscslldeabbBSccded, eval=TRUE,dependson="instalcscldcsceBSded", echo=toMessage}
 sortedBAM <- "~/Downloads/ENCFF053CGD.bam"
 chrLens <- seqlengths(BamFile(sortedBAM))
 param=ScanBamParam(flag=scanBamFlag(isProperPair =TRUE), 
@@ -141,18 +176,23 @@ CTCF_Cuts_open <- regionPlot(cutsCoverage18,
                          testRanges = toCompare,
                          style = "point",
                          format="rlelist",distanceAround = 500)
-save(CTCF_Cuts_open,file="../Data/cuts_Treg.RData")
+
+plotRegion(CTCF_Cuts_open)+theme_bw()
+```
+
+```{r, eval=T, echo=F}
+load("data/cuts_Treg.RData")
 plotRegion(CTCF_Cuts_open)+theme_bw()
 ```
 
 
-4. Load the counts for Encode Kidney, Liver and Hindbrain. Identify ATACseq sites significantly higher in Liver compared to Hindbrain (padj < 0.05 and padj is not NA) and perform a functional enrichment test using RGreat to identify BioCyc Pathways enriched in these sites.
+4. Load the counts for ENCODE Kidney, Liver and Hindbrain. Identify ATACseq sites significantly higher in Liver compared to Hindbrain (padj < 0.05 and padj is not NA) and perform a functional enrichment test using RGreat to identify BioCyc Pathways enriched in these sites.
 
-Counts are in **../Data/myCounts.RData**
+Counts are in *data/myCounts.RData**
 
-```{r instacsxsjiijcsllBSded}
+```{r instacsxsjiijcsllBSded, echo=toMessage}
 library(DESeq2)
-load("../Data/myCounts.RData")
+load("data/myCounts.RData")
 
 Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
                   "Liver","Liver"))
@@ -176,7 +216,7 @@ LiverMinusHindbrain <- LiverMinusHindbrain[
                           & LiverMinusHindbrain$log2FoldChange > 0]
 
 library(rGREAT)
-great_Job <- submitGreatJob(LiverMinusHindbrain, species = "mm10",request_interval = 4)
+great_Job <- submitGreatJob(LiverMinusHindbrain, species = "mm10",request_interval=1,version = "3.0.0")
 availableCategories(great_Job)
 great_ResultTable = getEnrichmentTables(great_Job, category = "Pathway Data")
 names(great_ResultTable)          
