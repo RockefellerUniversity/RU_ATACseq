@@ -416,18 +416,20 @@ atacReads <- readGAlignmentPairs("~/Downloads/ATAC_Workshop/Sorted_ATAC_50K_2.ba
 save(atacReads, file="data/pres1_atacreads.RData")
 ```
 
+```{r processData_readingInDataa, echo=TRUE,eval=F}
+atacReads <- readGAlignmentPairs(sortedBAM,
+                                 param=myParam)
+class(atacReads)
+
+```
+
 ```{r, eval=T, echo=F}
 
 load("data/pres1_atacreads.RData")
 class(atacReads)
 ```
 
-```{r processData_readingInDataa, echo=TRUE,eval=TRUE}
-atacReads <- readGAlignmentPairs(sortedBAM,
-                                 param=myParam)
-class(atacReads)
 
-```
 
 ---
 ## Greenleaf dataset post-alignment processing
