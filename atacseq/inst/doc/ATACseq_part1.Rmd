@@ -80,9 +80,10 @@ p1 <- yield(f1)
 set.seed(123456)
 p2 <- yield(f2)
 
-save(p1,p2,"data/ex1_quals.RData")
+save(p1,p2,file="data/ex1_quals.RData")
 ```
 ```{r runQCplotting,cache=T eval=T, echo=F}
+load("data/ex1_quals.RData")
 allQuals <- quality(p1)
 forBox <- as(allQuals,"matrix")
 colnames(forBox) <- paste0("Cycle",1:ncol(forBox))
@@ -195,7 +196,7 @@ tableOfIS <- table(IS)
 toPlot <- data.frame(InsertSize=as.numeric(names(tableOfIS)),
                             Count=as.numeric(tableOfIS))
 fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
-save(fragLenPlot,myPairs, "data/ex1_QCplot.RData")
+save(fragLenPlot,myPairs, file="data/ex1_QCplot.RData")
 ```
 
 ```{r, eval=T, echo=F}
