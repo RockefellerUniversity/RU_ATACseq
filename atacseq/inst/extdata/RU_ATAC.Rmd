@@ -171,6 +171,27 @@ Bigwigs for IGV.
 * [Bigwigs](https://s3.amazonaws.com/rubioinformatics/ATAC_bigWigs.zip) - BigWigs to review in IGV. 
 
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Alignment for ATACseq
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Alignment for ATACseq
+
+---
+"    
+  )
+  
+}
+
+```
 
 ## Greenleaf dataset fastq to aligned data in BAM
 
@@ -187,66 +208,26 @@ First we will need to create a reference genome to align our ATACseq data. [We c
 Here as we are working with human data we use the **BSgenome.Hsapiens.UCSC.hg19** library for the hg19 genome build.
 
 ```{r processData_BuildIndex, echo=TRUE,eval=FALSE,cache=FALSE}
-library(BSgenome.Hsapiens.UCSC.hg38)
+library(BSgenome.Hsapiens.UCSC.hg19)
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 mainChrSeq <- lapply(mainChromosomes,
                      function(x)BSgenome.Hsapiens.UCSC.hg19[[x]])
 names(mainChrSeq) <- mainChromosomes
 mainChrSeqSet <- DNAStringSet(mainChrSeq)
 writeXStringSet(mainChrSeqSet,
-                "BSgenome.Hsapiens.UCSC.hg38.mainChrs.fa")
+                "BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa")
 ```
+
+
 
 ---
-## Aligning Sequence Reads
-
-Now we have a reference genome, we can align our ATACseq reads.
-
-As ATACseq data is typically paired we will need to make some minor adjustments to our alignment steps.
-
-In QuasR we simply supply an additional column for the 2nd read pair.
-
-
-```{r sampleTable1, echo=TRUE,eval=FALSE}
-FileName1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
-FileName2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
-SampleName <- "Myc_Mel_1"
-sampleTable <- data.frame(FileName1,FileName2,SampleName)
-write.table(sampleTable,file="sampleTable.txt",sep="\t",
-            quote=FALSE,row.names = FALSE)
-```
-
-```{r sampleTable1s, echo=FALSE,eval=TRUE}
-FileName1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
-FileName2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
-SampleName <- "Myc_Mel_1"
-data.frame(FileName1,FileName2,SampleName)
-```
-
----
-
-## Aligning Sequence Reads
-
-
-We can now use the **qAlign()** function to align our data.
-
-The **qAlign()** function requires the path to our sample table file and the path of a FASTA file to align sequence reads against.
- 
-```{r sam1s, echo=TRUE,eval=FALSE}
-
-library(QuasR)
-qAlign("sampleTable.txt","BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa")
-```
-
----
-
 ## Creating Rsubread index
 
-Index building is part of the **QuasR** alignment process but for Rsubread we must build our index prior to Rsubread's alignment steps.
+For Rsubread we must build our index prior to Rsubread's alignment steps.
 
-Rsubread's [**buildindex()** function simply takes the parameters of our desired index name and the FASTA file to build index from.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignmentInBioconductor.html#39). 
+Rsubread's [**buildindex()** function simply takes the parameters of our desired index name and the FASTA file to build index from.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/presentations/slides/AlignmentInBioconductor.html#14). 
 
-Here i additional specify the parameter **indexSplit** as TRUE in conjunction with **memory** parameter set to 1000 (1000MB) to control memory usage in Rsubread alignment step.
+Here I additional specify the parameter **indexSplit** as TRUE in conjunction with **memory** parameter set to 1000 (1000MB) to control memory usage in Rsubread alignment step.
 
 ```{r index, echo=TRUE,eval=FALSE}
 library(Rsubread)
@@ -259,11 +240,13 @@ buildindex("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ---
 ## Aligning Sequence Reads
 
-Here we can use a standard alignment for DNA (as for ChIPseq) but we increase the maximum allowed fragment length to capture long fragments representing poly-nucleosome signal. 
+Now we have an index, we can align our ATACseq reads.
+
+As ATACseq data is typically paired we will need to make some minor adjustments to our alignment steps. We can use a standard alignment for DNA (as for ChIPseq) but we increase the maximum allowed fragment length to capture long fragments representing poly-nucleosome signal. 
 
 The maximum allowed fragment length set here is based on parameters used within Greenleaf study. To control maximum allowed fragment lengths i set the **maxFragLength** parameter to 2000. I also set **unique** parameter to TRUE to only include uniquely mapping reads.
 
-```{r processData_acdc, include=FALSE}
+```{r processData_acdc, include=FALSE, eval=F}
 setwd("~/Projects/Results/chipseq/testRunforTalk/")
 ```
 
@@ -281,7 +264,6 @@ align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ```
 
 ---
-
 ## Creating Rbowtie2 index
 
 
@@ -297,13 +279,13 @@ bowtie2_build(references="BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa",
 
 ---
 
-## Creating Rbowtie2 index
+## Decompressing FastQ files
 
 
 Once we have our index we must decompress our fastq files using **gunzip()** function.
 
 
-```{r indeaax, echo=TRUE,eval=FALSE}
+```{r indeaax, echo=TRUE, eval=FALSE}
 gunzip("ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz")
 gunzip("ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz")
 ```
@@ -318,6 +300,7 @@ Finally we can convert the output **SAM** file to a more useable **BAM** file wi
 
 
 ```{r indexas, echo=TRUE,eval=FALSE}
+library(Rsamtools)
 bowtie2(bt2Index = "BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2",
           samOutput = "ATAC_50K_2_bowtie2.sam",
           seq1 = "ATAC_Data/ATAC_FQs/SRR891269_1.fastq",
@@ -329,11 +312,11 @@ asBam("ATAC_50K_2_bowtie2.sam")
 ---
 ## Sorting and Indexing
 
-Following alignment [we would want to sort and index our BAM file for use with external tool.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#10)
+Following alignment [we would want to sort and index our BAM file for use with external tool.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/presentations/slides/AlignedDataInBioconductor.html#10)
 
 First we sort our aligned data by sequence order (not Read Name here).
 
-We then index our file allowing for rapid access of particular genomic locations by other programs (e.g IGV, Samtools) and by R/Bioconductor packaes we will use.
+We then index our file allowing for rapid access of particular genomic locations by other programs (e.g IGV, Samtools) and by R/Bioconductor packages we will use.
 
 
 ```{r processData_indexAndSort, echo=TRUE,eval=FALSE,cache=FALSE}
@@ -346,9 +329,9 @@ sortBam(outBAM,gsub("\\.bam","",basename(sortedBAM)))
 indexBam(sortedBAM)
 ```
 
-```{r processData_setBAM, echo=TRUE,eval=TRUE,cache=TRUE,include=TRUE}
-sortedBAM <- "~/Downloads/demo/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_2.bam"
-```
+# ```{r processData_setBAM, echo=TRUE,eval=TRUE,cache=TRUE,include=TRUE}
+# sortedBAM <- "~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_2.bam"
+# ```
 
 ---
 ## Distribution of mapped reads
@@ -356,10 +339,17 @@ sortedBAM <- "~/Downloads/demo/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_
 In ATACseq we will want to check the distribution of mapped reads across chromosomes. [We can check the number of mapped reads on every chromosome using the **idxstatsBam()** function.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/r_course/presentations/slides/AlignedDataInBioconductor.html#15)
 
 ATACseq is known have high signal on the mitochondrial chromosomes and so we can check for that here.
+```{r, eval=F, echo=F}
+mappedReads <- idxstatsBam(sortedBAM)
+save(mappedReads,file="data/pres1_idxstats.RData")
+```
+```{r, eval=T, echo=F,cache=TRUE,dependson="processData_setBAM"}
+load("data/pres1_idxstats.RData")
+```
 
-```{r quickMappingStatsPerChromosomea, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_setBAM"}
+
+```{r quickMappingStatsPerChromosomea, echo=TRUE,eval=F}
 library(Rsamtools)
-
 mappedReads <- idxstatsBam(sortedBAM)
 
 ```
@@ -391,7 +381,7 @@ We set the **scanBamFlag()** function parameters **isProperPair** to TRUE so as 
 
 ```{r processData_readingInDatad, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_setBAM"}
 library(GenomicAlignments)
-flags=scanBamFlag(isProperPair =TRUE)
+flags=scanBamFlag(isProperPair = TRUE)
 
 ```
 
@@ -420,7 +410,19 @@ Now we have set up the **ScanBamParam** object, we can use the **readGAlignmentP
 
 The resulting object is a **GAlignmentPairs** object.
 
-```{r processData_readingInDataa, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_setBAM"}
+```{r, eval=F, echo=F}
+atacReads <- readGAlignmentPairs("~/Downloads/ATAC_Workshop/Sorted_ATAC_50K_2.bam",
+                                 param=myParam)
+save(atacReads, file="data/pres1_atacreads.RData")
+```
+
+```{r, eval=T, echo=F}
+
+load("data/pres1_atacreads.RData")
+class(atacReads)
+```
+
+```{r processData_readingInDataa, echo=TRUE,eval=TRUE}
 atacReads <- readGAlignmentPairs(sortedBAM,
                                  param=myParam)
 class(atacReads)
@@ -476,7 +478,7 @@ ATACseq should represent a mix of fragment lengths corresponding to nucleosome f
 We can use the **table()** function to retrieve a vector of the occurrence of each fragment length.
 
 ```{r processData_plottingFrffagmentLengths, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
-library(ggplot2)
+
 fragLenSizes <- table(insertSizes)
 fragLenSizes[1:5]
 
@@ -489,11 +491,13 @@ Now we can use the newly acquired insert lengths for chromosome 20 to plot the d
 
 
 ```{r processData_plottingFrdagmentLengths, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_extractingRead1"}
+library(ggplot2)
 toPlot <- data.frame(InsertSize=as.numeric(names(fragLenSizes)),
                             Count=as.numeric(fragLenSizes))
 fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
 
 ```
+
 ---
 ## Plotting insert sizes
 
@@ -514,7 +518,7 @@ fragLenPlot + scale_y_continuous(trans='log2')+theme_bw()
 
 
 ---
-## Plotting insert sizes (Greenleaf)
+## Plotting insert sizes
 
 This looks very similar to the image from the Greenleaf paper.
 
@@ -556,8 +560,9 @@ diNucBam <- gsub("\\.bam","_diNuc\\.bam",sortedBAM)
 library(rtracklayer)
 export(atacReads_Open,openRegionBam,format = "bam")
 export(atacReads_MonoNuc,monoNucBam,format = "bam")
-#export(atacReads_Open,diNucBam,format = "bam")
+export(atacReads_Open,diNucBam,format = "bam")
 ```
+
 ---
 ## Creating an open region bigWig
 
