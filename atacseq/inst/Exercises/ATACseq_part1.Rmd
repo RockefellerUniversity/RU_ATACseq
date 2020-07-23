@@ -1,11 +1,19 @@
 ---
-title: "ATAC-seq in Bioconductor exercises"
-author: "Tom Carroll"
-output: html_document
+title: "ATACseq in Bioconductor exercises (part 1)"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/RU_ATACseq/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+params:
+  toMessage: false    
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F,eval=T)
+```{r, setup,include=FALSE}
+toMessage <- ifelse(!is.null(params$toMessage),params$toMessage,FALSE)
+message(toMessage)
 ```
 
 In todays session we will work with some of the ATAC-seq data of T-regulatory cells from Christina Leslie's lab.
@@ -29,7 +37,7 @@ library(ggplot2)
 
 ```
 
-```{r instalcscldcsceBSded,cache=TRUE}
+```{r instalcscldcsceBSded,eval=F, echo=toMessage}
 library(GenomicRanges)
 library(Rsamtools)
 library(rtracklayer)
@@ -56,9 +64,39 @@ colnames(forBox) <- paste0("Cycle",1:ncol(forBox))
 boxplot(forBox,main="Read2")
 ```
 
+```{r instalcscldcsceBSded,eval=F, echo=F}
+library(GenomicRanges)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicAlignments)
+library(ShortRead)
+library(ggplot2)
+
+f1 <- FastqSampler("~/Downloads/ENCFF175VOD.fastq.gz", n=10000)
+f2 <- FastqSampler("~/Downloads/ENCFF447BGX.fastq.gz", n=10000)
+
+set.seed(123456)
+p1 <- yield(f1)
+set.seed(123456)
+p2 <- yield(f2)
+
+save(p1,p2,"data/ex1_quals.RData")
+```
+```{r runQCplotting,cache=T eval=T, echo=F}
+allQuals <- quality(p1)
+forBox <- as(allQuals,"matrix")
+colnames(forBox) <- paste0("Cycle",1:ncol(forBox))
+boxplot(forBox,main="Read1")
+
+allQuals <- quality(p2)
+forBox <- as(allQuals,"matrix")
+colnames(forBox) <- paste0("Cycle",1:ncol(forBox))
+boxplot(forBox,main="Read2")
+```
+
 2. Create a line plot of Base frequencies across cycles for read1 and read2.
 
-```{r instaaxscslldebbBSccdxxed,cache=TRUE,dependson="instalcscldcsceBSded"}
+```{r instaaxscslldebbBSccdxxed,cache=TRUE,dependson="runQCplotting", echo=toMessage}
 alpByCyle <- alphabetByCycle(sread(p1))
 alpByCyleFilt <-  alpByCyle[c("A","G","C","T","N"),]
 AbyCycFrame <- data.frame(Base="A",Freq=alpByCyleFilt["A",],Cycle=1:max(width(sread(p1))))
@@ -86,7 +124,7 @@ ggplot(myFrame,aes(x=Cycle,y=Freq,colour=Base))+geom_line()+theme_bw()+facet_gri
 
 3. **Optional** Align the reads in hg38 genome and create sorted, indexed BAM file.
 
-```{r instaaxscslldeabbBSccded, eval=FALSE}
+```{r instaaxscslldeabbBSccded, eval=FALSE, echo=toMessage}
 
 library(BSgenome.Hsapiens.UCSC.hg38)
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
@@ -117,10 +155,10 @@ indexBam("Sorted_TcellReg_ATAC.bam")
 ```
 
 
-4. Using the BAM file retrieved from Encode, plot the fragment length distribution for reads chromosome 10 using ggplot2.
+4. Using the BAM file retrieved from ENCODE, plot the fragment length distribution for reads chromosome 10 using ggplot2.
 
 
-```{r instacsxsjiijcsllBSded}
+```{r instacsxsjiijcsllBSded, echo=toMessage, eval=F}
 library(Rsamtools)
 library(ggplot2)
 indexBam("~/Downloads/ENCFF053CGD.bam")
@@ -140,12 +178,35 @@ fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
 fragLenPlot + scale_y_continuous(trans='log2')+theme_minimal()
 ```
 
+```{r , echo=F, eval=F}
+library(Rsamtools)
+library(ggplot2)
+indexBam("~/Downloads/ENCFF053CGD.bam")
+library(GenomicAlignments)
+toReviewLenOfChrom <- idxstatsBam("~/Downloads/ENCFF053CGD.bam")
+myParam=ScanBamParam(flag=scanBamFlag(isProperPair =TRUE),
+                   what=c("qname","mapq","isize"),
+                   which=GRanges("chr10", IRanges(1,130694993)))
 
+myPairs <- readGAlignmentPairs("~/Downloads/ENCFF053CGD.bam",param = myParam)
+
+IS <- abs(mcols(second(myPairs))$isize)
+tableOfIS <- table(IS)
+toPlot <- data.frame(InsertSize=as.numeric(names(tableOfIS)),
+                            Count=as.numeric(tableOfIS))
+fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
+save(fragLenPlot,myPairs, "data/ex1_QCplot.RData")
+```
+
+```{r, eval=T, echo=F}
+load("data/ex1_QCplot.RData")
+fragLenPlot + scale_y_continuous(trans='log2')+theme_minimal()
+```
 
 
 5. Create a barplot of number of fragments within Greenleafs' defined ranges -- nucleosome free (< 100bp), mono-nucleosome (180bp-247bp) and di-nucleosome (315-437)
 
-```{r instacsxuiscsllBSded}
+```{r instacsxuiscsllBSded, echo=toMessage}
 atacReads_Open <- myPairs[IS < 100,]
 atacReads_MonoNuc <- myPairs[IS > 180 &
                                  IS < 240,]
@@ -162,7 +223,7 @@ ggplot(toPlot,aes(x=Fraction,y=Total,fill=Fraction))+geom_bar(stat="identity")+t
 
 6 Create a bigwig for the nucleosome free (< 100bp), mono-nucleosome (180bp-247bp) and di-nucleosome (315-437) fractions and visualise in IGV.
 
-```{r instjijiacsxscsllBSded,eval=FALSE}
+```{r instjijiacsxscsllBSded,eval=FALSE, echo=toMessage}
 atacFragments_Open <- granges(atacReads_Open)
 myCoverage_Open <- coverage(atacFragments_Open)
 export.bw(myCoverage_Open,"NucleosomeFree.bw")
