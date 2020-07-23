@@ -5,4 +5,4 @@ Presentations:
     titles: Session1 Session2 
     PresRmd: RU_ATAC.Rmd RU_ATAC_part2.Rmd
     PresOverviewRmd: Session1Overview.Rmd Session2Overview.Rmd
-    Exercises: ATACseq_part1.Rmd 
+    Exercises: ATACseq_part1.Rmd ATACseq_part2.Rmd
