@@ -278,7 +278,7 @@ seqlevels(tssLocations) <- mainChromosomes
 ```
 
 
-```{r processData_subset_fix, echo=F,eval=T}
+```{r processData_subset_fix, echo=F,eval=F}
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 
 myindex<-(match(seqnames(tssLocations), mainChromosomes))
@@ -287,6 +287,7 @@ myindex<-(match(seqnames(tssLocations), mainChromosomes))
 tssLocations <- tssLocations[!is.na(myindex)]
 
 seqlevels(tssLocations) <- mainChromosomes
+save(tssLocations, file="data/tss_pres2.Rmd")
 
 ```
 
@@ -295,6 +296,10 @@ seqlevels(tssLocations) <- mainChromosomes
 
 The soGGi package's **regionPlot()** function requires a BAM file of data to plot supplied to **bamFile** parameter and a GRanges to plot over supplied to **testRanges** argument.
 
+
+```{r, echo=F, eval=T}
+load("data/tss_pres2.Rmd")
+```
 
 ```{r processData_soggi, echo=TRUE,eval=FALSE,cache=FALSE}
 library(soGGi)
