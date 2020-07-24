@@ -769,7 +769,7 @@ peaks <- dir("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_Peaks_forCounting/",
              pattern="*.narrowPeak",full.names=TRUE)
 ```
 
-```{r processData_consensus_read2, dependson=processData_consensus_read, echo=TRUE,eval=T}
+```{r processData_consensus_read2, echo=TRUE,eval=T}
 myPeaks <- lapply(peaks,ChIPQC:::GetGRanges,simple=TRUE)
 allPeaksSet_nR <- reduce(unlist(GRangesList(myPeaks)))
 overlap <- list()
@@ -956,7 +956,6 @@ if(params$isSlides == "yes"){
   
 }
 ```
-
 
 ---
 ## Cutting sites from ATACseq data

@@ -22,7 +22,7 @@ Aligned data as a BAM file [can be found here.](https://www.encodeproject.org/fi
 
 The peak calls for ATAC-seq data [can be found here](https://www.encodeproject.org/files/ENCFF520GRD/@@download/ENCFF520GRD.bed.gz)
 
-## ATAC-seq analysis.
+## ATAC-seq analysis
 
 1. Plot the nucleosome free abd mono-nucleosome signals over mouse genome mm10 TSS regions from the T-reg ATAC-seq data for chromosomes chr1 to chr19.
 
