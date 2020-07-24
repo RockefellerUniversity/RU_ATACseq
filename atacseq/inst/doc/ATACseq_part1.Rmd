@@ -37,7 +37,7 @@ library(ggplot2)
 
 ```
 
-```{r instalcscldcsceBSded,eval=F, echo=toMessage}
+```{r instalcscldcsceBSded.1,eval=F, echo=toMessage}
 library(GenomicRanges)
 library(Rsamtools)
 library(rtracklayer)
