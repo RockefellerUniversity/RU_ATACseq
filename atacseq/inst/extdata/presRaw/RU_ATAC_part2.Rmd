@@ -958,10 +958,119 @@ if(params$isSlides == "yes"){
 }
 ```
 
+
 ---
+## Finding transcripton factor motifs
+
+We have covered how to identify motifs of interest using MEME with [ChIPseq]("https://rockefelleruniversity.github.io/RU_ChIPseq/presentations/slides/ChIPseq_In_Bioconductor3.html#22". These methods can be applied to your consensus ATAC peaks. As we explored in ChIP seq, we can instead of looking for motifs de novo, we can use the JASPAR database of known [motifs]("http://jaspar.genereg.net/"). To do this we will use the package [motifmatchr](https://www.bioconductor.org/packages/release/bioc/html/motifmatchr.html) which was developed by the Greenleaf lab.
+
+We will first use TFBStools to grab motif position weight matrices. Though we can use **getMatrixByName** to grab a specifc motif, we often do not know waht factors may be regulators in our ATACseq. Instead we can use getMatrixSet to grab all motifs. 
+
+```{r, eval=F, echo=T}
+library(JASPAR2020)
+library(TFBSTools)
+
+mouse_motifs <- getMatrixSet(JASPAR2020, list(species = "Mus musculus"))
+class(mouse_motifs)
+```
+
+```{r, eval=T, echo=F}
+library(JASPAR2020)
+library(TFBSTools)
+
+load("data/motifmatrix.RData")
+mouse_motifs <- motif_matrix
+class(mouse_motifs)
+```
+
+---
+## Motif scanning with motifmatchr
+
+With this list of PWMs we can use the **motifmatchr** package to scan our summits for the Myc motif and return the postions of the motifs.
+
+All we need is our list of PWMs, GRanges to scan within (i.e. our consensus peaks) and BSGenome object to extract sequence from. 
+
+We also set the **out** parameter. This controls what additonal information you get. In this case we get the *scores* which tell us how good a match the motif is for the genome sequence.  If we want the motif postiions instead we can use *positions* instead.
+
+```{r, echo=TRUE,collapse=F,eval=TRUE}
+library(motifmatchr)
+Motif_Overlaps <- matchMotifs(mouse_motifs,
+                         nrToCount, BSgenome.Mmusculus.UCSC.mm10, out = "scores")
+Motif_Overlaps
+```
+
+---
+## Which motifs change accesiblity?
+
+Having a list of motifs associated with peaks can be really useful. Now we can start to infer which motifs change more comparing different datsets. To do this we can use the package *ChromVar*.
+
+First we will compute deviations. The deviation score shows how accessible the set of peaks is relative to the expectation. This is based on the assumption there is equal chromatin accessibility profiles across cells/samples. This is normalized against a set of background peak sets matched for GC and average accessability.
+
+To do this we need counts for each of our granges. Luckily we already did this step for our DESeq. 
+
+```{r}
+
+dev <- computeDeviations(object = myCounts, annotations = motif_ix)
+
+
+class(dev)
+
+```
+
+
+---
+## ChromVar Deviations
+
+The object created by deviations contains the scores. **deviations()** function can be used to grab the score in a nice rectangular output. 
+
+Most useful perhaps is the Z-score of deviations which can be accessed by **deviationScores()**
+
+```{r}
+deviationScores(dev)[1:3,1:2]
+
+```
+
+---
+## ChromVar Variability
+
+Next we can caluclate the variability. This is the standard deviation of the z-scores across the samples. This means it is assessing how much accesibility of a given motif changes. The function **computeVariability** will calculate this variability score, confidence intervals and significance. 
+
+We can plot this variability to quickly see which motifs are changing the most across out conditions. 
+
+```{r}
+variability <- computeVariability(dev)
+
+plotVariability(variability, use_plotly = FALSE) 
+
+```
+  
+
+---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Visualizing Motif Changes and Footprints
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Visualizing Motif Changes and Footprints
+
+---
+"    
+  )
+  
+}
+```
+
+
 ## Cutting sites from ATACseq data
 
-ATACseq should generate shorter fragments (our nucleosome free regions) around smaller *protected* areas such as transcription factor binding sites.
+ATACseq should generate shorter fragments (our nucleosome free regions) around smaller *protected* areas such as stable transcription factor binding sites. These are called footprints. 
 
 We can therefore look for the pile-up of cut-sites around motifs of interest within different tissues/celltypes/samples.
 
