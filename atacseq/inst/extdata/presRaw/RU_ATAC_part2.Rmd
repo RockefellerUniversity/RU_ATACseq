@@ -47,6 +47,7 @@ library(DESeq2)
 library(BSgenome.Mmusculus.UCSC.mm10)
 library(tracktables)
 library(clusterProfiler)
+library(org.Mm.eg.db)
 
 library(ChIPseeker)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
