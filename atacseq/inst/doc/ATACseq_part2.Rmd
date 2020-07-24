@@ -137,7 +137,7 @@ DupRate*100
 
 3. For the Treg data produce a plot of transposase cut-sites for nucleosome free fragments around CTCF motifs on chromosome 18. Use the motif "Hsapiens-JASPAR_2014-CTCF-MA0139.1" from MotifDB package.
 
-```{r instaaxscslldeabbBSccded, eval=TRUE,dependson="instalcscldcsceBSded", echo=toMessage}
+```{r instaaxscslldeabbBSccded, eval=F, echo=toMessage}
 sortedBAM <- "~/Downloads/ENCFF053CGD.bam"
 chrLens <- seqlengths(BamFile(sortedBAM))
 param=ScanBamParam(flag=scanBamFlag(isProperPair =TRUE), 
