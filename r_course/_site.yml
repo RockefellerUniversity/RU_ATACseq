@@ -24,12 +24,18 @@ navbar:
         href: presentations/r_code/RU_ATAC_part2.R
   - text: Exercises
     menu:
-    - text: chipseq_part1
+    - text: ATACseq_part1
       menu:
       - text: Exercise
-        href: exercises/exercises/chipseq_part1_exercise.html
+        href: exercises/exercises/ATACseq_part1_exercise.html
       - text: Solution
-        href: exercises/answers/chipseq_part1_answers.html
+        href: exercises/answers/ATACseq_part1_answers.html
+    - text: ATACseq_part2
+      menu:
+      - text: Exercise
+        href: exercises/exercises/ATACseq_part2_exercise.html
+      - text: Solution
+        href: exercises/answers/ATACseq_part2_answers.html
   right:
   - text: Getting help!
     href: https://github.com//RockefellerUniversity/RU_ATACseq/issues

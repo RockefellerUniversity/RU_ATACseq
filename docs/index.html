@@ -397,13 +397,24 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li class="dropdown-submenu">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">chipseq_part1</a>
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">ATACseq_part1</a>
       <ul class="dropdown-menu" role="menu">
         <li>
-          <a href="exercises/exercises/chipseq_part1_exercise.html">Exercise</a>
+          <a href="exercises/exercises/ATACseq_part1_exercise.html">Exercise</a>
         </li>
         <li>
-          <a href="exercises/answers/chipseq_part1_answers.html">Solution</a>
+          <a href="exercises/answers/ATACseq_part1_answers.html">Solution</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">ATACseq_part2</a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="exercises/exercises/ATACseq_part2_exercise.html">Exercise</a>
+        </li>
+        <li>
+          <a href="exercises/answers/ATACseq_part2_answers.html">Solution</a>
         </li>
       </ul>
     </li>
@@ -440,10 +451,10 @@ div.tocify {
 <p><br></p>
 <div id="course-overview" class="section level2">
 <h2>Course Overview</h2>
-<p><br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AR-CMD-check-bioc"><img src="https://github.com/RockefellerUniversity/RU_atacseq/workflows/R-CMD-check-bioc/badge.svg"></a></p>
+<p><br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AR-CMD-check-bioc"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/R-CMD-check-bioc/badge.svg"></a></p>
 <p>This course introduces ATACseq analysis in Bioconductor.</p>
 <p>The course consists of 2 sections. This walk you through each step of a normal ATACseq analysis workflow. It covers alignment, QC, peak calling, testing for enrichment in groups of genes, motif enrichment and testing for differential accessibility. Exercises and answer sheets are included after all subsections to practice techniques and provide future reference examples.</p>
-<p>Course material and exercises are available to view as rendered HTML at <a href="https://rockefelleruniversity.github.io/Intro_To_R_1Day/" class="uri">https://rockefelleruniversity.github.io/Intro_To_R_1Day/</a>. All material is available to download under GPL v2 license.</p>
+<p>Course material and exercises are available to view as rendered HTML at <a href="https://rockefelleruniversity.github.io/RU_ATACseq/" class="uri">https://rockefelleruniversity.github.io/RU_ATACseq/</a>. All material is available to download under GPL v2 license.</p>
 <p><br><br></p>
 </div>
 <div id="setting-up" class="section level2">
@@ -534,6 +545,9 @@ BiocManager::install(&#39;dplyr&#39;)
 BiocManager::install(&#39;rGREAT&#39;)
 BiocManager::install(&#39;MotifDb&#39;)
 BiocManager::install(&#39;Biostrings&#39;)
+BiocManager::install(&#39;GenomicRanges&#39;)
+BiocManager::install(&#39;seqLogo&#39;)
+BiocManager::install(&#39;org.Mm.eg.db&#39;)
 BiocManager::install(&#39;knitr&#39;)
 BiocManager::install(&#39;testthat&#39;)
 BiocManager::install(&#39;yaml&#39;)</code></pre>
