@@ -368,7 +368,30 @@ ggplot(mappedReads,aes(seqnames,mapped,fill=seqnames))+
   geom_bar(stat="identity")+coord_flip()
 ```
 
+
+
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Post-alignment processing
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Post-alignment processing
+
+---
+"    
+  )
+  
+}
+```
+
 ## Greenleaf dataset post-alignment processing
 
 Now we have the processed the ATACseq paired-end data we can start to work with alignments.

@@ -168,7 +168,29 @@ All our data is from open chromatin where our transposase has been able to acces
 <img src="imgs/buenstro.png" alt="offset" height="300" width="600">
 </div>
 
+
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Evaluating TSS signal
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Evaluating TSS signal
+
+---
+"    
+  )
+  
+}
+```
+
 
 ##  Evaluating signal over TSS regions
 
@@ -387,9 +409,28 @@ In this plot we can clearly see the expected +1 nucleosome signal peak as well a
 plotRegion(monoNuc)
 ```
 
+---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
 
+# Peak calling
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
 
 ---
+"    
+  )
+}else{
+  cat("# Peak calling
+
+---
+"    
+  )
+  
+}
+```
+
 ## Finding Open Regions
 
 A common goal in ATACseq is to identify nucleosome free regions where transcription factors are binding and/or transcriptional machinery is active. This nucleosome free signal would correspond to fragments less than one nucleosome (as defined in Greenleaf paper < 100bp)
@@ -529,16 +570,54 @@ Since blacklisted regions may confound our analysis we remove any peaks which ha
 
 Removing blacklists too early can hide some of the QC issues in your data. The **blacklist** should always be considered in your analysis and recommended to removed data from these regions once QC is considered.
 
-```{r processData_filterBLKlist, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_callQC"}
+```{r processData_filterBLKlist, echo=F,eval=F,cache=TRUE,dependson="processData_callQC"}
 
 MacsCalls <- granges(qcRes[seqnames(qcRes) %in% "chr20"])
 
 data.frame(Blacklisted=sum(MacsCalls %over% blkList),
            Not_Blacklisted=sum(!MacsCalls %over% blkList))
+save(MacsCalls,file="data/MacsCall_pres2.RData")
+
+```
+
+```{r , echo=T,eval=F}
+
+MacsCalls <- granges(qcRes[seqnames(qcRes) %in% "chr20"])
+
+data.frame(Blacklisted=sum(MacsCalls %over% blkList),
+           Not_Blacklisted=sum(!MacsCalls %over% blkList))
+
 MacsCalls <- MacsCalls[!MacsCalls %over% blkList]
+
+```
+
+```{r, echo=F, eval=T}
+load("data/MacsCall_pres2.RData")
+MacsCalls <- MacsCalls[!MacsCalls %over% blkList]
+
 ```
 
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Annotating Peaks
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Annotating Peaks
+
+---
+"    
+  )
+  
+}
+```
 
 ## Annotating Open Regions
 
@@ -587,6 +666,28 @@ MacsGR_TSS[1,]
 ```
 
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Functional analysis of peaks
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Functional analysis of peaks
+
+---
+"    
+  )
+  
+}
+```
+
+---
 ## Functional Analysis of Nucleosome-free regions
 
 Another common step to ATACseq analysis is to identify any functional enrichment in genes associated to nucleosome free regions.
@@ -620,6 +721,28 @@ great_ResultTable[["GO Biological Process"]][1:4, ]
 ```
 
 ---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Differential ATACseq
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Differential ATACseq
+
+---
+"    
+  )
+  
+}
+```
+
+
 ## Differential ATACseq
 
 We have briefly reviewed the processing and initial analysis of one ATACseq sample using R.
@@ -672,10 +795,22 @@ allPeaksSet_nR[1:2,]
 
 We filter out peaks in blacklists and in ChrM prior to testing to eliminate potential artefact differential calls.
 
-```{r processData_consensusCounting, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_consensusa"}
+```{r processData_consensusCounting, echo=F,eval=F,cache=TRUE,dependson="processData_consensusa"}
 blklist <- import.bed("data/ENCFF547MET.bed.gz")
 nrToCount <- allPeaksSet_nR[!allPeaksSet_nR %over% blklist 
                             & !seqnames(allPeaksSet_nR) %in% "chrM"]
+save(nrToCount,file="data/nrToCount_pres2.RData")
+```
+
+```{r, eval=F, echo=T}
+blklist <- import.bed("data/ENCFF547MET.bed.gz")
+nrToCount <- allPeaksSet_nR[!allPeaksSet_nR %over% blklist 
+                            & !seqnames(allPeaksSet_nR) %in% "chrM"]
+nrToCount
+```
+
+```{r, eval=T, echo=F}
+load("data/nrToCount_pres2.RData")
 nrToCount
 ```
 
@@ -799,6 +934,29 @@ go <- enrichGO(DB_ATAC$geneId,
 go[1:2,1:6]
 
 ```
+
+---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Finding Motifs in ATACseq data
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Finding Motifs in ATACseq data
+
+---
+"    
+  )
+  
+}
+```
+
 
 ---
 ## Cutting sites from ATACseq data
