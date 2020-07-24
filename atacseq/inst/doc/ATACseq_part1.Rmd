@@ -196,7 +196,7 @@ tableOfIS <- table(IS)
 toPlot <- data.frame(InsertSize=as.numeric(names(tableOfIS)),
                             Count=as.numeric(tableOfIS))
 fragLenPlot <- ggplot(toPlot,aes(x=InsertSize,y=Count))+geom_line()
-save(fragLenPlot,myPairs, file="data/ex1_QCplot.RData")
+save(IS,fragLenPlot,myPairs, file="data/ex1_QCplot.RData")
 ```
 
 ```{r, eval=T, echo=F}
@@ -239,4 +239,4 @@ export.bw(myCoverage_diNuc,"DiNucleosome.bw")
 
 ```
 
-![](forExe.png)
+![](imgs/forExe.png)
