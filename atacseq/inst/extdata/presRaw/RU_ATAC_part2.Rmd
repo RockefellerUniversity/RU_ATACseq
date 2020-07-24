@@ -266,16 +266,26 @@ tssLocations
 
 When we created our index we subset the genome to the main chromosomes. We can do this again with our TSS GRange object, and update the levels. This means the BAM and GRanges will play nicely. 
 
-```{r processData_subset, echo=TRUE,eval=TRUE}
+```{r processData_subset, echo=TRUE,eval=F}
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
-```
-```{r processData_subset2, echo=TRUE,eval=TRUE}
+
 myindex<-(seqnames(tssLocations) %in% mainChromosomes)
-```
-```{r processData_subset3, echo=TRUE,eval=TRUE}
+
 tssLocations <- tssLocations[as.numeric(myindex)]
+
+seqlevels(tssLocations) <- mainChromosomes
+
 ```
-```{r relevel , echo=TRUE,eval=TRUE}
+
+
+```{r processData_subset, echo=F,eval=T}
+mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
+
+myindex<-(match(seqnames(tssLocations), mainChromosomes))
+
+
+tssLocations <- tssLocations[!is.na(myindex)]
+
 seqlevels(tssLocations) <- mainChromosomes
 
 ```
