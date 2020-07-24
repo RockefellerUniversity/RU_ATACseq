@@ -973,7 +973,7 @@ Here we will identify CTCF motifs passing an arbitary cut-off and then use soGGi
 
 We need to identify the position of CTCF motifs across the genome so first we need to know what a CTCF motif looks like.
 
-The motifDB package contains information on Motifs from public databases such as Jaspar. Here we use the **query()** function with our motif of interest (**CTCF**) to extract the CTCF motif.
+The motifDB package contains information on Motifs from public databases such as JASPAR. Here we use the **query()** function with our motif of interest (**CTCF**) to extract the CTCF motif.
 
 ```{r processData_motifCutsa, echo=TRUE,eval=TRUE,cache=TRUE,message=FALSE,warning=FALSE}
 library(MotifDb)
