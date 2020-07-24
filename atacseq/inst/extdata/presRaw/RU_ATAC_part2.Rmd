@@ -278,7 +278,7 @@ seqlevels(tssLocations) <- mainChromosomes
 ```
 
 
-```{r processData_subset, echo=F,eval=T}
+```{r processData_subset_fix, echo=F,eval=T}
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 
 myindex<-(match(seqnames(tssLocations), mainChromosomes))
