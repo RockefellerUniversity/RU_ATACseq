@@ -14,7 +14,7 @@ Depends: methods, ggplot2, rmarkdown, ShortRead, ashr, ChIPQC, DiffBind,
     TxDb.Hsapiens.UCSC.hg19.knownGene, DESeq2, BSgenome.Mmusculus.UCSC.mm10, 
     tracktables, clusterProfiler, TxDb.Mmusculus.UCSC.mm10.knownGene, devtools, 
     tidyr, DT, dplyr, rGREAT, MotifDb, Biostrings, GenomicRanges, 
-    TxDb.Mmusculus.UCSC.mm10.knownGene, seqLogo, org.Mm.eg.db, ATACSeqQC
+    TxDb.Mmusculus.UCSC.mm10.knownGene, seqLogo, org.Mm.eg.db, ATACseqQC
 Suggests: knitr,
     rmarkdown,
     testthat,
