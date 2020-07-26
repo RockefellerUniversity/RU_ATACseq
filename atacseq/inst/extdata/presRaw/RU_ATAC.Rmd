@@ -717,7 +717,53 @@ export.bw(myCoverage,openRegionRPMBigWig)
 <img src="imgs/final.png" alt="offset" height="300" width="600">
 </div>
 
+
 ---
+## ATACseqQC
+
+The **ATACseqQC** library allows us to run many of the ATACseq QC steps we have seen in a single step. It may consume a little more memory but will allow for the inclusion of two more useful metrics called the PCR Bottleneck Coefficients (PBC1 and PBC2).
+
+First we must install the library.
+
+```{r eval=FALSE}
+BiocManager::install("ATACseqQC")
+```
+
+---
+## ATACseqQC
+
+As with ChIPQC, the ATACseqQC function contains a workflow function which will acquire much of the required QC with a single argument of the BAM file path.
+
+Since this can be fairly memory heavy, i am just illustrating it here on a BAM file containing just the chromosome 17 reads of the ATACseq data.
+
+```{r eval=FALSE}
+library(ATACseqQC)
+ATACQC <- bamQC("~/Downloads/Sorted_ATAC_50K_2_ch17.bam")
+```
+
+---
+## ATACseqQC
+
+The resulting ATACQC object has many slots of QC information including duplicateRate, non-redundant fraction, distribution of signal across chromsomes, mitochondrial fraction etc.
+
+These include the **PCRbottleneckCoefficient_1** and **PCRbottleneckCoefficient_2** values.
+
+```{r eval=TRUE,echo=FALSE,include=FALSE}
+load("data/ATACQC.RData")
+```
+
+```{r}
+names(ATACQC)
+```
+
+---
+## ATACseqQC
+
+
+
+---
+
+  
 ## Time for an exercise!
 
 Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part1_exercise.html)
