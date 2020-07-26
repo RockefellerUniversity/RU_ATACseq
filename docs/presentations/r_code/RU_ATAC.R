@@ -2,6 +2,7 @@ params <-
 list(isSlides = "no")
 
 ## ----include=FALSE------------------------------------------------------------
+require(ShortRead)
 suppressPackageStartupMessages(require(knitr))
 knitr::opts_chunk$set(echo = TRUE, tidy = T)
 

@@ -245,28 +245,6 @@ The read names will match across files for paired reads with the exception of a 
 
 ```r
 require(ShortRead)
-```
-
-```
-## Loading required package: ShortRead
-```
-
-```
-## Loading required package: BiocParallel
-```
-
-```
-## 
-## Attaching package: 'ShortRead'
-```
-
-```
-## The following object is masked from 'package:magrittr':
-## 
-##     functions
-```
-
-```r
 read1 &lt;- readFastq("data/ATACSample_r1.fastq.gz")
 read2 &lt;- readFastq("data/ATACSample_r2.fastq.gz")
 id(read1)[1:2]
