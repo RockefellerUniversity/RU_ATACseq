@@ -759,9 +759,32 @@ names(ATACQC)
 ---
 ## ATACseqQC
 
+PCR bottleneck coefficients identify PCR bias/overamplification which may have occurred in preparation of ATAC samples.
+
+The **PCRbottleneckCoefficient_1** is calculated as the number of positions in genome with exactly 1 read mapped uniquely compared to the number of positions with at least 1 read.
+
+Values less than 0.7 indicate severe bottlenecking, between 0.7 and 0.9 indicate moderate bottlenecking. Greater than 0.9 show no bottlenecking.
+
+```{r}
+ATACQC$PCRbottleneckCoefficient_1
+```
 
 
 ---
+## ATACseqQC
+
+
+The **PCRbottleneckCoefficient_2** is calculated as the number of positions in genome with exactly 1 read mapped uniquely compared to the number of positions with 2 reads mapping uniquely.
+
+Values less than 1 indicate severe bottlenecking, between 1 and 3 indicate moderate bottlenecking. Greater than 3 show no bottlenecking.
+
+```{r}
+ATACQC$PCRbottleneckCoefficient_2
+```
+
+
+---
+
 
   
 ## Time for an exercise!
