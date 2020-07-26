@@ -1,6 +1,6 @@
 <br>
 
-#### **ATACAseq, Session 1**
+#### **ATACseq, Session 1**
 
 This section introduces the analysis of ATACseq data in Bioconductor
 Session sections:

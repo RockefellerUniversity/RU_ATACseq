@@ -1,6 +1,6 @@
 <br>
 
-#### **ATACAseq, Session 2**
+#### **ATACseq, Session 2**
 
 This section demonstrates how to assess global changes in accesibility with ATACseq data.
 Session sections:
