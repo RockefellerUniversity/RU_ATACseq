@@ -3,6 +3,7 @@ list(isSlides = "no")
 
 ## ----include=FALSE------------------------------------------------------------
 require(ShortRead)
+library(ggplot2)
 suppressPackageStartupMessages(require(knitr))
 knitr::opts_chunk$set(echo = TRUE, tidy = T)
 
@@ -87,7 +88,7 @@ id(read2)[1:2]
 ## setwd("~/Projects/Results/chipseq/testRunforTalk/")
 
 
-## ----processData_align, echo=TRUE,eval=FALSE,cache=FALSE----------------------
+## ----processData_align, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE-----------
 ## 
 ## align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ##       readfile1=read1,readfile2=read2,
@@ -97,7 +98,7 @@ id(read2)[1:2]
 ## 
 
 
-## ----indedsx, echo=TRUE,eval=FALSE--------------------------------------------
+## ----indedsx, echo=TRUE,eval=FALSE,tidy=FALSE---------------------------------
 ## library(Rbowtie2)
 ## bowtie2_build(references="BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa",
 ##               bt2Index="BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2")
@@ -108,7 +109,7 @@ id(read2)[1:2]
 ## gunzip("ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz")
 
 
-## ----indexas, echo=TRUE,eval=FALSE--------------------------------------------
+## ----indexas, echo=TRUE,eval=FALSE,tidy=FALSE---------------------------------
 ## library(Rsamtools)
 ## bowtie2(bt2Index = "BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2",
 ##           samOutput = "ATAC_50K_2_bowtie2.sam",
@@ -118,7 +119,7 @@ id(read2)[1:2]
 ## asBam("ATAC_50K_2_bowtie2.sam")
 
 
-## ----processData_indexAndSort, echo=TRUE,eval=FALSE,cache=FALSE---------------
+## ----processData_indexAndSort, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE----
 ## library(Rsamtools)
 ## sortedBAM <- file.path(dirname(outBAM),
 ##                        paste0("Sorted_",basename(outBAM))
@@ -213,6 +214,28 @@ read2 <- second(atacReads)
 read2[1,]
 
 
+## ----processData_readingInData3, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData2"----
+read1MapQ <- mcols(read1)$mapq
+read2MapQ <- mcols(read2)$mapq
+read1MapQ[1:2]
+
+
+## ----processData_readingInData4, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData3"----
+read1MapQFreqs <- table(read1MapQ)
+read2MapQFreqs <- table(read2MapQ)
+read1MapQFreqs
+read2MapQFreqs
+
+
+## ----processData_readingInData5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"----
+library(ggplot2)
+toPlot <- data.frame(MapQ=c(names(read1MapQFreqs),names(read2MapQFreqs)),
+           Frequency=c(read1MapQFreqs,read2MapQFreqs),
+           Read=c(rep("Read1",length(read1MapQFreqs)),rep("Read2",length(read2MapQFreqs))))
+toPlot$MapQ <- factor(toPlot$MapQ,levels = unique(sort(as.numeric(toPlot$MapQ))))
+ggplot(toPlot,aes(x=MapQ,y=Frequency,fill=MapQ))+geom_bar(stat="identity")+facet_grid(~Read)
+
+
 ## ----processData_extractingReadsss1, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_readingInData"----
 ## atacReads_read1 <- first(atacReads)
 ## insertSizes <- abs(elementMetadata(atacReads_read1)$isize)
@@ -260,7 +283,7 @@ fragLenPlot+ scale_y_continuous(trans='log2')+
 
 
 ## ----processData_createOpenRegionBAM, echo=TRUE,eval=TRUE,cache=TRUE,dependson=c("processData_extractingRead1","processData_readingInData")----
-atacReads_Open <- atacReads[insertSizes < 100,]
+atacReads_NucFree <- atacReads[insertSizes < 100,]
 atacReads_MonoNuc <- atacReads[insertSizes > 180 &
                                  insertSizes < 240,]
 atacReads_diNuc <- atacReads[insertSizes > 315 &
@@ -268,25 +291,58 @@ atacReads_diNuc <- atacReads[insertSizes > 315 &
 
 
 ## ----processData_createOpenRegionBAM_2, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBAM"----
-## openRegionBam <- gsub("\\.bam","_openRegions\\.bam",sortedBAM)
+## nucFreeRegionBam <- gsub("\\.bam","_nucFreeRegions\\.bam",sortedBAM)
 ## monoNucBam <- gsub("\\.bam","_monoNuc\\.bam",sortedBAM)
 ## diNucBam <- gsub("\\.bam","_diNuc\\.bam",sortedBAM)
 ## 
 ## library(rtracklayer)
-## export(atacReads_Open,openRegionBam,format = "bam")
+## export(atacReads_NucFree,nucFreeRegionBam,format = "bam")
 ## export(atacReads_MonoNuc,monoNucBam,format = "bam")
-## export(atacReads_Open,diNucBam,format = "bam")
+## export(atacReads_diNuc,diNucBam,format = "bam")
 
 
 ## ----processData_createOpenRegionBigWig_2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_createOpenRegionBAM"----
-atacReads_Open[1,]
-atacFragments_Open <- granges(atacReads_Open)
-atacFragments_Open[1,]
+atacReads[1,]
+atacFragments<- granges(atacReads)
+atacFragments[1,]
+
+
+## ----processData_createOpenRegionBigWig_5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"----
+duplicatedFragments <- sum(duplicated(atacFragments))
+totalFragments <- length(atacFragments)
+duplicateRate <- duplicatedFragments/totalFragments
+nonRedundantFraction <-  1-duplicateRate
+nonRedundantFraction
 
 
 ## ----processData_createOpenRegionBigWig_21, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"----
-## openRegionRPMBigWig <- gsub("\\.bam","_openRegionsRPM\\.bw",sortedBAM)
-## myCoverage <- coverage(atacFragments_Open,
-##                        weight = (10^6/length(atacFragments_Open)))
+## openRegionRPMBigWig <- gsub("\\.bam","_openRegionRPM\\.bw",sortedBAM)
+## myCoverage <- coverage(atacFragments,
+##                        weight = (10^6/length(atacFragments)))
 ## export.bw(myCoverage,openRegionRPMBigWig)
+
+
+## ----eval=FALSE---------------------------------------------------------------
+## BiocManager::install("ATACseqQC")
+
+
+## ----eval=FALSE---------------------------------------------------------------
+## library(ATACseqQC)
+## ATACQC <- bamQC("~/Downloads/Sorted_ATAC_50K_2_ch17.bam")
+
+
+## ----eval=TRUE,echo=FALSE,include=FALSE---------------------------------------
+load("data/ATACQC.RData")
+
+
+## -----------------------------------------------------------------------------
+names(ATACQC)
+
+
+## -----------------------------------------------------------------------------
+ATACQC$PCRbottleneckCoefficient_1
+
+
+## -----------------------------------------------------------------------------
+ATACQC$PCRbottleneckCoefficient_2
 
