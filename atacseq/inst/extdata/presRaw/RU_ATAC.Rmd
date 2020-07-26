@@ -23,6 +23,7 @@ params:
 
 ```{r,include=FALSE}
 require(ShortRead)
+library(ggplot2)
 suppressPackageStartupMessages(require(knitr))
 knitr::opts_chunk$set(echo = TRUE, tidy = T)
 ```
@@ -303,7 +304,7 @@ The maximum allowed fragment length set here is based on parameters used within 
 setwd("~/Projects/Results/chipseq/testRunforTalk/")
 ```
 
-```{r processData_align, echo=TRUE,eval=FALSE,cache=FALSE}
+```{r processData_align, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE}
 
 align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
       readfile1=read1,readfile2=read2,
@@ -321,7 +322,7 @@ To use Rbowtie2 we must also build our index prior to aligment. Here we use the 
 
 
 
-```{r indedsx, echo=TRUE,eval=FALSE}
+```{r indedsx, echo=TRUE,eval=FALSE,tidy=FALSE}
 library(Rbowtie2)
 bowtie2_build(references="BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa", 
               bt2Index="BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2")
@@ -349,7 +350,7 @@ Now we can align our fastq to the genome with the **bowtie2()** function specify
 Finally we can convert the output **SAM** file to a more useable **BAM** file with **asBam()** function.
 
 
-```{r indexas, echo=TRUE,eval=FALSE}
+```{r indexas, echo=TRUE,eval=FALSE,tidy=FALSE}
 library(Rsamtools)
 bowtie2(bt2Index = "BSgenome.Hsapiens.UCSC.hg19.mainChrs_bowtie2",
           samOutput = "ATAC_50K_2_bowtie2.sam",
@@ -369,7 +370,7 @@ First we sort our aligned data by sequence order (not Read Name here).
 We then index our file allowing for rapid access of particular genomic locations by other programs (e.g IGV, Samtools) and by R/Bioconductor packages we will use.
 
 
-```{r processData_indexAndSort, echo=TRUE,eval=FALSE,cache=FALSE}
+```{r processData_indexAndSort, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE}
 library(Rsamtools)
 sortedBAM <- file.path(dirname(outBAM),
                        paste0("Sorted_",basename(outBAM))
@@ -523,9 +524,47 @@ read2[1,]
 ```
 
 ---
+## Greenleaf dataset post-alignment processing
+
+One of the first we can do is obtain the distribution of MapQ scores for our read 1 and read2. We can access this for each read using **mcols()** function to access the mapq slot of the GAalignments object for each read.
+
+```{r processData_readingInData3, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData2"}
+read1MapQ <- mcols(read1)$mapq
+read2MapQ <- mcols(read2)$mapq
+read1MapQ[1:2]
+```
+
+---
+## Greenleaf dataset post-alignment processing
+
+We can then use the **table()** function to summarise the frequency of scores for each read in pair.
+
+```{r processData_readingInData4, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData3"}
+read1MapQFreqs <- table(read1MapQ)
+read2MapQFreqs <- table(read2MapQ)
+read1MapQFreqs
+read2MapQFreqs
+```
+
+---
+## Greenleaf dataset post-alignment processing
+
+Finally we can plot the distibutions of MapQ for each read in pair using ggplot2
+
+```{r processData_readingInData5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"}
+library(ggplot2)
+toPlot <- data.frame(MapQ=c(names(read1MapQFreqs),names(read2MapQFreqs)),
+           Frequency=c(read1MapQFreqs,read2MapQFreqs),
+           Read=c(rep("Read1",length(read1MapQFreqs)),rep("Read2",length(read2MapQFreqs))))
+toPlot$MapQ <- factor(toPlot$MapQ,levels = unique(sort(as.numeric(toPlot$MapQ))))
+ggplot(toPlot,aes(x=MapQ,y=Frequency,fill=MapQ))+geom_bar(stat="identity")+facet_grid(~Read)
+```
+
+
+---
 ## Retrieving insert sizes
 
-Now we have read in the paired aligned data into R, we can retreive the insert sizes from the elementMetadata attached to **GAlignments** objects of each read pair.
+Now we have reads in the paired aligned data into R, we can retreive the insert sizes from the elementMetadata attached to **GAlignments** objects of each read pair.
 
 Since properly paired reads will have the same insert size length we extract insert sizes from read1.
 
@@ -611,7 +650,7 @@ We may wish to divide our aligned reads into reads representing nucleosome free 
 Here we create BAM files for the reads representing nucleosome free, mono and di nucleosome by using insert sizes to filter read.
 
 ```{r processData_createOpenRegionBAM, echo=TRUE,eval=TRUE,cache=TRUE,dependson=c("processData_extractingRead1","processData_readingInData")}
-atacReads_Open <- atacReads[insertSizes < 100,]
+atacReads_NucFree <- atacReads[insertSizes < 100,]
 atacReads_MonoNuc <- atacReads[insertSizes > 180 &
                                  insertSizes < 240,]
 atacReads_diNuc <- atacReads[insertSizes > 315 &
@@ -624,27 +663,40 @@ The resulting reads can be written back to BAM files for use in other parts of o
 
 
 ```{r processData_createOpenRegionBAM_2, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBAM"}
-openRegionBam <- gsub("\\.bam","_openRegions\\.bam",sortedBAM)
+nucFreeRegionBam <- gsub("\\.bam","_nucFreeRegions\\.bam",sortedBAM)
 monoNucBam <- gsub("\\.bam","_monoNuc\\.bam",sortedBAM)
 diNucBam <- gsub("\\.bam","_diNuc\\.bam",sortedBAM)
 
 library(rtracklayer)
-export(atacReads_Open,openRegionBam,format = "bam")
+export(atacReads_NucFree,nucFreeRegionBam,format = "bam")
 export(atacReads_MonoNuc,monoNucBam,format = "bam")
-export(atacReads_Open,diNucBam,format = "bam")
+export(atacReads_diNuc,diNucBam,format = "bam")
 ```
 
 ---
-## Creating an open region bigWig
+## Creating fragment GRanges.
 
-We can make it significantly quicker to review the pile-up of ATACseq signal in a genome browser by creating a bigWig file.
+We can recreate the full length fragments from our single end reads to evaluate duplication rate and create a fragment bigwig.
 
 Here we use the **granges()** function to recreate full fragments from the paired single-end reads.
 
 ```{r processData_createOpenRegionBigWig_2, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_createOpenRegionBAM"}
-atacReads_Open[1,]
-atacFragments_Open <- granges(atacReads_Open)
-atacFragments_Open[1,]
+atacReads[1,]
+atacFragments<- granges(atacReads)
+atacFragments[1,]
+```
+
+---
+## Creating fragment GRanges.
+
+We can use the **duplicated()** function to identify our non-redundant (non-duplicate) fraction of our full length fragments.
+
+```{r processData_createOpenRegionBigWig_5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"}
+duplicatedFragments <- sum(duplicated(atacFragments))
+totalFragments <- length(atacFragments)
+duplicateRate <- duplicatedFragments/totalFragments
+nonRedundantFraction <-  1-duplicateRate
+nonRedundantFraction
 ```
 
 ---
@@ -655,9 +707,9 @@ We can make it significantly quicker to review the pile-up of ATACseq signal in 
 Additional normalisation to total mapped reads could be applied at this point.
 
 ```{r processData_createOpenRegionBigWig_21, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"}
-openRegionRPMBigWig <- gsub("\\.bam","_openRegionsRPM\\.bw",sortedBAM)
-myCoverage <- coverage(atacFragments_Open,
-                       weight = (10^6/length(atacFragments_Open)))
+openRegionRPMBigWig <- gsub("\\.bam","_openRegionRPM\\.bw",sortedBAM)
+myCoverage <- coverage(atacFragments,
+                       weight = (10^6/length(atacFragments)))
 export.bw(myCoverage,openRegionRPMBigWig)
 ```
 
@@ -668,13 +720,13 @@ export.bw(myCoverage,openRegionRPMBigWig)
 ---
 ## Time for an exercise!
 
-Exercise on ATACseq data can be found [here](../../exercises/exercises/atacseq_part1_exercise.html)
+Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part1_exercise.html)
 
 ---
 ## Answers to exercise
 
-Answers can be found [here](../../exercises/answers/atacseq_part1_answers.html)
+Answers can be found [here](../../exercises/answers/ATACseq_part1_answers.html)
 
-R code for solutions can be found [here](../../exercises/answers/atacseq_part1_answers.R)
+R code for solutions can be found [here](../../exercises/answers/ATACseq_part1_answers.R)
 
 
