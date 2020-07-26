@@ -179,23 +179,6 @@ Meta-plots average or sum signal over sets of regions to identify trends in data
 &lt;img src="imgs/signalOverTSS.png" alt="offset" height="300" width="600"&gt;
 &lt;/div&gt;
 
-&lt;!-- --- --&gt;
-
-&lt;!-- ##  Plotting signal over regions in R --&gt;
-
-&lt;!-- To produce meta-plots of signal over regions we can use the **soGGi** bioconductor package. We will be using a development of soGGi however so we will need to install from the github repository. --&gt;
-
-&lt;!-- To install packages from a Github directory we can take advantage of the **install_github()** function in the **devtools** package. The **install_github()** simply takes the **user and repository name** as a file path for library to install. --&gt;
-
-&lt;!-- First we install the **devtools** library. --&gt;
-
-&lt;!-- ```{r processData_align, echo=TRUE,eval=FALSE,cache=FALSE} --&gt;
-
-&lt;!-- install.packages("devtools") --&gt;
-&lt;!-- library(devtools) --&gt;
-&lt;!-- install_github("ThomasCarroll/soGGi") --&gt;
-&lt;!-- ``` --&gt;
-
 ---
 
 ##  Plotting signal over regions in R
@@ -631,12 +614,12 @@ MacsCalls_Anno &lt;- annotatePeak(MacsCalls, TxDb = TxDb.Hsapiens.UCSC.hg19.know
 ```
 
 ```
-## &gt;&gt; preparing features information...		 2020-07-24 10:05:30 PM 
-## &gt;&gt; identifying nearest features...		 2020-07-24 10:05:30 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2020-07-24 10:05:30 PM 
-## &gt;&gt; assigning genomic annotation...		 2020-07-24 10:05:30 PM 
-## &gt;&gt; assigning chromosome lengths			 2020-07-24 10:05:46 PM 
-## &gt;&gt; done...					 2020-07-24 10:05:46 PM
+## &gt;&gt; preparing features information...		 2020-07-26 01:53:47 PM 
+## &gt;&gt; identifying nearest features...		 2020-07-26 01:53:48 PM 
+## &gt;&gt; calculating distance from peak to TSS...	 2020-07-26 01:53:48 PM 
+## &gt;&gt; assigning genomic annotation...		 2020-07-26 01:53:48 PM 
+## &gt;&gt; assigning chromosome lengths			 2020-07-26 01:54:03 PM 
+## &gt;&gt; done...					 2020-07-26 01:54:03 PM
 ```
 
 ```r
@@ -1271,12 +1254,12 @@ anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain, TxDb = TxDb.M
 ```
 
 ```
-## &gt;&gt; preparing features information...		 2020-07-24 10:07:00 PM 
-## &gt;&gt; identifying nearest features...		 2020-07-24 10:07:00 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2020-07-24 10:07:01 PM 
-## &gt;&gt; assigning genomic annotation...		 2020-07-24 10:07:01 PM 
-## &gt;&gt; assigning chromosome lengths			 2020-07-24 10:07:18 PM 
-## &gt;&gt; done...					 2020-07-24 10:07:18 PM
+## &gt;&gt; preparing features information...		 2020-07-26 01:55:16 PM 
+## &gt;&gt; identifying nearest features...		 2020-07-26 01:55:17 PM 
+## &gt;&gt; calculating distance from peak to TSS...	 2020-07-26 01:55:17 PM 
+## &gt;&gt; assigning genomic annotation...		 2020-07-26 01:55:17 PM 
+## &gt;&gt; assigning chromosome lengths			 2020-07-26 01:55:34 PM 
+## &gt;&gt; done...					 2020-07-26 01:55:34 PM
 ```
 
 ```r
