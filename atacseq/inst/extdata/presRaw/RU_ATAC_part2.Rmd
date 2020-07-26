@@ -215,23 +215,6 @@ Meta-plots average or sum signal over sets of regions to identify trends in data
 <img src="imgs/signalOverTSS.png" alt="offset" height="300" width="600">
 </div>
 
-<!-- --- -->
-
-<!-- ##  Plotting signal over regions in R -->
-
-<!-- To produce meta-plots of signal over regions we can use the **soGGi** bioconductor package. We will be using a development of soGGi however so we will need to install from the github repository. -->
-
-<!-- To install packages from a Github directory we can take advantage of the **install_github()** function in the **devtools** package. The **install_github()** simply takes the **user and repository name** as a file path for library to install. -->
-
-<!-- First we install the **devtools** library. -->
-
-<!-- ```{r processData_align, echo=TRUE,eval=FALSE,cache=FALSE} -->
-
-<!-- install.packages("devtools") -->
-<!-- library(devtools) -->
-<!-- install_github("ThomasCarroll/soGGi") -->
-<!-- ``` -->
-
 ---
 
 ##  Plotting signal over regions in R
