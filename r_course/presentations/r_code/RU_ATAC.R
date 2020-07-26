@@ -40,7 +40,7 @@ if(params$isSlides == "yes"){
 
 
 
-## ----processData_BuildIndex, echo=TRUE,eval=FALSE,cache=FALSE-----------------
+## ----processData_BuildIndex, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE------
 ## library(BSgenome.Hsapiens.UCSC.hg19)
 ## mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 ## mainChrSeq <- lapply(mainChromosomes,
@@ -51,7 +51,7 @@ if(params$isSlides == "yes"){
 ##                 "BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa")
 
 
-## ----index, echo=TRUE,eval=FALSE----------------------------------------------
+## ----index, echo=TRUE,eval=FALSE,tidy=FALSE-----------------------------------
 ## library(Rsubread)
 ## buildindex("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ##            "BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa",
@@ -59,18 +59,38 @@ if(params$isSlides == "yes"){
 ##            memory = 1000)
 
 
+## -----------------------------------------------------------------------------
+read1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
+read2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
+
+
+## ----eval=FALSE,include=FALSE-------------------------------------------------
+## require(ShortRead)
+## read1 <- readFastq("~/Downloads/ENCFF175VOD.fastq.gz")
+## read2 <- readFastq("~/Downloads/ENCFF447BGX.fastq.gz")
+## writeFastq(read1[1:1000,],"ATACSample_r1.fastq.gz")
+## writeFastq(read2[1:1000,],"ATACSample_r2.fastq.gz")
+## # id(read2[1:1000,])
+## # myRes <- bamQC("~/Downloads/Sorted_ATAC_50K_2.bam")
+
+
+## ----eval=TRUE----------------------------------------------------------------
+require(ShortRead)
+read1 <- readFastq("data/ATACSample_r1.fastq.gz")
+read2 <- readFastq("data/ATACSample_r2.fastq.gz")
+id(read1)[1:2]
+id(read2)[1:2]
+
+
 ## ----processData_acdc, include=FALSE, eval=F----------------------------------
 ## setwd("~/Projects/Results/chipseq/testRunforTalk/")
 
 
 ## ----processData_align, echo=TRUE,eval=FALSE,cache=FALSE----------------------
-## read1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
-## read2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
-## outBAM <- "ATAC_50K_2.bam"
 ## 
 ## align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 ##       readfile1=read1,readfile2=read2,
-##       output_file = outBAM,
+##       output_file = "ATAC_50K_2.bam",
 ##       nthreads=2,type=1,
 ##       unique=TRUE,maxFragLength = 2000)
 ## 
