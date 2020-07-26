@@ -203,11 +203,13 @@ We will process one sample of the Greenleaf data from fastq to BAM to allow us t
 
 ## Creating a reference genome
 
-First we will need to create a reference genome to align our ATACseq data. [We can create a FASTA file for alignment as we done previously for the ChIPseq and RNAseq analysis.](https://rockefelleruniversity.github.io/RU_ChIPseq/chipseq_course/Presentations/Slides/ChIPseq_In_Bioconductor.html#25)
+First we will need to create a reference genome to align our ATACseq data. [We can create a FASTA file for alignment from the Bioconductor BSGenome objects.](https://rockefelleruniversity.github.io/Bioconductor_Introduction/presentations/slides/AlignmentInBioconductor.html#12)
+
+We have done this previously for the [ChIPseq](https://rockefelleruniversity.github.io/RU_ChIPseq/presentations/slides/ChIPseq_In_Bioconductor.html#28) and [RNAseq](https://rockefelleruniversity.github.io/RU_RNAseq/presentations/slides/RU_RNAseq_p1.html#17) analysis.
 
 Here as we are working with human data we use the **BSgenome.Hsapiens.UCSC.hg19** library for the hg19 genome build.
 
-```{r processData_BuildIndex, echo=TRUE,eval=FALSE,cache=FALSE}
+```{r processData_BuildIndex, echo=TRUE,eval=FALSE,cache=FALSE,tidy=FALSE}
 library(BSgenome.Hsapiens.UCSC.hg19)
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 mainChrSeq <- lapply(mainChromosomes,
@@ -229,7 +231,7 @@ Rsubread's [**buildindex()** function simply takes the parameters of our desired
 
 Here I additional specify the parameter **indexSplit** as TRUE in conjunction with **memory** parameter set to 1000 (1000MB) to control memory usage in Rsubread alignment step.
 
-```{r index, echo=TRUE,eval=FALSE}
+```{r index, echo=TRUE,eval=FALSE,tidy=FALSE}
 library(Rsubread)
 buildindex("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
            "BSgenome.Hsapiens.UCSC.hg19.mainChrs.fa",
@@ -242,7 +244,57 @@ buildindex("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
 
 Now we have an index, we can align our ATACseq reads.
 
-As ATACseq data is typically paired we will need to make some minor adjustments to our alignment steps. We can use a standard alignment for DNA (as for ChIPseq) but we increase the maximum allowed fragment length to capture long fragments representing poly-nucleosome signal. 
+As ATACseq data is typically paired-end sequencing we will need to make some minor adjustments to our alignment steps. 
+
+Paired-end sequencing data will most often comes as two files typically with *_1* and *_2* or *_R1* and *_R2* in file name to denote which number in pair.  
+
+```{r}
+read1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
+read2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
+```
+
+---
+## Aligning Sequence Reads
+
+Our two matched paired-end read files will (most often) contain the same number of reads and the reads will be ordered the same in both files. 
+
+The read names will match across files for paired reads with the exception of a 1 or 2 in name to signify if the read was first or second in a pair.
+
+```{r,eval=FALSE,include=FALSE}
+require(ShortRead)
+read1 <- readFastq("~/Downloads/ENCFF175VOD.fastq.gz")
+read2 <- readFastq("~/Downloads/ENCFF447BGX.fastq.gz")
+writeFastq(read1[1:1000,],"ATACSample_r1.fastq.gz")
+writeFastq(read2[1:1000,],"ATACSample_r2.fastq.gz")
+# id(read2[1:1000,])
+# myRes <- bamQC("~/Downloads/Sorted_ATAC_50K_2.bam")
+```
+
+```{r,eval=TRUE}
+require(ShortRead)
+read1 <- readFastq("data/ATACSample_r1.fastq.gz")
+read2 <- readFastq("data/ATACSample_r2.fastq.gz")
+id(read1)[1:2]
+id(read2)[1:2]
+```
+
+
+---
+## Aligning Sequence Reads
+
+The distance between paired reads is important in ATAC-seq to allow us to distinguish reads mapping from short or long fragments indicating nucleosome free and nucleosome portions of signal respectively.
+
+Following the alignment step the insert size gives us the total distance between the start of read1 and read2.
+
+<div align="center">
+<img src="imgs/insertSize.jpg" alt="offset" height="300" width="600">
+</div>
+
+
+---
+## Aligning Sequence Reads
+
+We can use a standard alignment for DNA (as for ChIPseq) but we increase the maximum allowed fragment length to capture long fragments representing poly-nucleosome signal. 
 
 The maximum allowed fragment length set here is based on parameters used within Greenleaf study. To control maximum allowed fragment lengths i set the **maxFragLength** parameter to 2000. I also set **unique** parameter to TRUE to only include uniquely mapping reads.
 
@@ -251,13 +303,10 @@ setwd("~/Projects/Results/chipseq/testRunforTalk/")
 ```
 
 ```{r processData_align, echo=TRUE,eval=FALSE,cache=FALSE}
-read1 <- "ATAC_Data/ATAC_FQs/SRR891269_1.fastq.gz"
-read2 <- "ATAC_Data/ATAC_FQs/SRR891269_2.fastq.gz"
-outBAM <- "ATAC_50K_2.bam"
 
 align("BSgenome.Hsapiens.UCSC.hg19.mainChrs",
       readfile1=read1,readfile2=read2,
-      output_file = outBAM,
+      output_file = "ATAC_50K_2.bam",
       nthreads=2,type=1,
       unique=TRUE,maxFragLength = 2000)
 
