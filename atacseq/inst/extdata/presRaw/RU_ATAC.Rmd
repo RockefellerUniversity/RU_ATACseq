@@ -524,7 +524,7 @@ read2[1,]
 ```
 
 ---
-## Greenleaf dataset post-alignment processing
+## Retrieve MapQ scores.
 
 One of the first we can do is obtain the distribution of MapQ scores for our read 1 and read2. We can access this for each read using **mcols()** function to access the mapq slot of the GAalignments object for each read.
 
@@ -535,7 +535,7 @@ read1MapQ[1:2]
 ```
 
 ---
-## Greenleaf dataset post-alignment processing
+## MapQ score frequencies
 
 We can then use the **table()** function to summarise the frequency of scores for each read in pair.
 
@@ -547,11 +547,11 @@ read2MapQFreqs
 ```
 
 ---
-## Greenleaf dataset post-alignment processing
+## Plot MapQ scores
 
 Finally we can plot the distibutions of MapQ for each read in pair using ggplot2
 
-```{r processData_readingInData5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"}
+```{r processData_readingInData5,fig.width=9,fig.height=4,  echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"}
 library(ggplot2)
 toPlot <- data.frame(MapQ=c(names(read1MapQFreqs),names(read2MapQFreqs)),
            Frequency=c(read1MapQFreqs,read2MapQFreqs),
