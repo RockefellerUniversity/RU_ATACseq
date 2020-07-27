@@ -227,7 +227,7 @@ read1MapQFreqs
 read2MapQFreqs
 
 
-## ----processData_readingInData5, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"----
+## ----processData_readingInData5,fig.width=9,fig.height=4,  echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_readingInData4"----
 library(ggplot2)
 toPlot <- data.frame(MapQ=c(names(read1MapQFreqs),names(read2MapQFreqs)),
            Frequency=c(read1MapQFreqs,read2MapQFreqs),
