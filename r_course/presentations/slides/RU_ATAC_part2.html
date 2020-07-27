@@ -126,7 +126,7 @@ Bigwigs for IGV.
 ## ATACseq
 
 &lt;div align="center"&gt;
-&lt;img src="https://www.the-scientist.com/January2016/LT2_2.jpg" alt="offset" height="300" width="600"&gt;
+&lt;img src="imgs/mnATAC.jpg" alt="offset" height="300" width="600"&gt;
 &lt;/div&gt;
 
 * ATACseq - Uses transposases and offers a method to simultaneously extract signal from transcription factors binding sites and nucleosome positions from a single sample.
@@ -164,7 +164,7 @@ If our shorter fragments represent the open regions around transcription factors
 Our longer fragments will represent signal around nucleosomes and so signal should be outside of the transcriptional start sites and more present at the +1 and -1 nucleosome positions.
 
 &lt;div align="center"&gt;
-&lt;img src="imgs/phasing.png" alt="offset" height="300" width="400"&gt;
+&lt;img src="imgs/phasing.png" alt="offset" height="300" width="350"&gt;
 &lt;/div&gt;
 
 ---
@@ -315,7 +315,8 @@ When we created our index we subset the genome to the main chromosomes. We can d
 ```r
 mainChromosomes &lt;- paste0("chr", c(1:21, "X", "Y", "M"))
 
-myindex &lt;- (seqnames(tssLocations) %in% mainChromosomes)
+myindex &lt;- (match(seqnames(tssLocations), mainChromosomes))
+
 
 tssLocations &lt;- tssLocations[as.numeric(myindex)]
 
@@ -401,11 +402,6 @@ In this plot we can clearly see the expected +1 nucleosome signal peak as well a
 
 ```r
 plotRegion(monoNuc)
-```
-
-```
-## Scale for 'x' is already present. Adding another scale for 'x', which will
-## replace the existing scale.
 ```
 
 ![](RU_ATAC_part2_files/figure-html/processData_plot3-1.png)&lt;!-- --&gt;
@@ -614,12 +610,12 @@ MacsCalls_Anno &lt;- annotatePeak(MacsCalls, TxDb = TxDb.Hsapiens.UCSC.hg19.know
 ```
 
 ```
-## &gt;&gt; preparing features information...		 2020-07-27 01:07:08 PM 
-## &gt;&gt; identifying nearest features...		 2020-07-27 01:07:09 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2020-07-27 01:07:09 PM 
-## &gt;&gt; assigning genomic annotation...		 2020-07-27 01:07:09 PM 
-## &gt;&gt; assigning chromosome lengths			 2020-07-27 01:07:25 PM 
-## &gt;&gt; done...					 2020-07-27 01:07:25 PM
+## &gt;&gt; preparing features information...		 2020-07-27 02:09:13 PM 
+## &gt;&gt; identifying nearest features...		 2020-07-27 02:09:13 PM 
+## &gt;&gt; calculating distance from peak to TSS...	 2020-07-27 02:09:14 PM 
+## &gt;&gt; assigning genomic annotation...		 2020-07-27 02:09:14 PM 
+## &gt;&gt; assigning chromosome lengths			 2020-07-27 02:09:28 PM 
+## &gt;&gt; done...					 2020-07-27 02:09:28 PM
 ```
 
 ```r
@@ -691,7 +687,7 @@ class: inverse, center, middle
 ---
 
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis of NF regions
 
 Another common step to ATACseq analysis is to identify any functional enrichment in genes associated to nucleosome free regions.
 
@@ -702,7 +698,7 @@ One approach is to take the genes we identified from ChIPseeker as having nucles
 **rGREAT by default will limit our queries and so we may need to be patient. This can be adjusted in rGREAT options.**
 
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis 
 
 We can submit our peak calls to GREAT using the **submitGreatJob** function and review available categories of results using **availableCategories**.
 
@@ -731,25 +727,13 @@ availableCategories(great_Job)
 ## [1] "GO"        "Phenotype" "Genes"
 ```
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis
 
 For this example we select the results tables for the GO category using getEnrichmentTables functions and then review the results for Biological processes.
 
 
 ```r
 great_ResultTable = getEnrichmentTables(great_Job, category = "GO")
-```
-
-```
-## The default enrichment tables contain no associated genes for the input
-## regions. You can set `download_by = 'tsv'` to download the complete
-## table, but note only the top 500 regions can be retreived. See the
-## following link:
-## 
-## https://great-help.atlassian.net/wiki/spaces/GREAT/pages/655401/Export#Export-GlobalExport
-```
-
-```r
 names(great_ResultTable)
 ```
 
@@ -842,7 +826,7 @@ mcols(allPeaksSet_nR) &lt;- overlapMatrix
 ```
 
 ---
-## Identifying a set of non-redundant peaks
+## Identifying non-redundant peaks
 
 
 
@@ -884,7 +868,7 @@ allPeaksSet_nR[1:2, ]
 ##   seqinfo: 22 sequences from an unspecified genome; no seqlengths
 ```
 ---
-## Identifying a set of non-redundant peaks
+## Identifying non-redundant peaks
 
 We filter out peaks in blacklists and in ChrM prior to testing to eliminate potential artefact differential calls.
 
@@ -999,7 +983,7 @@ nrToCount
 ---
 ## Counting for differential ATACseq
 
-We now identify the number of samples in which our non-redundant peaks occur. Here we use the **rowSums()** function with our occurrence matrix and select those samples occuring in more than 2 samples.
+We now identify the number of samples in which our non-redundant peaks occur. Here we use the **rowSums()** function with our occurrence matrix and select those samples occuring in at least 2 samples.
 
 
 ```r
@@ -1250,19 +1234,8 @@ Since we have subset regions to those within +/- 500bp of a TSS we can use a sta
 
 
 ```r
-anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain, TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene)
-```
-
-```
-## &gt;&gt; preparing features information...		 2020-07-27 01:08:34 PM 
-## &gt;&gt; identifying nearest features...		 2020-07-27 01:08:35 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2020-07-27 01:08:35 PM 
-## &gt;&gt; assigning genomic annotation...		 2020-07-27 01:08:35 PM 
-## &gt;&gt; assigning chromosome lengths			 2020-07-27 01:08:51 PM 
-## &gt;&gt; done...					 2020-07-27 01:08:51 PM
-```
-
-```r
+anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain, TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene, 
+    verbose = FALSE)
 DB_ATAC &lt;- as.data.frame(anno_KidneyMinusHindbrain)
 DB_ATAC[1, ]
 ```
@@ -1605,12 +1578,12 @@ plotRegion(CTCF_Cuts_open, outliers = 0.001) + ggtitle("NucFree Cuts Centred on 
 ---
 ## Time for an exercise!
 
-Exercise on ATACseq data can be found [here](../../exercises/exercises/atacseq_part2_exercise.html)
+Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part2_exercise.html)
 
 ---
 ## Answers to exercise
 
-Answers can be found [here](../../exercises/answers/atacseq_part2_answers.html)
+Answers can be found [here](../../exercises/answers/ATACseq_part2_answers.html)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

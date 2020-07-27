@@ -79,7 +79,8 @@ tssLocations
 ## ----processData_subset, echo=TRUE,eval=F-------------------------------------
 ## mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 ## 
-## myindex<-(seqnames(tssLocations) %in% mainChromosomes)
+## myindex<-(match(seqnames(tssLocations), mainChromosomes))
+## 
 ## 
 ## tssLocations <- tssLocations[as.numeric(myindex)]
 ## 
@@ -130,7 +131,7 @@ load("data/nucFree_TSS.Rdata")
 ## class(nucFree)
 
 
-## ----processData_plot, echo=TRUE,eval=T,cache=TRUE,message=FALSE,warning=FALSE----
+## ----processData_plot,fig.height=3.5,fig.width=7, echo=TRUE,eval=T,cache=TRUE,message=FALSE,warning=FALSE----
 plotRegion(nucFree)
 
 
@@ -159,7 +160,7 @@ load(file = "data/monoNuc_TSS.RData")
 ## 
 
 
-## ----processData_plot3, echo=TRUE,eval=T,cache=FALSE--------------------------
+## ----processData_plot3, fig.height=3.5,fig.width=7, echo=TRUE,eval=T,cache=FALSE, message=FALSE, warning=FALSE----
 plotRegion(monoNuc)
 
 
@@ -339,7 +340,7 @@ great_Job <- submitGreatJob(MacsCalls, species = "hg19")
 availableCategories(great_Job)
 
 
-## ----processData_funAnalysis2,echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_funAnalysis2"----
+## ----processData_funAnalysis2,echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_funAnalysis2",message=FALSE, warning=FALSE----
 great_ResultTable = getEnrichmentTables(great_Job, category = "GO")
 names(great_ResultTable)          
 great_ResultTable[["GO Biological Process"]][1:4, ]
@@ -476,7 +477,7 @@ makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",getwd())
 ## ----processData_DEseq2_functionalEnrichmentAnalysiss, echo=TRUE,eval=TRUE,cache=TRUE, dependson="processData_DEseq2_ResultsToTSSregions",message=FALSE,warning=FALSE----
 
 anno_KidneyMinusHindbrain <- annotatePeak(KidneyMinusHindbrain,
-                                          TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene)
+                                          TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene,verbose = FALSE)
 DB_ATAC <- as.data.frame(anno_KidneyMinusHindbrain)
 DB_ATAC[1,]
 
