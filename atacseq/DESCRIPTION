@@ -1,7 +1,7 @@
 Package: atacseq
 Type: Package
 Title: ATAC with Bioconductor
-Version: 0.1.0
+Version: 0.1.1
 Author: Thomas Carroll.
 Maintainer: Thomas Carroll <tc.infomatics@gmail>
 Description: More about what it does (maybe more than one line)
