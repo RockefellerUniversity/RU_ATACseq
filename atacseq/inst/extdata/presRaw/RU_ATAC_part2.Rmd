@@ -149,7 +149,7 @@ Bigwigs for IGV.
 ## ATACseq
 
 <div align="center">
-<img src="https://www.the-scientist.com/January2016/LT2_2.jpg" alt="offset" height="300" width="600">
+<img src="imgs/mnATAC.jpg" alt="offset" height="300" width="600">
 </div>
 
 * ATACseq - Uses transposases and offers a method to simultaneously extract signal from transcription factors binding sites and nucleosome positions from a single sample.
@@ -200,7 +200,7 @@ If our shorter fragments represent the open regions around transcription factors
 Our longer fragments will represent signal around nucleosomes and so signal should be outside of the transcriptional start sites and more present at the +1 and -1 nucleosome positions.
 
 <div align="center">
-<img src="imgs/phasing.png" alt="offset" height="300" width="400">
+<img src="imgs/phasing.png" alt="offset" height="300" width="350">
 </div>
 
 ---
@@ -275,7 +275,8 @@ When we created our index we subset the genome to the main chromosomes. We can d
 ```{r processData_subset, echo=TRUE,eval=F}
 mainChromosomes <- paste0("chr",c(1:21,"X","Y","M"))
 
-myindex<-(seqnames(tssLocations) %in% mainChromosomes)
+myindex<-(match(seqnames(tssLocations), mainChromosomes))
+
 
 tssLocations <- tssLocations[as.numeric(myindex)]
 
@@ -346,7 +347,7 @@ Now we have our profile object we can create our metaplot using the **plotRegion
 
 Here we see the expected peak of signal for our nucleosome free region in the region over the TSS.
 
-```{r processData_plot, echo=TRUE,eval=T,cache=TRUE,message=FALSE,warning=FALSE}
+```{r processData_plot,fig.height=3.5,fig.width=7, echo=TRUE,eval=T,cache=TRUE,message=FALSE,warning=FALSE}
 plotRegion(nucFree)
 ```
 
@@ -389,7 +390,7 @@ Similarly we can plot the mono-nucleosome signal over TSS locations using **plot
 
 In this plot we can clearly see the expected +1 nucleosome signal peak as well as several other nucleosome signalpeaks
 
-```{r processData_plot3, echo=TRUE,eval=T,cache=FALSE}
+```{r processData_plot3, fig.height=3.5,fig.width=7, echo=TRUE,eval=T,cache=FALSE, message=FALSE, warning=FALSE}
 plotRegion(monoNuc)
 ```
 
@@ -672,7 +673,7 @@ if(params$isSlides == "yes"){
 ```
 
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis of NF regions
 
 Another common step to ATACseq analysis is to identify any functional enrichment in genes associated to nucleosome free regions.
 
@@ -683,7 +684,7 @@ One approach is to take the genes we identified from ChIPseeker as having nucles
 **rGREAT by default will limit our queries and so we may need to be patient. This can be adjusted in rGREAT options.**
 
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis 
 
 We can submit our peak calls to GREAT using the **submitGreatJob** function and review available categories of results using **availableCategories**.
 
@@ -693,11 +694,11 @@ great_Job <- submitGreatJob(MacsCalls, species = "hg19")
 availableCategories(great_Job)
 ```
 ---
-## Functional Analysis of Nucleosome-free regions
+## Functional Analysis
 
 For this example we select the results tables for the GO category using getEnrichmentTables functions and then review the results for Biological processes.
 
-```{r processData_funAnalysis2,echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_funAnalysis2"}
+```{r processData_funAnalysis2,echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_funAnalysis2",message=FALSE, warning=FALSE}
 great_ResultTable = getEnrichmentTables(great_Job, category = "GO")
 names(great_ResultTable)          
 great_ResultTable[["GO Biological Process"]][1:4, ]
@@ -767,7 +768,7 @@ mcols(allPeaksSet_nR) <- overlapMatrix
 ```
 
 ---
-## Identifying a set of non-redundant peaks
+## Identifying non-redundant peaks
 
 
 ```{r processData_consensusaa, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_consensusa"}
@@ -775,7 +776,7 @@ mcols(allPeaksSet_nR) <- overlapMatrix
 allPeaksSet_nR[1:2,]
 ```
 ---
-## Identifying a set of non-redundant peaks
+## Identifying non-redundant peaks
 
 We filter out peaks in blacklists and in ChrM prior to testing to eliminate potential artefact differential calls.
 
@@ -801,7 +802,7 @@ nrToCount
 ---
 ## Counting for differential ATACseq
 
-We now identify the number of samples in which our non-redundant peaks occur. Here we use the **rowSums()** function with our occurrence matrix and select those samples occuring in more than 2 samples.
+We now identify the number of samples in which our non-redundant peaks occur. Here we use the **rowSums()** function with our occurrence matrix and select those samples occuring in at least 2 samples.
 
 ```{r processData_consensusCountingf, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_consensus"}
 library(Rsubread)
@@ -901,7 +902,7 @@ Since we have subset regions to those within +/- 500bp of a TSS we can use a sta
 ```{r processData_DEseq2_functionalEnrichmentAnalysiss, echo=TRUE,eval=TRUE,cache=TRUE, dependson="processData_DEseq2_ResultsToTSSregions",message=FALSE,warning=FALSE}
 
 anno_KidneyMinusHindbrain <- annotatePeak(KidneyMinusHindbrain,
-                                          TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene)
+                                          TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene,verbose = FALSE)
 DB_ATAC <- as.data.frame(anno_KidneyMinusHindbrain)
 DB_ATAC[1,]
 ```
@@ -1114,12 +1115,12 @@ plotRegion(CTCF_Cuts_open,outliers = 0.001)+
 ---
 ## Time for an exercise!
 
-Exercise on ATACseq data can be found [here](../../exercises/exercises/atacseq_part2_exercise.html)
+Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part2_exercise.html)
 
 ---
 ## Answers to exercise
 
-Answers can be found [here](../../exercises/answers/atacseq_part2_answers.html)
+Answers can be found [here](../../exercises/answers/ATACseq_part2_answers.html)
 
 
 
