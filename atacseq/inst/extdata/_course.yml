@@ -2,7 +2,7 @@ Description:
   CourseName: ATACseq with Bioconductor
   OverviewRmd: CourseOverview.Rmd
 Presentations:
-    titles: Session1 Session2 
-    PresRmd: RU_ATAC.Rmd RU_ATAC_part2.Rmd
-    PresOverviewRmd: Session1Overview.Rmd Session2Overview.Rmd
+    titles: Session1 Session2 Session3
+    PresRmd: RU_ATAC.Rmd RU_ATAC_part2.Rmd RU_ATAC_part3.Rmd
+    PresOverviewRmd: Session1Overview.Rmd Session2Overview.Rmd Session3Overview.Rmd
     Exercises: ATACseq_part1.Rmd ATACseq_part2.Rmd

@@ -1,0 +1,10 @@
+<br>
+
+#### **ATACseq, Session 3**
+
+This section demonstrates how to assess motifs within ATAC-seq data.
+Session sections:
+
+* Retrieving motifs from database.
+* Plotting motifs.
+* Identifying known motifs.
