@@ -371,7 +371,7 @@ A simple seqLogo shows the relative frequency of a base at each motif position b
 ```{r,eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE}
 require(seqLogo)
 CTCFMotifs <- query(MotifDb,"MYC")
-seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
+seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 ```
 
 
@@ -385,7 +385,7 @@ Here we set the **ic.scale** to FALSE to show the probability across the Y-axis
 
 ```{r,eval=TRUE}
 library(seqLogo)
-seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
+seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 ```
 
 
@@ -400,7 +400,7 @@ This allows you to quickly identify the important bases.
 
 ```{r,eval=TRUE}
 library(seqLogo)
-seqLogo(CTCFMotifs[[1]])
+seqLogo::seqLogo(CTCFMotifs[[1]])
 ```
 
 ---
@@ -431,7 +431,7 @@ ppm
 We can then plot the result matrix using seqLogo.
 
 ```{r,eval=TRUE,echo=TRUE}
-seqLogo(ppm)
+seqLogo::seqLogo(ppm)
 ```
 
 ---
@@ -458,6 +458,39 @@ library(ggseqlogo)
 library(ggplot2)
 ggseqlogo(myMatrix)+theme_minimal()
 ```
+
+
+
+---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Identifying Motifs in ATAC
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Identifying Motifs in ATAC
+
+---
+"    
+  )
+  
+}
+```
+
+
+---
+
+## Known motifs identification
+
+Since ATAC-seq only tells us which regions are open/accessible, we can use motifs within our ATAC-seq peak regions to identify potential transcription factors which may be acting there
+
+The databases such as MotifDb and JASPAR2020, provide sets of known motif patterns for us to use our motif identification.
 
 ---
 
@@ -533,11 +566,25 @@ newDDS <- myCounts
 Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
                   "Liver","Liver"))
 colData(newDDS) <- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
-# 
-# atacDDS <- DESeqDataSetFromMatrix(assay(myCounts),
-#                                   metaData,
-#                                   ~Group,
-#                                   rowRanges=rowRanges(myCounts))
+require(DESeq2)
+require(tidyverse)
+atacDDS <- DESeqDataSetFromMatrix(assay(myCounts),
+                                  colData(newDDS),
+                                  ~Group,
+                                  rowRanges=rowRanges(myCounts))
+atacDDS <- DESeq(atacDDS)
+myRes <- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes <- myRes[order(myRes$padj),]
+upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
+downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
+
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
+downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
+names(upStrings) <- as.character(resize(upRegions,fix = "center",width = 100))
+names(downStrings) <- as.character(resize(downRegions,fix = "center",width = 100))
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
 
 # names(sxs) <- gsub("\\s.*","",names(sxs))
 assayNames(newDDS) <- "counts"
