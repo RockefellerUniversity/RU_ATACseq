@@ -22,6 +22,14 @@ navbar:
         href: presentations/singlepage/RU_ATAC_part2.html
       - text: Code
         href: presentations/r_code/RU_ATAC_part2.R
+    - text: Session3
+      menu:
+      - text: Slide
+        href: presentations/slides/RU_ATAC_part3.html
+      - text: Single Page
+        href: presentations/singlepage/RU_ATAC_part3.html
+      - text: Code
+        href: presentations/r_code/RU_ATAC_part3.R
   - text: Exercises
     menu:
     - text: ATACseq_part1
