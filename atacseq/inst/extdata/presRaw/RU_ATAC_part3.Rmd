@@ -673,7 +673,7 @@ Although a sparse matrix, we can still use our matrix operations to extract usef
 
 We can use the colsums to identify the total occurrence of motifs in our peak sequences.
 
-```{r}
+```{r,eval=FALSE}
 totalMotifOccurence <- colSums(mmMatrix)
 totalMotifOccurence[1:4]
 ```
@@ -684,7 +684,8 @@ totalMotifOccurence[1:4]
 
 We can also identify peaks which contain a hit for a selected motif.
 
-```{r}
+
+```{r,eval=FALSE}
 peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
 peaksWithMA0912
 ```
@@ -924,7 +925,31 @@ We may want to use the motifs discovered by Meme-ChIP in other Bioconductor soft
 
 To do this we can use the **universalmotif** package.
 
+```{r}
+library(universalmotif)
+```
 
+
+
+## Denovo Motifs.
+
+The **universalmotif** package provides lots of useful fucntions for importing motif sets. 
+
+One useful and relevant function is the  **read_meme()** function.
+
+```{r}
+memeMotifs <- read_meme("data/memeResult_LiverVsBrain/combined.meme")
+```
+
+---
+
+## Denovo Motifs.
+
+The **universalmotif** package also provides functions to convert between motif objects from different package. Here we convert to TFBStools motif objects.
+
+```{r}
+memeMotifsTFBStools <- convert_motifs(memeMotifs,"TFBSTools-PWMatrix")
+```
 
 
 
