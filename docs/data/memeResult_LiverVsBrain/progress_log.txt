@@ -1,0 +1,114 @@
+Invoking:
+  getsize ./UpRegions.fa 1> $metrics
+Finished invoke:
+  name: count_seqs  status: 0  time: 0.010903
+Invoking:
+  fasta-most -min 50 < ./UpRegions.fa 1> $metrics
+Finished invoke:
+  name: most_seqs  status: 0  time: 0.063539
+Invoking:
+  fasta-center -dna -len 100 < ./UpRegions.fa 1> ./seqs-centered
+Finished invoke:
+  name: center_seqs  status: 0  time: 0.085823
+Invoking:
+  fasta-shuffle-letters ./seqs-centered ./seqs-shuffled -kmer 2 -tag -dinuc -dna -seed 1
+Finished invoke:
+  name: shuffle_seqs  status: 0  time: 0.020415
+Invoking:
+  fasta-get-markov -nostatus -nosummary -dna -m 1 ./UpRegions.fa ./background
+Finished invoke:
+  name: bg  status: 0  time: 0.012553
+Invoking:
+  getsize ./DownStrings.fa 1> $metrics
+Finished invoke:
+  name: count_seqs  status: 0  time: 0.012185
+Invoking:
+  fasta-center -dna -len 100 < ./DownStrings.fa 1> ./control-centered
+Finished invoke:
+  name: center_control  status: 0  time: 0.08397
+Invoking:
+  meme ./seqs-centered -oc meme_out -mod zoops -nmotifs 3 -minw 6 -maxw 30 -bfile ./background -dna -searchsize 100000 -time 5082 -objfun de -neg ./control-centered -revcomp -nostatus
+Finished invoke:
+  name: meme  status: 0  time: 1235.551763
+Invoking:
+  dreme -verbosity 1 -oc dreme_out -png -dna -p ./seqs-centered -n ./control-centered -t 6645 -e 0.05
+Finished invoke:
+  name: dreme  status: 0  time: 63.160481
+Invoking:
+  centrimo -seqlen 100 -verbosity 1 -oc centrimo_out -bfile ./background -score 5.0 -ethresh 10.0 -neg ./DownStrings.fa ./UpRegions.fa meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: centrimo  status: 0  time: 22.043505
+Invoking:
+  tomtom -verbosity 1 -oc meme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc meme_out/meme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: meme_tomtom  status: 0  time: 3.433404
+Invoking:
+  tomtom -verbosity 1 -oc dreme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: dreme_tomtom  status: 0  time: 3.089048
+Invoking:
+  tomtom -verbosity 1 -text -thresh 0.1 ./combined.meme ./combined.meme 1> ./motif_alignment.txt
+Finished invoke:
+  name: align  status: 0  time: 0.033731
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_1 -bgfile ./background -keepprimary -primary HGATA ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo1  status: 0  time: 2.703012
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_2 -bgfile ./background -keepprimary -primary AYACH ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo2  status: 0  time: 2.349082
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_3 -bgfile ./background -keepprimary -primary ACAK ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo3  status: 0  time: 2.38064
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_4 -bgfile ./background -keepprimary -primary CTHATC ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo4  status: 0  time: 2.348601
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_5 -bgfile ./background -keepprimary -primary ASWA ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo5  status: 0  time: 2.343923
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_6 -bgfile ./background -keepprimary -primary ACCCAGW ./UpRegions.fa dreme_out/dreme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo6  status: 0  time: 2.339036
+Invoking:
+  spamo -verbosity 1 -oc spamo_out_7 -bgfile ./background -keepprimary -primary CMCACCCW ./UpRegions.fa meme_out/meme.xml meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
+Finished invoke:
+  name: spamo7  status: 0  time: 2.719505
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_1 --bgfile ./background --motif HGATA dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo1  status: 0  time: 0.093678
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_2 --bgfile ./background --motif AYACH dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo2  status: 0  time: 0.09764
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_3 --bgfile ./background --motif ACAK dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo3  status: 0  time: 0.098864
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_4 --bgfile ./background --motif CTHATC dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo4  status: 0  time: 0.097846
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_5 --bgfile ./background --motif ASWA dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo5  status: 0  time: 0.095867
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_6 --bgfile ./background --motif ACCCAGW dreme_out/dreme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo6  status: 0  time: 0.112226
+Invoking:
+  fimo --parse-genomic-coord --verbosity 1 --oc fimo_out_7 --bgfile ./background --motif CMCACCCW meme_out/meme.xml ./UpRegions.fa
+Finished invoke:
+  name: fimo7  status: 0  time: 0.401264
+Writing output
+Invoking:
+  meme-chip_html_to_tsv ./meme-chip.html ./summary.tsv "meme-chip -oc . -time 300 -ccut 100 -neg DownStrings.fa -order 1 -db db/EUKARYOTE/jolma2013.meme -db db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme -db db/MOUSE/uniprobe_mouse.meme -meme-mod zoops -meme-minw 6 -meme-maxw 30 -meme-nmotifs 3 -meme-searchsize 100000 -dreme-e 0.05 -centrimo-score 5.0 -centrimo-ethresh 10.0 UpRegions.fa" 5.1.1 "Wed Jan 29 15\:00\:42 2020 -0800"
+Finished invoke:
+  name: summary  status: 0  time: 0.163446
+Done

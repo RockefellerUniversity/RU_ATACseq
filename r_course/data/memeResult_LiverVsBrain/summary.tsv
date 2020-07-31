@@ -1,0 +1,14 @@
+MOTIF_INDEX	MOTIF_SOURCE	MOTIF_ID	ALT_ID	CONSENSUS	WIDTH	SITES	E-VALUE	E-VALUE_SOURCE	MOST_SIMILAR_MOTIF_SOURCE	MOST_SIMILAR_MOTIF	URL
+1	DREME	HGATA	DREME-1	HGATA	5	1236	7.6e-275	DREME	db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme	MA0140.2 (GATA1::TAL1)	http://jaspar2018.genereg.net/matrix/MA0140.2
+2	MEME	WGATAAG	MEME-1	WGATAAG	7	786	1.4e-096	MEME	db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme	MA0482.1 (Gata4)	http://jaspar2018.genereg.net/matrix/MA0482.1
+3	DREME	AYACH	DREME-2	AYACH	5	1084	1.5e-034	DREME	 	 	 
+4	DREME	ACAK	DREME-3	ACAK	4	1719	3.7e-017	DREME	 	 	 
+5	DREME	CTHATC	DREME-4	CTHATC	6	138	1.1e-010	DREME	 	 	 
+6	MEME	YTATCW	MEME-2	YTATCW	6	761	7.4e-009	MEME	db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme	MA0140.2 (GATA1::TAL1)	http://jaspar2018.genereg.net/matrix/MA0140.2
+7	DREME	ASWA	DREME-5	ASWA	4	1492	6.0e-007	DREME	 	 	 
+8	DREME	ACCCAGW	DREME-6	ACCCAGW	7	51	3.6e-004	DREME	 	 	 
+9	MEME	CMCACCCW	MEME-3	CMCACCCW	8	164	2.9e-002	MEME	db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme	MA0493.1 (Klf1)	http://jaspar2018.genereg.net/matrix/MA0493.1
+
+# MEME-ChIP (Motif Analysis of Large Nucleotide Datasets): Version 5.1.1 released on Wed Jan 29 15:00:42 2020 -0800
+# The format of this file is described at http://meme-suite.org//doc/meme-chip-output-format.html
+# meme-chip -oc . -time 300 -ccut 100 -neg DownStrings.fa -order 1 -db db/EUKARYOTE/jolma2013.meme -db db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme -db db/MOUSE/uniprobe_mouse.meme -meme-mod zoops -meme-minw 6 -meme-maxw 30 -meme-nmotifs 3 -meme-searchsize 100000 -dreme-e 0.05 -centrimo-score 5.0 -centrimo-ethresh 10.0 UpRegions.fa
