@@ -851,13 +851,107 @@ Here we wll use the Meme-ChIP software in a discriminative mode to identify deno
 
 First we will need to identify a set of peaks enriched for ATAC-seq signal in one group over another. To do this we will use DESeq2 to identify ATAC-seq peaks enriched in 1 set over another.
 
-We can load our Liver, Kindey and Brain counts from earlier into a 
+We can load our Liver, Kindey and Brain counts from earlier into a DEseq object for differential analysis.
 
-
-plotVariability(variability_Known, use_plotly = FALSE)
-
+```{r}
+require(DESeq2)
+load("data/myCounts.RData")
+Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
+                  "Liver","Liver"))
+colData(myCounts) <- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
+dds <- DESeqDataSet(myCounts,design=~Group)
+dds <- DESeq(dds)
 ```
 
+---
+
+## Denovo Motifs.
+
+We can then use the DESeq2 function **results** to identify differential ATAC regions and set the **format** parameter to **GRanges** to allow the return of the result as a GRanges object.
+
+```{r}
+myRes <- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes <- myRes[order(myRes$padj),]
+upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
+downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
+upRegions
+```
+
+---
+
+## Denovo Motifs.
+
+For Meme-ChIP we will want to resize the regions to 100bp. By default Meme-ChIP will perform this trimming for us but to ensure it is in the centre we will do this upfront.
+
+```{r}
+
+upRegions <- resize(upRegions,fix = "center",width = 100)
+downRegions <- resize(downRegions,fix = "center",width = 100)
+```
+
+---
+
+## Denovo Motifs.
+
+We can now use the **getSeq** function as previously to extract the signal from around within the GRange regions and write to a FASTA file for use in Meme-ChIP using the **writeXStringSet** function.
+
+```{r}
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,upRegions)
+downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,downRegions)
+names(upStrings) <- as.character(upRegions)
+names(downStrings) <- as.character(downRegions)
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
+```
+
+---
+
+## Denovo Motifs.
+
+We can then submit the sample to the Meme-ChIP online submission form found [here](http://meme-suite.org/tools/meme-chip). 
+
+In contrast to for ChIP-seq, here we will run this in Differential mode to compare our sequences in Liver enriched regions to those depleted in Liver.
+
+The results can be found in **data/memeResult_LiverVsBrain**
+
+
+---
+
+## Denovo Motifs.
+
+We may want to use the motifs discovered by Meme-ChIP in other Bioconductor software.
+
+To do this we can use the **universalmotif** package.
+
+
+
+
+
+---
+newDDS <- myCounts
+Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
+                  "Liver","Liver"))
+colData(newDDS) <- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
+require(DESeq2)
+require(tidyverse)
+atacDDS <- DESeqDataSetFromMatrix(assay(myCounts),
+                                  colData(newDDS),
+                                  ~Group,
+                                  rowRanges=rowRanges(myCounts))
+atacDDS <- DESeq(atacDDS)
+myRes <- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes <- myRes[order(myRes$padj),]
+upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
+downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
+
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
+downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
+names(upStrings) <- as.character(resize(upRegions,fix = "center",width = 100))
+names(downStrings) <- as.character(resize(downRegions,fix = "center",width = 100))
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
 
 ---
 
