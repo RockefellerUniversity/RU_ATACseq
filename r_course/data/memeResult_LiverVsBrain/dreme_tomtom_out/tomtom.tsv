@@ -1,0 +1,13 @@
+Query_ID	Target_ID	Optimal_offset	p-value	E-value	q-value	Overlap	Query_consensus	Target_consensus	Orientation
+HGATA	MA0140.2	11	5.37616e-05	0.0972009	0.143645	5	AGATA	CTGCTCCTCACAGATAAG	-
+HGATA	GATA3_full	0	0.0001852	0.334841	0.143645	5	AGATA	AGATAAGG	+
+HGATA	UP00100_1	5	0.000267429	0.483512	0.143645	5	AGATA	TATAGAGATAAGAATTG	+
+HGATA	GATA3_DBD	0	0.000317799	0.57458	0.143645	5	AGATA	AGATAAGA	+
+HGATA	GATA4_DBD	0	0.000317799	0.57458	0.143645	5	AGATA	AGATAAGA	+
+HGATA	GATA5_DBD	0	0.000317799	0.57458	0.143645	5	AGATA	AGATAAGA	+
+HGATA	MA0037.3	0	0.000317799	0.57458	0.143645	5	AGATA	AGATAAGA	+
+HGATA	MA0766.1	0	0.000317799	0.57458	0.143645	5	AGATA	AGATAAGA	+
+
+# Tomtom (Motif Comparison Tool): Version 5.1.1 compiled on Feb  1 2020 at 23:13:16
+# The format of this file is described at http://meme-suite.org//doc/tomtom-output-format.html.
+# tomtom -verbosity 1 -oc dreme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
