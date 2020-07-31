@@ -46,13 +46,6 @@ library(JASPAR2020)
 
 ```
 
-## Greenleaf dataset characterisation and open region finding
-
-In this section we will work a little more with the Greenleaf dataset. 
-
-We will characterise Greenleaf data signal around TSS regions and identify and annotated open regions as peak calls using MACS2.
-
-At the end of the session we will look at plotting transposase cut-sites around DNA binding proteins.
 
 ---
 
@@ -1085,12 +1078,12 @@ pheatmap(sigZ)
 ---
 ## Time for an exercise!
 
-Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part2_exercise.html)
+Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part3_exercise.html)
 
 ---
 ## Answers to exercise
 
-Answers can be found [here](../../exercises/answers/ATACseq_part2_answers.html)
+Answers can be found [here](../../exercises/answers/ATACseq_part3_answers.html)
 
 
 

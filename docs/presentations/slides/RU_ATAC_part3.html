@@ -33,13 +33,6 @@ class: center, middle, inverse, title-slide
 
 
 
-## Greenleaf dataset characterisation and open region finding
-
-In this section we will work a little more with the Greenleaf dataset. 
-
-We will characterise Greenleaf data signal around TSS regions and identify and annotated open regions as peak calls using MACS2.
-
-At the end of the session we will look at plotting transposase cut-sites around DNA binding proteins.
 
 ---
 
@@ -1663,33 +1656,6 @@ memeMotifsTFBStools
 ## T  0.9458359
 ```
 
-
-
----
-newDDS &lt;- myCounts
-Group &lt;- factor(c("HindBrain","HindBrain","Kidney","Kidney",
-                  "Liver","Liver"))
-colData(newDDS) &lt;- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
-require(DESeq2)
-require(tidyverse)
-atacDDS &lt;- DESeqDataSetFromMatrix(assay(myCounts),
-                                  colData(newDDS),
-                                  ~Group,
-                                  rowRanges=rowRanges(myCounts))
-atacDDS &lt;- DESeq(atacDDS)
-myRes &lt;- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
-myRes &lt;- myRes[order(myRes$padj),]
-upRegions &lt;- myRes[myRes$log2FoldChange &gt; 0][1:1000] 
-downRegions &lt;- myRes[myRes$log2FoldChange &lt; 0,][1:1000]
-
-library(BSgenome.Mmusculus.UCSC.mm10)
-upStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
-downStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
-names(upStrings) &lt;- as.character(resize(upRegions,fix = "center",width = 100))
-names(downStrings) &lt;- as.character(resize(downRegions,fix = "center",width = 100))
-writeXStringSet(upStrings,file="UpRegions.fa")
-writeXStringSet(downStrings,file="DownStrings.fa")
-
 ---
 
 
@@ -1697,12 +1663,12 @@ writeXStringSet(downStrings,file="DownStrings.fa")
 ---
 ## Time for an exercise!
 
-Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part2_exercise.html)
+Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_part3_exercise.html)
 
 ---
 ## Answers to exercise
 
-Answers can be found [here](../../exercises/answers/ATACseq_part2_answers.html)
+Answers can be found [here](../../exercises/answers/ATACseq_part3_answers.html)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
