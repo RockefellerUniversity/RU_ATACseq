@@ -44,6 +44,12 @@ navbar:
         href: exercises/exercises/ATACseq_part2_exercise.html
       - text: Solution
         href: exercises/answers/ATACseq_part2_answers.html
+    - text: ATACseq_part3
+      menu:
+      - text: Exercise
+        href: exercises/exercises/ATACseq_part3_exercise.html
+      - text: Solution
+        href: exercises/answers/ATACseq_part3_answers.html
   right:
   - text: Getting help!
     href: https://github.com//RockefellerUniversity/RU_ATACseq/issues

@@ -4,6 +4,7 @@ list(isSlides = "no")
 ## ----include=FALSE------------------------------------------------------------
 suppressPackageStartupMessages(require(knitr))
 knitr::opts_chunk$set(echo = TRUE, tidy = T)
+require(SummarizedExperiment)
 
 
 ## ---- results='asis',include=TRUE,echo=FALSE----------------------------------
@@ -115,6 +116,18 @@ myMatrixToo <- as.matrix(myMatrix)
 myMatrix
 
 
+## ----eval=TRUE----------------------------------------------------------------
+?getMatrixSet
+
+
+## ----eval=TRUE----------------------------------------------------------------
+opts <- list()
+opts[["collection"]] <- "CORE"
+opts[["tax_group"]] <- "vertebrates"
+motifList <- getMatrixSet(JASPAR2020, opts)
+   
+
+
 ## ----eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE-------------------------
 require(seqLogo)
 CTCFMotifs <- query(MotifDb,"MYC")
@@ -174,6 +187,195 @@ if(params$isSlides == "yes"){
   )
   
 }
+
+
+## -----------------------------------------------------------------------------
+opts <- list()
+opts[["tax_group"]] <- "vertebrates"
+opts[["collection"]] <- "CORE"
+opts[["all_versions"]] <- FALSE
+motifsToScan <- getMatrixSet(JASPAR2020,opts)
+
+
+
+## -----------------------------------------------------------------------------
+?matchMatifs.
+
+
+## -----------------------------------------------------------------------------
+load("data/myCounts.RData")
+myCounts
+
+
+## -----------------------------------------------------------------------------
+peakRanges <- rowRanges(myCounts)
+peakRanges[1,]
+
+
+## -----------------------------------------------------------------------------
+library(BSgenome.Mmusculus.UCSC.mm10)
+peakRangesCentered <- resize(peakRanges,fix = "center",width = 100)
+peakSeqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10,peakRangesCentered)
+names(peakSeqs) <- as.character(peakRangesCentered)
+peakSeqs
+
+
+## -----------------------------------------------------------------------------
+motif_positions <- matchMotifs(motifsToScan[1:4], peakSeqs[1:100],out="positions")
+class(motif_positions)
+length(motif_positions)
+
+
+## -----------------------------------------------------------------------------
+motif_positions$MA0029.1
+
+
+## -----------------------------------------------------------------------------
+
+MA0029hits <- motif_positions$MA0029.1
+names(MA0029hits) <- names(peakSeqs[1:100])
+unlist(MA0029hits,use.names = TRUE)
+
+
+## -----------------------------------------------------------------------------
+motifHits <- matchMotifs(motifsToScan, peakSeqs,out="matches")
+class(motifHits)
+motifHits
+
+
+## -----------------------------------------------------------------------------
+mmMatrix <- motifMatches(motifHits)
+mmMatrix[1:8,1:8]
+
+
+## ----eval=FALSE---------------------------------------------------------------
+## totalMotifOccurence <- colSums(mmMatrix)
+## totalMotifOccurence[1:4]
+
+
+## ----eval=FALSE---------------------------------------------------------------
+## peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
+## peaksWithMA0912
+
+
+## -----------------------------------------------------------------------------
+library(chromVAR)
+
+
+## -----------------------------------------------------------------------------
+myCounts <- myCounts[rowSums(assay(myCounts)) > 5,]
+
+
+## -----------------------------------------------------------------------------
+myCounts <- addGCBias(myCounts,
+                    genome = BSgenome.Mmusculus.UCSC.mm10)
+
+
+## -----------------------------------------------------------------------------
+motif_ix <- matchMotifs(motifsToScan, myCounts,
+                        genome = BSgenome.Mmusculus.UCSC.mm10)
+motif_ix
+
+
+## ----eval=FALSE---------------------------------------------------------------
+## deviations <- computeDeviations(object = myCounts, annotations = motif_ix)
+## variability_Known <- computeVariability(deviations)
+
+
+## ----include=FALSE------------------------------------------------------------
+load("data/deviations.RData")
+load("data/variability.RData")
+
+
+## -----------------------------------------------------------------------------
+devZscores <- deviationScores(deviations)
+devZscores[1:2,]
+
+
+## -----------------------------------------------------------------------------
+variability_Known <- variability_Known[order(variability_Known$p_value),]
+variability_Known[1:10,]
+
+
+## -----------------------------------------------------------------------------
+topVariable <- variability_Known[1:20,]
+devTop <- merge(topVariable[,1,drop=FALSE],devZscores,by=0)
+devTop[1:2,]
+
+
+## -----------------------------------------------------------------------------
+devToPlot <- as.matrix(devTop[,-c(1:2)])
+rownames(devToPlot) <- devTop[,2]
+library(pheatmap)
+pheatmap(devToPlot)
+
+
+## ---- results='asis',include=TRUE,echo=FALSE----------------------------------
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Identifying Motifs in ATAC
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Identifying Motifs in ATAC
+
+---
+"    
+  )
+  
+}
+
+
+## -----------------------------------------------------------------------------
+require(DESeq2)
+load("data/myCounts.RData")
+Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
+                  "Liver","Liver"))
+colData(myCounts) <- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
+dds <- DESeqDataSet(myCounts,design=~Group)
+dds <- DESeq(dds)
+
+
+## -----------------------------------------------------------------------------
+myRes <- results(dds,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes <- myRes[order(myRes$padj),]
+upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
+downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
+upRegions
+
+
+## -----------------------------------------------------------------------------
+
+upRegions <- resize(upRegions,fix = "center",width = 100)
+downRegions <- resize(downRegions,fix = "center",width = 100)
+
+
+## -----------------------------------------------------------------------------
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,upRegions)
+downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,downRegions)
+names(upStrings) <- as.character(upRegions)
+names(downStrings) <- as.character(downRegions)
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
+
+
+## -----------------------------------------------------------------------------
+library(universalmotif)
+
+
+## -----------------------------------------------------------------------------
+memeMotifs <- read_meme("data/memeResult_LiverVsBrain/combined.meme")
+
+
+## -----------------------------------------------------------------------------
+memeMotifsTFBStools <- convert_motifs(memeMotifs,"TFBSTools-PWMatrix")
+memeMotifsTFBStools
 
 
 ## ----eval=FALSE,echo=FALSE----------------------------------------------------

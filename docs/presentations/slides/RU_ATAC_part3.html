@@ -27,9 +27,7 @@ class: center, middle, inverse, title-slide
 
 
 
-# ATACseq (part 2)
 
----
 
 
 
@@ -139,7 +137,11 @@ In the upcoming sessions we will review how we can investigate motifs in ATAC-se
 
 
 ---
-# Post-alignment processing
+class: inverse, center, middle
+
+# Motifs in ATACseq
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt; 
 
 ---
 
@@ -435,7 +437,7 @@ JASPAR2020
 ```
 ## An object of class "JASPAR2020"
 ## Slot "db":
-## [1] "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/JASPAR2020/extdata/JASPAR2020.sqlite"
+## [1] "/usr/local/lib/R/host-site-library/JASPAR2020/extdata/JASPAR2020.sqlite"
 ```
 
 ---
@@ -453,6 +455,12 @@ library(TFBSTools)
 ```
 ## 
 ## Attaching package: 'TFBSTools'
+```
+
+```
+## The following object is masked from 'package:seqLogo':
+## 
+##     seqLogo
 ```
 
 ```
@@ -685,13 +693,6 @@ We could also take advantage of ggplot2 style grammer of graphics by using the *
 
 ```r
 library(ggseqlogo)
-```
-
-```
-## Warning: package 'ggseqlogo' was built under R version 4.0.2
-```
-
-```r
 library(ggplot2)
 ggseqlogo(myMatrix) + theme_minimal()
 ```
@@ -701,7 +702,11 @@ ggseqlogo(myMatrix) + theme_minimal()
 
 
 ---
+class: inverse, center, middle
+
 # Identifying Motifs in ATAC
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt; 
 
 ---
 
@@ -845,17 +850,6 @@ We load the BSgenome.Mmusculus.UCSC.mm10 library and re-center our peaks to 100b
 
 ```r
 library(BSgenome.Mmusculus.UCSC.mm10)
-```
-
-```
-## Loading required package: BSgenome
-```
-
-```
-## Loading required package: rtracklayer
-```
-
-```r
 peakRangesCentered &lt;- resize(peakRanges, fix = "center", width = 100)
 peakSeqs &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10, peakRangesCentered)
 names(peakSeqs) &lt;- as.character(peakRangesCentered)
@@ -1259,7 +1253,11 @@ pheatmap(devToPlot)
 
 
 ---
+class: inverse, center, middle
+
 # Identifying Motifs in ATAC
+
+&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt; 
 
 ---
 
@@ -1285,13 +1283,6 @@ We can load our Liver, Kindey and Brain counts from earlier into a DEseq object 
 
 ```r
 require(DESeq2)
-```
-
-```
-## Loading required package: DESeq2
-```
-
-```r
 load("data/myCounts.RData")
 Group &lt;- factor(c("HindBrain", "HindBrain", "Kidney", "Kidney", "Liver", "Liver"))
 colData(myCounts) &lt;- DataFrame(data.frame(Group, row.names = colnames(myCounts)))
