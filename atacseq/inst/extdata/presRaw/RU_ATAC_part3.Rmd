@@ -24,6 +24,7 @@ params:
 ```{r,include=FALSE}
 suppressPackageStartupMessages(require(knitr))
 knitr::opts_chunk$set(echo = TRUE, tidy = T)
+require(SummarizedExperiment)
 ```
 
 ```{r, results='asis',include=TRUE,echo=FALSE}
@@ -362,6 +363,31 @@ myMatrix
 ```
 
 ---
+## TFBSTools
+
+We can also use the **getMatrixSet()** function to retrieve sets of motifs under user-specificed filters specified as a list.
+
+To see the available filters use the help for getMatrixSet() function, ?getMatrixSet.
+
+```{r,eval=TRUE}
+?getMatrixSet
+```
+
+---
+## TFBSTools
+
+We can specify a list of options for motifs we want to retrieve.
+
+```{r,eval=TRUE}
+opts <- list()
+opts[["collection"]] <- "CORE"
+opts[["tax_group"]] <- "vertebrates"
+motifList <- getMatrixSet(JASPAR2020, opts)
+   
+```
+
+
+---
 ## Visualising motifs
 
 The seqLogo package offers a simple and intuitive way of visualising our base frequencies within out motifs using the **seqLogo** function.
@@ -486,11 +512,182 @@ if(params$isSlides == "yes"){
 
 ---
 
-## Known motifs identification
+## Known motif identification
 
 Since ATAC-seq only tells us which regions are open/accessible, we can use motifs within our ATAC-seq peak regions to identify potential transcription factors which may be acting there
 
 The databases such as MotifDb and JASPAR2020, provide sets of known motif patterns for us to use our motif identification.
+
+---
+
+## motifmatchr
+
+To identify known motifs we will use the **motifmatchr** package which is a wrapper for the MOODS c++ library.
+
+This means that motifmatchr offers us a fast methods to identify motifs within our ATAC-seq data.
+
+We will use motifmatchr/MOODs with a default p-value cut-off.
+
+---
+
+## motifmatchr
+
+First we can retrieve a sensible set of motifs to scan for within our mouse tissue ATAC-seq data.
+
+Here we retrieve the vertebrate, JASPAR CORE motifs. We additional specify *all_versions* is FALSE to only include the latest version of a motif.
+
+```{r}
+opts <- list()
+opts[["tax_group"]] <- "vertebrates"
+opts[["collection"]] <- "CORE"
+opts[["all_versions"]] <- FALSE
+motifsToScan <- getMatrixSet(db,opts)
+
+```
+
+
+---
+
+## motifmatchr
+
+The motifmatchr package main function is **matchMotifs()**,
+
+As with many Bioconductor functions , **matchMotifs** makes use of other Biocondcutor objects such the BSGenome, GRanges and SummarisedExperiment objects.
+
+We can review the full functionality by reading the help for matchMotifs, ?matchMotifs.
+
+```{r}
+?matchMatifs.
+```
+
+---
+
+## Tissue ATAC data
+
+We need some data to review so we can make use of the Encode mouse tissue ATAC data from our previous sessions. 
+
+We can load in the counts in a SummarisedExperiment object from the **data** directory.
+
+```{r}
+load("data/myCounts.RData")
+myCounts
+```
+
+
+---
+
+## Tissue ATAC data
+
+We can retrieve the ranges of our peaks directly from our SummarizedExperiment object by using the standard accessor **rowRanges**.
+
+```{r}
+peakRanges <- rowRanges(myCounts)
+peakRanges[1,]
+```
+
+---
+
+## Tissue ATAC data
+
+We have seen previous we can use the **getSeq()** function to extract sequences from a BSGenome object using a GRanges object to define the regions of interest. 
+
+We load the BSgenome.Mmusculus.UCSC.mm10 library and re-center our peaks to 100bp using the resize function. Once resized we can extract the required sequences using the **getSeq()** function.
+
+```{r}
+library(BSgenome.Mmusculus.UCSC.mm10)
+peakRangesCentered <- resize(peakRanges,fix = "center",width = 100)
+peakSeqs <- getSeq(BSgenome.Mmusculus.UCSC.mm10,peakRangesCentered)
+names(peakSeqs) <- as.character(peakRangesCentered)
+peakSeqs
+```
+
+---
+
+## Finding motif positions.
+
+As we saw in its help, The matchMotifs function can provide output of motif matches as matches, scores or positions.
+
+Here we scan for 3 selected motifs from JASPAR2020 using the sequence under the first 100 ATAC-seq peaks and specify the out as **positions**
+
+```{r}
+motif_positions <- matchMotifs(motifsToScan[1:4], peakSeqs[1:100],out="positions")
+class(motif_positions)
+length(motif_positions)
+```
+
+---
+
+## Finding motif positions.
+
+The result contains a list of the same length as the number of motifs tested.
+
+Each element contains a IRangeslist with an entry for every sequence tested and a IRanges of motif positions withins sequences
+
+```{r}
+motif_positions$MA0029.1
+```
+
+---
+
+## Finding motif positions.
+
+We can unlist our IRangeslist to a standard list for easier working.
+```{r}
+
+MA0029hits <- motif_positions$MA0029.1
+names(MA0029hits) <- names(peakSeqs[1:100])
+unlist(MA0029hits,use.names = TRUE)
+```
+
+
+---
+
+## Finding motif hits
+
+We may simply want to map motifs to their ATAC-seq peaks.
+
+To do this we can set the **out** parameter to **matches**.  This will return a SummarizedExperiment object.
+
+```{r}
+motif_matches <- matchMotifs(motifsToScan, peakSeqs,out="matches")
+class(motif_matches)
+motif_matches
+```
+
+---
+
+## Finding motif hits
+
+We can retrieve a matrix of matches by motif and peak using the motifMatches function.
+
+```{r}
+mmMatrix <- motifMatches(motif_matches)
+mmMatrix[1:8,1:8]
+```
+
+---
+
+## Finding motif hits
+
+Although a sparse matrix, we can still use our matrix operations to extract useful information from this object.
+
+We can use the colsums to identify the total occurrence of motifs in our peak sequences.
+
+```{r}
+totalMotifOccurence <- colSums(mmMatrix)
+totalMotifOccurence[1:4]
+```
+
+---
+
+## Finding motif hits
+
+We can also identify peaks which contain a hit for a selected motif.
+
+```{r}
+peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
+peaksWithMA0912
+```
 
 ---
 
