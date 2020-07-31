@@ -757,10 +757,16 @@ motif_ix
 
 Following the identification of motifs in our peaks, we can perform the summarisation of ATAC-seq signal to motifs using the **computeDeviations** and the **computeVariability** functions.
 
-```{r}
+```{r,eval=FALSE}
 deviations <- computeDeviations(object = myCounts, annotations = motif_ix)
 variability_Known <- computeVariability(deviations)
 ```
+
+```{r,include=FALSE}
+load("data/deviations.RData")
+load("data/variability.RData")
+```
+
 
 ---
 
@@ -871,7 +877,7 @@ dds <- DESeq(dds)
 We can then use the DESeq2 function **results** to identify differential ATAC regions and set the **format** parameter to **GRanges** to allow the return of the result as a GRanges object.
 
 ```{r}
-myRes <- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes <- results(dds,contrast = c("Group","Liver","Kidney"),format = "GRanges")
 myRes <- myRes[order(myRes$padj),]
 upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
 downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
@@ -949,6 +955,7 @@ The **universalmotif** package also provides functions to convert between motif 
 
 ```{r}
 memeMotifsTFBStools <- convert_motifs(memeMotifs,"TFBSTools-PWMatrix")
+memeMotifsTFBStools
 ```
 
 

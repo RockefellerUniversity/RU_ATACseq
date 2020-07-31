@@ -27,7 +27,9 @@ class: center, middle, inverse, title-slide
 
 
 
+# ATACseq (part 2)
 
+---
 
 
 
@@ -144,11 +146,7 @@ In the upcoming sessions we will review how we can investigate motifs in ATAC-se
 
 
 ---
-class: inverse, center, middle
-
-# Motifs in ATACseq
-
-&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt; 
+# Post-alignment processing
 
 ---
 
@@ -444,7 +442,7 @@ JASPAR2020
 ```
 ## An object of class "JASPAR2020"
 ## Slot "db":
-## [1] "/usr/local/lib/R/host-site-library/JASPAR2020/extdata/JASPAR2020.sqlite"
+## [1] "/Library/Frameworks/R.framework/Versions/4.0/Resources/library/JASPAR2020/extdata/JASPAR2020.sqlite"
 ```
 
 ---
@@ -462,12 +460,6 @@ library(TFBSTools)
 ```
 ## 
 ## Attaching package: 'TFBSTools'
-```
-
-```
-## The following object is masked from 'package:seqLogo':
-## 
-##     seqLogo
 ```
 
 ```
@@ -549,13 +541,39 @@ myMatrix
 ```
 
 ---
+## TFBSTools
+
+We can also use the **getMatrixSet()** function to retrieve sets of motifs under user-specificed filters specified as a list.
+
+To see the available filters use the help for getMatrixSet() function, ?getMatrixSet.
+
+
+```r
+`?`(getMatrixSet)
+```
+
+---
+## TFBSTools
+
+We can specify a list of options for motifs we want to retrieve.
+
+
+```r
+opts &lt;- list()
+opts[["collection"]] &lt;- "CORE"
+opts[["tax_group"]] &lt;- "vertebrates"
+motifList &lt;- getMatrixSet(JASPAR2020, opts)
+```
+
+
+---
 ## Visualising motifs
 
 The seqLogo package offers a simple and intuitive way of visualising our base frequencies within out motifs using the **seqLogo** function.
 
 A simple seqLogo shows the relative frequency of a base at each motif position by the relative size of the base compared to other bases at the same position. 
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
 
 
 
@@ -572,7 +590,7 @@ library(seqLogo)
 seqLogo::seqLogo(CTCFMotifs[[1]], ic.scale = FALSE)
 ```
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -590,7 +608,7 @@ library(seqLogo)
 seqLogo::seqLogo(CTCFMotifs[[1]])
 ```
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -647,7 +665,7 @@ We can then plot the result matrix using seqLogo.
 seqLogo::seqLogo(ppm)
 ```
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -663,7 +681,7 @@ GATA2_IC &lt;- toICM(GATA2mat)
 TFBSTools::seqLogo(GATA2_IC)
 ```
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -674,31 +692,1003 @@ We could also take advantage of ggplot2 style grammer of graphics by using the *
 
 ```r
 library(ggseqlogo)
+```
+
+```
+## Warning: package 'ggseqlogo' was built under R version 4.0.2
+```
+
+```r
 library(ggplot2)
 ggseqlogo(myMatrix) + theme_minimal()
 ```
 
-![](RU_ATAC_part3_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-28-1.png)&lt;!-- --&gt;
 
 
 
 ---
-class: inverse, center, middle
-
 # Identifying Motifs in ATAC
 
-&lt;html&gt;&lt;div style='float:left'&gt;&lt;/div&gt;&lt;hr color='#EB811B' size=1px width=720px&gt;&lt;/html&gt; 
-
 ---
 
 
 ---
 
-## Known motifs identification
+## Known motif identification
 
 Since ATAC-seq only tells us which regions are open/accessible, we can use motifs within our ATAC-seq peak regions to identify potential transcription factors which may be acting there
 
 The databases such as MotifDb and JASPAR2020, provide sets of known motif patterns for us to use our motif identification.
+
+---
+
+## motifmatchr
+
+To identify known motifs we will use the **motifmatchr** package which is a wrapper for the MOODS c++ library.
+
+This means that motifmatchr offers us a fast methods to identify motifs within our ATAC-seq data.
+
+We will use motifmatchr/MOODs with a default p-value cut-off.
+
+---
+
+## motifmatchr
+
+First we can retrieve a sensible set of motifs to scan for within our mouse tissue ATAC-seq data.
+
+Here we retrieve the vertebrate, JASPAR CORE motifs. We additional specify *all_versions* is FALSE to only include the latest version of a motif.
+
+
+```r
+opts &lt;- list()
+opts[["tax_group"]] &lt;- "vertebrates"
+opts[["collection"]] &lt;- "CORE"
+opts[["all_versions"]] &lt;- FALSE
+motifsToScan &lt;- getMatrixSet(JASPAR2020, opts)
+```
+
+
+---
+
+## motifmatchr
+
+The motifmatchr package main function is **matchMotifs()**,
+
+As with many Bioconductor functions , **matchMotifs** makes use of other Biocondcutor objects such the BSGenome, GRanges and SummarisedExperiment objects.
+
+We can review the full functionality by reading the help for matchMotifs, ?matchMotifs.
+
+
+```r
+`?`(matchMatifs.)
+```
+
+```
+## No documentation for 'matchMatifs.' in specified packages and libraries:
+## you could try '??matchMatifs.'
+```
+
+---
+
+## Tissue ATAC data
+
+We need some data to review so we can make use of the Encode mouse tissue ATAC data from our previous sessions. 
+
+We can load in the counts in a SummarisedExperiment object from the **data** directory.
+
+
+```r
+load("data/myCounts.RData")
+myCounts
+```
+
+```
+## class: RangedSummarizedExperiment 
+## dim: 36320 6 
+## metadata(0):
+## assays(1): counts
+## rownames: NULL
+## rowData names(6):
+##   Sorted_Hindbrain_day_12_1_Small_Paired_peaks.narrowPeak
+##   Sorted_Hindbrain_day_12_2_Small_Paired_peaks.narrowPeak ...
+##   Sorted_Liver_day_12_1_Small_Paired_peaks.narrowPeak
+##   Sorted_Liver_day_12_2_Small_Paired_peaks.narrowPeak
+## colnames(6): Sorted_Hindbrain_day_12_1_Small_Paired.bam
+##   Sorted_Hindbrain_day_12_2_Small_Paired.bam ...
+##   Sorted_Liver_day_12_1_Small_Paired.bam
+##   Sorted_Liver_day_12_2_Small_Paired.bam
+## colData names(0):
+```
+
+
+---
+
+## Tissue ATAC data
+
+We can retrieve the ranges of our peaks directly from our SummarizedExperiment object by using the standard accessor **rowRanges**.
+
+
+```r
+peakRanges &lt;- rowRanges(myCounts)
+peakRanges[1, ]
+```
+
+```
+## GRanges object with 1 range and 6 metadata columns:
+##       seqnames          ranges strand |
+##          &lt;Rle&gt;       &lt;IRanges&gt;  &lt;Rle&gt; |
+##   [1]     chr1 3433954-3434095      * |
+##       Sorted_Hindbrain_day_12_1_Small_Paired_peaks.narrowPeak
+##                                                     &lt;logical&gt;
+##   [1]                                                   FALSE
+##       Sorted_Hindbrain_day_12_2_Small_Paired_peaks.narrowPeak
+##                                                     &lt;logical&gt;
+##   [1]                                                   FALSE
+##       Sorted_Kidney_day_15_1_Small_Paired_peaks.narrowPeak
+##                                                  &lt;logical&gt;
+##   [1]                                                 TRUE
+##       Sorted_Kidney_day_15_2_Small_Paired_peaks.narrowPeak
+##                                                  &lt;logical&gt;
+##   [1]                                                 TRUE
+##       Sorted_Liver_day_12_1_Small_Paired_peaks.narrowPeak
+##                                                 &lt;logical&gt;
+##   [1]                                               FALSE
+##       Sorted_Liver_day_12_2_Small_Paired_peaks.narrowPeak
+##                                                 &lt;logical&gt;
+##   [1]                                               FALSE
+##   -------
+##   seqinfo: 22 sequences from an unspecified genome; no seqlengths
+```
+
+---
+
+## Tissue ATAC data
+
+We have seen previous we can use the **getSeq()** function to extract sequences from a BSGenome object using a GRanges object to define the regions of interest. 
+
+We load the BSgenome.Mmusculus.UCSC.mm10 library and re-center our peaks to 100bp using the resize function. Once resized we can extract the required sequences using the **getSeq()** function.
+
+
+```r
+library(BSgenome.Mmusculus.UCSC.mm10)
+```
+
+```
+## Loading required package: BSgenome
+```
+
+```
+## Loading required package: rtracklayer
+```
+
+```r
+peakRangesCentered &lt;- resize(peakRanges, fix = "center", width = 100)
+peakSeqs &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10, peakRangesCentered)
+names(peakSeqs) &lt;- as.character(peakRangesCentered)
+peakSeqs
+```
+
+```
+## DNAStringSet object of length 36320:
+##         width seq                                           names               
+##     [1]   100 GGTTGTGCACTGTAAGCTGAC...CACTTCTGCTTCTGTCTGGCT chr1:3433975-3434074
+##     [2]   100 AGTGCCTAGTCTTACTGCAAC...AGAAGAGGAGTAGGTGGGAGT chr1:3575937-3576036
+##     [3]   100 CGCCGCCGCCGCCAGCAGCAG...GCGCGCTCCCTCCTCCCGCAG chr1:3671660-3671759
+##     [4]   100 CTTCCCCCACCGCTGACACAC...TCTTCCCTTCACCCACCCTGA chr1:3994882-3994981
+##     [5]   100 GAGGCAGCACCCTTTGTGGGC...GGCCTAAGCCACAGCAGCAGC chr1:4560256-4560355
+##     ...   ... ...
+## [36316]   100 GCCATGTGCTCGCAGCTCCGC...CACGGCCCCGCCGGCTCCCCT chrY:90784203-907...
+## [36317]   100 GGAGTTGTAGTCCTGCCGTAG...TGGGAGTTGCAGCGCCATGTT chrY:90784972-907...
+## [36318]   100 CTCTGGAGACCAGGCTGACCT...ACCACGCCCGGATTTTTACCA chrY:90801528-908...
+## [36319]   100 CTTCTCTGCCTCATGGGGACG...CGTCCCGGGCAGGCGGCGTCT chrY:90807427-908...
+## [36320]   100 GGGGGGTTAGGTTAGGGTTAG...GGGGGTTAGGTTAGGGTTAGG chrY:90813049-908...
+```
+
+---
+
+## Finding motif positions.
+
+As we saw in its help, The matchMotifs function can provide output of motif matches as matches, scores or positions.
+
+Here we scan for 3 selected motifs from JASPAR2020 using the sequence under the first 100 ATAC-seq peaks and specify the out as **positions**
+
+
+```r
+motif_positions &lt;- matchMotifs(motifsToScan[1:4], peakSeqs[1:100], out = "positions")
+class(motif_positions)
+```
+
+```
+## [1] "list"
+```
+
+```r
+length(motif_positions)
+```
+
+```
+## [1] 4
+```
+
+---
+
+## Finding motif positions.
+
+The result contains a list of the same length as the number of motifs tested.
+
+Each element contains a IRangeslist with an entry for every sequence tested and a IRanges of motif positions withins sequences
+
+
+```r
+motif_positions$MA0029.1
+```
+
+```
+## IRangesList object of length 100:
+## [[1]]
+## IRanges object with 0 ranges and 2 metadata columns:
+##        start       end     width |      strand     score
+##    &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; | &lt;character&gt; &lt;numeric&gt;
+## 
+## [[2]]
+## IRanges object with 0 ranges and 2 metadata columns:
+##        start       end     width |      strand     score
+##    &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; | &lt;character&gt; &lt;numeric&gt;
+## 
+## [[3]]
+## IRanges object with 0 ranges and 2 metadata columns:
+##        start       end     width |      strand     score
+##    &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; | &lt;character&gt; &lt;numeric&gt;
+## 
+## ...
+## &lt;97 more elements&gt;
+```
+
+---
+
+## Finding motif positions.
+
+We can unlist our IRangeslist to a standard list for easier working.
+
+```r
+MA0029hits &lt;- motif_positions$MA0029.1
+names(MA0029hits) &lt;- names(peakSeqs[1:100])
+unlist(MA0029hits, use.names = TRUE)
+```
+
+```
+## IRanges object with 1 range and 2 metadata columns:
+##                              start       end     width |      strand     score
+##                          &lt;integer&gt; &lt;integer&gt; &lt;integer&gt; | &lt;character&gt; &lt;numeric&gt;
+##   chr1:13566347-13566446        56        69        14 |           +   10.0096
+```
+
+
+---
+
+## Finding motif hits
+
+We may simply want to map motifs to their ATAC-seq peaks.
+
+To do this we can set the **out** parameter to **matches**.  This will return a SummarizedExperiment object.
+
+
+```r
+motifHits &lt;- matchMotifs(motifsToScan, peakSeqs, out = "matches")
+class(motifHits)
+```
+
+```
+## [1] "SummarizedExperiment"
+## attr(,"package")
+## [1] "SummarizedExperiment"
+```
+
+```r
+motifHits
+```
+
+```
+## class: SummarizedExperiment 
+## dim: 36320 746 
+## metadata(0):
+## assays(1): motifMatches
+## rownames: NULL
+## rowData names(0):
+## colnames(746): MA0004.1 MA0006.1 ... MA0528.2 MA0609.2
+## colData names(1): name
+```
+
+---
+
+## Finding motif hits
+
+We can retrieve a matrix of matches by motif and peak using the motifMatches function.
+
+
+```r
+mmMatrix &lt;- motifMatches(motifHits)
+mmMatrix[1:8, 1:8]
+```
+
+```
+## 8 x 8 sparse Matrix of class "lgCMatrix"
+##      MA0004.1 MA0006.1 MA0019.1 MA0029.1 MA0030.1 MA0031.1 MA0040.1 MA0041.1
+## [1,]        .        .        .        .        .        .        .        .
+## [2,]        .        .        .        .        .        .        .        .
+## [3,]        .        .        .        .        .        .        .        .
+## [4,]        .        .        .        .        .        .        .        .
+## [5,]        .        .        .        .        .        .        .        .
+## [6,]        .        .        .        .        .        .        .        .
+## [7,]        .        |        .        .        .        .        .        .
+## [8,]        .        .        .        .        .        .        .        .
+```
+
+---
+
+## Finding motif hits
+
+Although a sparse matrix, we can still use our matrix operations to extract useful information from this object.
+
+We can use the colsums to identify the total occurrence of motifs in our peak sequences.
+
+
+```r
+totalMotifOccurence &lt;- colSums(mmMatrix)
+totalMotifOccurence[1:4]
+```
+
+---
+
+## Finding motif hits
+
+We can also identify peaks which contain a hit for a selected motif.
+
+
+
+```r
+peaksWithMA0912 &lt;- peakRangesCentered[mmMatrix[, "MA0912.2"] == 1]
+peaksWithMA0912
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The **chromVar** package allows for the summarisation of ATAC-seq signal changes to the motifs within peaks.
+
+With this summarisation we can potentially identify whith motifs may have an important role in a set of ATAC samples compared to other samples.
+
+The chromVar package comes from the same lab and author as the motifmatchR package and so will work well together.
+
+First we load the library.
+
+
+
+```r
+library(chromVAR)
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+To identify motifs for chomVar we will use motifMatchr with a different set of inputs. 
+
+Here we will provide our *Ranged*SummarizedExperiment object directly to the matchMotifs function. 
+
+First we will remove any peaks with less than 5 reads across all samples.
+
+
+
+```r
+myCounts &lt;- myCounts[rowSums(assay(myCounts)) &gt; 5, ]
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+
+Next we can correct for any potential GC bias which may have arisen in sequencing. Previously we have seen that we have GC bias observable in our FastQ quality checks. 
+
+For comparing across differing sets of peaks with differing sequences compositions we will need to correct for this bias. We can use the **addGCBias** and specify our genome as a BSgenome object to correct in chromVar.
+
+
+```r
+myCounts &lt;- addGCBias(myCounts, genome = BSgenome.Mmusculus.UCSC.mm10)
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+Having corrected for bias, we can use the matchMotifs function again to identify motifs under our ATAC-seq peaks. 
+
+Here we supply our *Ranged*SummarizedExperiment and the genome of interest to the **matchMotifs** function and use the default **out** of *matches*.
+
+
+```r
+motif_ix &lt;- matchMotifs(motifsToScan, myCounts, genome = BSgenome.Mmusculus.UCSC.mm10)
+motif_ix
+```
+
+```
+## class: RangedSummarizedExperiment 
+## dim: 36320 746 
+## metadata(0):
+## assays(1): motifMatches
+## rownames: NULL
+## rowData names(7):
+##   Sorted_Hindbrain_day_12_1_Small_Paired_peaks.narrowPeak
+##   Sorted_Hindbrain_day_12_2_Small_Paired_peaks.narrowPeak ...
+##   Sorted_Liver_day_12_2_Small_Paired_peaks.narrowPeak bias
+## colnames(746): MA0004.1 MA0006.1 ... MA0528.2 MA0609.2
+## colData names(1): name
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+Following the identification of motifs in our peaks, we can perform the summarisation of ATAC-seq signal to motifs using the **computeDeviations** and the **computeVariability** functions.
+
+
+```r
+deviations &lt;- computeDeviations(object = myCounts, annotations = motif_ix)
+variability_Known &lt;- computeVariability(deviations)
+```
+
+
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The deviations result contains a SummarizedExperiment object with the Z-scores shwoing the enrichment for ATAC-seq signal in each sample for every motif.
+
+
+```r
+devZscores &lt;- deviationScores(deviations)
+devZscores[1:2, ]
+```
+
+```
+##          Sorted_Hindbrain_day_12_1_Small_Paired.bam
+## MA0004.1                                   3.679156
+## MA0006.1                                   8.046464
+##          Sorted_Hindbrain_day_12_2_Small_Paired.bam
+## MA0004.1                                   5.431137
+## MA0006.1                                   7.633895
+##          Sorted_Kidney_day_15_1_Small_Paired.bam
+## MA0004.1                                4.114432
+## MA0006.1                                6.570759
+##          Sorted_Kidney_day_15_2_Small_Paired.bam
+## MA0004.1                                4.564610
+## MA0006.1                                6.004668
+##          Sorted_Liver_day_12_1_Small_Paired.bam
+## MA0004.1                              -4.276874
+## MA0006.1                              -8.348624
+##          Sorted_Liver_day_12_2_Small_Paired.bam
+## MA0004.1                              -6.653514
+## MA0006.1                              -6.824266
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The variabilty result contains the ranking of motifs by their variability across samples. Highly variable motifs may indicate motifs assocaited with a particualr sample group or variable across all groups.
+
+
+```r
+variability_Known &lt;- variability_Known[order(variability_Known$p_value), ]
+variability_Known[1:10, ]
+```
+
+```
+##                 name variability bootstrap_lower_bound bootstrap_upper_bound
+## MA0140.2 GATA1::TAL1    31.47098             3.1948304              34.67008
+## MA0600.2        RFX2    17.77072             7.3944769              21.22610
+## MA0036.3       GATA2    32.01213             0.3921849              34.17913
+## MA0037.3       GATA3    25.31902             0.8039623              27.44567
+## MA0766.2       GATA5    25.01678             0.4178051              26.75562
+## MA0035.4       GATA1    26.04815             0.8122387              27.98797
+## MA0482.2       GATA4    27.45124             0.8642210              29.45822
+## MA1104.2       GATA6    29.73974             0.5806377              31.84163
+## MA0509.2        RFX1    17.52837             8.5454333              21.34927
+## MA0867.2        SOX4    16.47110             5.8375559              19.59171
+##                p_value   p_value_adj
+## MA0140.2  0.000000e+00  0.000000e+00
+## MA0600.2  0.000000e+00  0.000000e+00
+## MA0036.3  0.000000e+00  0.000000e+00
+## MA0037.3  0.000000e+00  0.000000e+00
+## MA0766.2  0.000000e+00  0.000000e+00
+## MA0035.4  0.000000e+00  0.000000e+00
+## MA0482.2  0.000000e+00  0.000000e+00
+## MA1104.2  0.000000e+00  0.000000e+00
+## MA0509.2  0.000000e+00  0.000000e+00
+## MA0867.2 3.690799e-291 2.749645e-289
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+We can use the results from the variability with our Zscore deviations to identify in which sample our motifs are enriched.
+
+
+```r
+topVariable &lt;- variability_Known[1:20, ]
+devTop &lt;- merge(topVariable[, 1, drop = FALSE], devZscores, by = 0)
+devTop[1:2, ]
+```
+
+```
+##   Row.names  name Sorted_Hindbrain_day_12_1_Small_Paired.bam
+## 1  MA0035.4 GATA1                                  -24.29333
+## 2  MA0036.3 GATA2                                  -29.55701
+##   Sorted_Hindbrain_day_12_2_Small_Paired.bam
+## 1                                  -22.56358
+## 2                                  -30.63070
+##   Sorted_Kidney_day_15_1_Small_Paired.bam
+## 1                               -25.01967
+## 2                               -30.24737
+##   Sorted_Kidney_day_15_2_Small_Paired.bam
+## 1                               -24.19630
+## 2                               -29.73203
+##   Sorted_Liver_day_12_1_Small_Paired.bam Sorted_Liver_day_12_2_Small_Paired.bam
+## 1                               25.81764                               26.97208
+## 2                               31.46003                               32.42450
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+A useful way to visualise these results is using a heatmap. Although we cover this in a later session, here we can use the **pheatmap** library with default settings to illustrate where our most variable motifs are active. 
+
+
+```r
+devToPlot &lt;- as.matrix(devTop[, -c(1:2)])
+rownames(devToPlot) &lt;- devTop[, 2]
+library(pheatmap)
+pheatmap(devToPlot)
+```
+
+![](RU_ATAC_part3_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+
+
+
+---
+# Identifying Motifs in ATAC
+
+---
+
+---
+
+## Denovo Motifs.
+
+So far we have revied how to identify known motifs within our ATAC-seq peaks.
+
+Previously we have seen that we can use the Meme-ChIP software to perform denovo motif identifation.
+
+Here we wll use the Meme-ChIP software in a discriminative mode to identify denove motifs enriched in one set of samples over another.
+
+
+---
+
+## Denovo Motifs.
+
+First we will need to identify a set of peaks enriched for ATAC-seq signal in one group over another. To do this we will use DESeq2 to identify ATAC-seq peaks enriched in 1 set over another.
+
+We can load our Liver, Kindey and Brain counts from earlier into a DEseq object for differential analysis.
+
+
+```r
+require(DESeq2)
+```
+
+```
+## Loading required package: DESeq2
+```
+
+```r
+load("data/myCounts.RData")
+Group &lt;- factor(c("HindBrain", "HindBrain", "Kidney", "Kidney", "Liver", "Liver"))
+colData(myCounts) &lt;- DataFrame(data.frame(Group, row.names = colnames(myCounts)))
+dds &lt;- DESeqDataSet(myCounts, design = ~Group)
+dds &lt;- DESeq(dds)
+```
+
+```
+## estimating size factors
+```
+
+```
+## estimating dispersions
+```
+
+```
+## gene-wise dispersion estimates
+```
+
+```
+## mean-dispersion relationship
+```
+
+```
+## -- note: fitType='parametric', but the dispersion trend was not well captured by the
+##    function: y = a/x + b, and a local regression fit was automatically substituted.
+##    specify fitType='local' or 'mean' to avoid this message next time.
+```
+
+```
+## final dispersion estimates
+```
+
+```
+## fitting model and testing
+```
+
+---
+
+## Denovo Motifs.
+
+We can then use the DESeq2 function **results** to identify differential ATAC regions and set the **format** parameter to **GRanges** to allow the return of the result as a GRanges object.
+
+
+```r
+myRes &lt;- results(dds, contrast = c("Group", "Liver", "Kidney"), format = "GRanges")
+myRes &lt;- myRes[order(myRes$padj), ]
+upRegions &lt;- myRes[myRes$log2FoldChange &gt; 0][1:1000]
+downRegions &lt;- myRes[myRes$log2FoldChange &lt; 0, ][1:1000]
+upRegions
+```
+
+```
+## GRanges object with 1000 ranges and 6 metadata columns:
+##          seqnames              ranges strand |  baseMean log2FoldChange
+##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt;      &lt;numeric&gt;
+##      [1]     chr7 100467072-100467556      * |  101.6408        3.99023
+##      [2]    chr18   32542348-32542812      * |   96.8956        4.11485
+##      [3]    chr10   30763197-30763615      * |   94.4364        3.78759
+##      [4]    chr15 103258321-103258745      * |   99.6945        3.59581
+##      [5]     chr8 123978898-123979311      * |   84.3669        4.13890
+##      ...      ...                 ...    ... .       ...            ...
+##    [996]     chr5 148897184-148897609      * |   24.8790        3.10487
+##    [997]     chr5 147888548-147888858      * |   21.1643        3.45870
+##    [998]     chr7 131425006-131425298      * |   25.7261        3.01058
+##    [999]     chr3   14886438-14886963      * |   63.2840        1.59576
+##   [1000]     chr8 122719754-122720057      * |   26.7802        2.94430
+##              lfcSE      stat      pvalue        padj
+##          &lt;numeric&gt; &lt;numeric&gt;   &lt;numeric&gt;   &lt;numeric&gt;
+##      [1]  0.290132   13.7532 4.87419e-43 1.77031e-38
+##      [2]  0.304919   13.4949 1.67615e-41 3.04389e-37
+##      [3]  0.281546   13.4528 2.96263e-41 3.58676e-37
+##      [4]  0.281400   12.7783 2.16807e-37 1.96861e-33
+##      [5]  0.330165   12.5359 4.75193e-36 3.45180e-32
+##      ...       ...       ...         ...         ...
+##    [996]  0.487194   6.37297 1.85407e-10 5.79017e-09
+##    [997]  0.543067   6.36883 1.90469e-10 5.94317e-09
+##    [998]  0.472801   6.36754 1.92089e-10 5.98855e-09
+##    [999]  0.250669   6.36602 1.93994e-10 6.04275e-09
+##   [1000]  0.462528   6.36567 1.94435e-10 6.05130e-09
+##   -------
+##   seqinfo: 22 sequences from an unspecified genome; no seqlengths
+```
+
+---
+
+## Denovo Motifs.
+
+For Meme-ChIP we will want to resize the regions to 100bp. By default Meme-ChIP will perform this trimming for us but to ensure it is in the centre we will do this upfront.
+
+
+```r
+upRegions &lt;- resize(upRegions, fix = "center", width = 100)
+downRegions &lt;- resize(downRegions, fix = "center", width = 100)
+```
+
+---
+
+## Denovo Motifs.
+
+We can now use the **getSeq** function as previously to extract the signal from around within the GRange regions and write to a FASTA file for use in Meme-ChIP using the **writeXStringSet** function.
+
+
+```r
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10, upRegions)
+downStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10, downRegions)
+names(upStrings) &lt;- as.character(upRegions)
+names(downStrings) &lt;- as.character(downRegions)
+writeXStringSet(upStrings, file = "UpRegions.fa")
+writeXStringSet(downStrings, file = "DownStrings.fa")
+```
+
+---
+
+## Denovo Motifs.
+
+We can then submit the sample to the Meme-ChIP online submission form found [here](http://meme-suite.org/tools/meme-chip). 
+
+In contrast to for ChIP-seq, here we will run this in Differential mode to compare our sequences in Liver enriched regions to those depleted in Liver.
+
+The results can be found in **data/memeResult_LiverVsBrain**
+
+
+---
+
+## Denovo Motifs.
+
+We may want to use the motifs discovered by Meme-ChIP in other Bioconductor software.
+
+To do this we can use the **universalmotif** package.
+
+
+```r
+library(universalmotif)
+```
+
+```
+## Registered S3 method overwritten by 'treeio':
+##   method     from
+##   root.phylo ape
+```
+
+
+
+## Denovo Motifs.
+
+The **universalmotif** package provides lots of useful fucntions for importing motif sets. 
+
+One useful and relevant function is the  **read_meme()** function.
+
+
+```r
+memeMotifs &lt;- read_meme("data/memeResult_LiverVsBrain/combined.meme")
+```
+
+---
+
+## Denovo Motifs.
+
+The **universalmotif** package also provides functions to convert between motif objects from different package. Here we convert to TFBStools motif objects.
+
+
+```r
+memeMotifsTFBStools &lt;- convert_motifs(memeMotifs, "TFBSTools-PWMatrix")
+memeMotifsTFBStools
+```
+
+```
+## [[1]]
+## An object of class PWMatrix
+## ID: HGATA-DREME-1
+## Name: 1
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "7.6e-275"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##             W          G         A         T         A
+## A   1.3294375 -10.272630   2.11689 -10.27263   2.11689
+## C  -2.5931079 -10.272630 -10.27263 -10.27263 -10.27263
+## G -10.2726298   1.890255 -10.27263 -10.27263 -10.27263
+## T   0.7069592 -10.272630 -10.27263   2.11689 -10.27263
+## 
+## [[2]]
+## An object of class PWMatrix
+## ID: WGATAAG-MEME-1
+## Name: 2
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "1.4e-096"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##            W         G         A         T         A         A          G
+## A  1.4668977 -9.620220  2.116376 -9.620220  2.060250  1.835703 -0.6292295
+## C -3.1887377 -9.620220 -9.620220 -9.620220 -9.620220 -6.019998 -0.6709083
+## G -4.5166051  1.889768 -9.620220 -9.620220 -9.620220 -1.155168  1.2171203
+## T  0.4818744 -9.620220 -9.620220  2.116376 -2.584504 -2.136796 -2.0684582
+## 
+## [[3]]
+## An object of class PWMatrix
+## ID: AYACH-DREME-2
+## Name: 3
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "1.5e-034"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##            A           C          A          C           H
+## A   2.116764 -10.0834793   2.116764 -10.083479   0.7390085
+## C -10.083479   1.6154172 -10.083479   1.890136   0.3243904
+## G -10.083479 -10.0834793 -10.083479 -10.083479 -10.0834793
+## T -10.083479  -0.4093361 -10.083479 -10.083479   0.2690316
+## 
+## [[4]]
+## An object of class PWMatrix
+## ID: ACAK-DREME-3
+## Name: 4
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "3.7e-017"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##            A          C          A            G
+## A   2.117142 -10.748193   2.117142 -10.74819285
+## C -10.748193   1.890495 -10.748193 -10.74819285
+## G -10.748193 -10.748193 -10.748193   1.49966337
+## T -10.748193 -10.748193 -10.748193   0.04283434
+## 
+## [[5]]
+## An object of class PWMatrix
+## ID: CTHATC-DREME-4
+## Name: 5
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "1.1e-010"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##           C         T          H         A         T         C
+## A -7.118941 -7.118941  0.7598762  2.109777 -7.118941 -7.118941
+## C  1.883507 -7.118941  0.2404110 -7.118941 -7.118941  1.883507
+## G -7.118941 -7.118941 -7.1189411 -7.118941 -7.118941 -7.118941
+## T -7.118941  2.109777  0.3290605 -7.118941  2.109777 -7.118941
+## 
+## [[6]]
+## An object of class PWMatrix
+## ID: YTATCW-MEME-2
+## Name: 6
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "7.4e-009"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##            Y         T            A         T         C          W
+## A -2.6366821 -9.573647  1.365054357 -9.573647 -2.125646  0.6642764
+## C  0.3796124 -9.573647 -9.573647187 -9.573647  1.671202 -2.3871986
+## G -0.5199509 -9.573647 -0.624335673 -9.573647 -9.573647 -4.3222315
+## T  0.8805593  2.116330  0.005459193  2.116330 -1.384818  1.3064571
+## 
+## [[7]]
+## An object of class PWMatrix
+## ID: ASWA-DREME-5
+## Name: 7
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "6.0e-007"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##            A           S           W          A
+## A   2.117044 -10.5439985   1.5978626   2.117044
+## C -10.543998   0.6423491 -10.5439985 -10.543998
+## G -10.543998   1.1024468 -10.5439985 -10.543998
+## T -10.543998 -10.5439985   0.3915094 -10.543998
+## 
+## [[8]]
+## An object of class PWMatrix
+## ID: ACCCAGW-DREME-6
+## Name: 8
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "3.6e-004"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##           A        C        C        C         A        G         W
+## A  2.096276 -5.70044 -5.70044 -5.70044  2.096276 -5.70044  1.184494
+## C -5.700440  1.87070  1.87070  1.87070 -5.700440 -5.70044 -5.700440
+## G -5.700440 -5.70044 -5.70044 -5.70044 -5.700440  1.87070 -5.700440
+## T -5.700440 -5.70044 -5.70044 -5.70044 -5.700440 -5.70044  1.016094
+## 
+## [[9]]
+## An object of class PWMatrix
+## ID: CMCACCCW-MEME-3
+## Name: 9
+## Matrix Class: Unknown
+## strand: *
+## Pseudocounts: 1
+## Tags: 
+## $eval.string
+## [1] "2.9e-002"
+## 
+## Background: 
+##      A      C      G      T 
+## 0.2304 0.2696 0.2696 0.2304 
+## Matrix: 
+##           C          M         C         A         C         C         C
+## A -4.949407  1.4411892 -7.366322  2.029732 -7.366322 -7.366322 -7.366322
+## C  1.831026  0.4618849  1.884707 -7.366322  1.867034  1.884707  1.884707
+## G -7.366322 -7.3663222 -7.366322 -2.262708 -4.292777 -7.366322 -7.366322
+## T -2.861614 -7.3663222 -7.366322 -7.366322 -7.366322 -7.366322 -7.366322
+##            W
+## A  1.0411226
+## C -1.9808502
+## G -4.2927766
+## T  0.9458359
+```
+
+
+
+---
+newDDS &lt;- myCounts
+Group &lt;- factor(c("HindBrain","HindBrain","Kidney","Kidney",
+                  "Liver","Liver"))
+colData(newDDS) &lt;- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
+require(DESeq2)
+require(tidyverse)
+atacDDS &lt;- DESeqDataSetFromMatrix(assay(myCounts),
+                                  colData(newDDS),
+                                  ~Group,
+                                  rowRanges=rowRanges(myCounts))
+atacDDS &lt;- DESeq(atacDDS)
+myRes &lt;- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
+myRes &lt;- myRes[order(myRes$padj),]
+upRegions &lt;- myRes[myRes$log2FoldChange &gt; 0][1:1000] 
+downRegions &lt;- myRes[myRes$log2FoldChange &lt; 0,][1:1000]
+
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
+downStrings &lt;- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
+names(upStrings) &lt;- as.character(resize(upRegions,fix = "center",width = 100))
+names(downStrings) &lt;- as.character(resize(downRegions,fix = "center",width = 100))
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
 
 ---
 
