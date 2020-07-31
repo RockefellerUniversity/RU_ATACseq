@@ -1,0 +1,122 @@
+---
+title: "ATACseq in Bioconductor exercises (part 3)"
+author: "Rockefeller University, Bioinformatics Resource Centre"
+date: "https://rockefelleruniversity.github.io/RU_ATACseq/"
+output: 
+  html_document:
+    number_sections: false  ## if you want number sections at each table header
+    theme: united  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+params:
+  toMessage: false    
+---
+
+```{r, setup,include=FALSE}
+toMessage <- ifelse(!is.null(params$toMessage),params$toMessage,FALSE)
+message(toMessage)
+```
+
+In todays session we will work with some of Kindey and HindBrain ATAC-seq data.
+
+I have already produced a summarisedexperiment of counts and put this in the data directory.
+
+**data/KidneyBrainCounts.RData**
+
+## ATAC-seq analysis
+
+1. Perform a differential ATAC-seq analysis of the Kidney samples versus the Brain sample and write out to FASTA the top differential 1000 ATAC-seq peaks up and down for kidney minus brain.
+
+```{r, include=FALSE}
+library(GenomicRanges)
+library(Rsamtools)
+library(rtracklayer)
+library(GenomicAlignments)
+library(soGGi)
+library(ggplot2)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+library(MotifDb)
+library(Biostrings)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(ChIPQC)
+library(rtracklayer)
+library(DESeq2)
+load("data/myCounts.RData")
+kindeyBrainCounts <- myCounts[,-c(5:6)]
+save(kindeyBrainCounts,file="data/KidneyBrainCounts.RData")
+```
+
+
+
+```{r instalcscldcsceBSded,cache=TRUE,eval=FALSE , echo=toMessage}
+load("data/KidneyBrainCounts.RData")
+
+newDDS <- kindeyBrainCounts
+Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney"))
+colData(newDDS) <- DataFrame(data.frame(Group,row.names=colnames(kindeyBrainCounts)))
+require(DESeq2)
+require(tidyverse)
+atacDDS <- DESeqDataSet(newDDS,design=~Group)
+atacDDS <- DESeq(atacDDS)
+myRes <- results(atacDDS,contrast = c("Group","Kidney","HindBrain"),format = "GRanges")
+myRes <- myRes[order(myRes$padj),]
+upRegions <- myRes[!is.na(myRes$log2FoldChange) & myRes$log2FoldChange > 0][1:1000] 
+downRegions <- myRes[!is.na(myRes$log2FoldChange) & myRes$log2FoldChange < 0,][1:1000]
+```
+
+2. Extract the sequences for the top up and down 1000 regions and submit to Meme-ChIP.
+
+```{r fewgvswf,cache=TRUE,eval=FALSE , echo=toMessage}
+library(BSgenome.Mmusculus.UCSC.mm10)
+upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
+downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
+names(upStrings) <- as.character(resize(upRegions,fix = "center",width = 100))
+names(downStrings) <- as.character(resize(downRegions,fix = "center",width = 100))
+writeXStringSet(upStrings,file="UpRegions.fa")
+writeXStringSet(downStrings,file="DownStrings.fa")
+
+
+```
+
+
+3. Perform a chromVar analysis on our Brain and Kidney data and plot the most variable motifs in a heatmap.
+
+```{r,eval=FALSE, echo=toMessage}
+
+require(motifmatchr)
+require(JASPAR2020)
+
+
+db <- file.path(system.file("extdata", package="JASPAR2020"),
+                "JASPAR2020.sqlite")
+opts <- list()
+opts[["tax_group"]] <- "vertebrates"
+opts[["collection"]] <- "CORE"
+opts[["all_versions"]] <- FALSE
+require(TFBSTools)
+motifs <- getMatrixSet(db,opts)
+
+
+newDDS <- newDDS[rowSums(assay(newDDS)) > 5,]
+require(BSgenome.Mmusculus.UCSC.mm10)
+newDDS <- addGCBias(newDDS,
+                    genome = BSgenome.Mmusculus.UCSC.mm10)
+
+motif_ix <- matchMotifs(motifs, newDDS,
+                        genome = BSgenome.Mmusculus.UCSC.mm10)
+deviations() <- computeDeviations(object = newDDS, annotations = motif_ix)
+devZscores <- deviationScores(deviations)
+
+variability_Known <- computeVariability(dev_Known)
+variability_Known <- variability_Known[order(variability_Known$p_value),]
+
+topVariable <- variability_Known[1:20,]
+devTop <- merge(topVariable[,1,drop=FALSE],devZscores,by=0)
+devTop[1:2,]
+
+devToPlot <- as.matrix(devTop[,-c(1:2)])
+rownames(devToPlot) <- devTop[,2]
+library(pheatmap)
+pheatmap(devToPlot)
+
+```
+
