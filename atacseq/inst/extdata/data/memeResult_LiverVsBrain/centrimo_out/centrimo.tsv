@@ -1,0 +1,18 @@
+db_index	motif_id	motif_alt_id	consensus	E-value	adj_p-value	log_adj_p-value	bin_location	bin_width	total_width	sites_in_bin	total_sites	p_success	p-value	mult_tests	neg_sites_in_bin	neg_sites	neg_adj_pvalue	log_neg_adj_pvalue	fisher_adj_pvalue	log_fisher_adj_pvalue
+   1	WGATAAG	MEME-1	WGATAAG	1.2e-2	   6.6e-6	         -11.92	         0.0	     46.0	         94	         481	        831	  0.48936	1.4e-7	        46	          48	         92	1.0e0	          -0.00	1.0e0	          -0.00	
+   4	MA0140.2	GATA1::TAL1	MTTATCWSNNNNNHVCAG	3.3e-2	   1.8e-5	         -10.92	         0.0	     79.0	         83	         492	        496	  0.95181	4.4e-7	        41	          40	         43	1.0e0	           0.00	4.2e-1	          -0.87	
+   4	MA0766.1	GATA5	WGATAASR	5.3e-2	   2.9e-5	         -10.45	         0.0	     59.0	         93	         626	        878	  0.63441	6.3e-7	        46	         146	        212	9.3e-1	          -0.07	1.0e0	          -0.00	
+   3	GATA5_DBD		WGATAASR	6.7e-2	   3.7e-5	         -10.20	         0.0	     59.0	         93	         626	        879	  0.63441	8.0e-7	        46	         148	        214	8.9e-1	          -0.12	1.0e0	          -0.00	
+   4	MA0036.3	GATA2	NBCTTATCTNH	1.7e-1	   9.6e-5	          -9.26	         0.0	     14.0	         90	         167	        763	  0.15556	2.2e-6	        44	          13	         90	1.0e0	           0.00	9.4e-1	          -0.06	
+   3	GATA3_full		WGATAASV	5.2e-1	   2.9e-4	          -8.15	         0.0	     15.0	         93	         195	        895	  0.16129	6.3e-6	        46	          54	        317	1.0e0	          -0.00	9.2e-1	          -0.08	
+   3	GATA4_DBD		WGATAASV	5.9e-1	   3.2e-4	          -8.03	         0.0	     57.0	         93	         607	        888	  0.61290	7.1e-6	        46	         166	        249	8.5e-1	          -0.17	1.0e0	          -0.00	
+   4	MA0037.3	GATA3	WGATAASR	7.7e-1	   4.2e-4	          -7.77	         0.0	     53.0	         93	         525	        815	  0.56989	9.2e-6	        46	          52	         84	1.0e0	          -0.00	1.0e0	          -0.00	
+   2	CTHATC	DREME-4	CTHATC	1.0e0	   5.5e-4	          -7.50	         0.0	     55.0	         95	         319	        473	  0.57895	1.2e-5	        47	          27	         41	1.0e0	          -0.00	1.0e0	          -0.00	
+   2	HGATA	DREME-1	WGATA	1.5e0	   8.5e-4	          -7.07	         0.0	     82.0	         96	         738	        817	  0.85417	1.8e-5	        47	          61	         72	1.0e0	           0.00	9.9e-1	          -0.01	
+   3	PITX1_DBD		NYTAATCCC	2.2e0	   1.2e-3	          -6.71	         0.0	     72.0	         92	         337	        390	  0.78261	2.7e-5	        45	         173	        210	9.8e-1	          -0.02	1.0e0	          -0.00	
+   3	GATA3_DBD		WGATAASV	2.6e0	   1.4e-3	          -6.57	         0.0	     47.0	         93	         511	        891	  0.50538	3.1e-5	        46	         134	        261	1.0e0	          -0.00	9.0e-1	          -0.10	
+   4	MA0482.1	Gata4	YCTTATCTSHB	4.6e0	   2.5e-3	          -5.97	         0.0	     88.0	         90	         549	        550	  0.97778	5.8e-5	        44	          64	         64	1.0e0	          -0.00	1.0e0	           0.00	
+
+# CentriMo (Local Motif Enrichment Analysis): Version 5.1.1 compiled on Feb  1 2020 at 23:13:11
+# The format of this file is described at http://meme-suite.org//doc/centrimo-output-format.html.
+# centrimo -seqlen 100 -verbosity 1 -oc centrimo_out -bfile ./background -score 5.0 -ethresh 10.0 -neg ./DownStrings.fa ./UpRegions.fa meme_out/meme.xml dreme_out/dreme.xml db/EUKARYOTE/jolma2013.meme db/JASPAR/JASPAR2018_CORE_vertebrates_non-redundant.meme db/MOUSE/uniprobe_mouse.meme
