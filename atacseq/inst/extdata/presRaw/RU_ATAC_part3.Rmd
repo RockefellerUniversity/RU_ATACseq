@@ -958,33 +958,6 @@ memeMotifsTFBStools <- convert_motifs(memeMotifs,"TFBSTools-PWMatrix")
 memeMotifsTFBStools
 ```
 
-
-
----
-newDDS <- myCounts
-Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
-                  "Liver","Liver"))
-colData(newDDS) <- DataFrame(data.frame(Group,row.names=colnames(myCounts)))
-require(DESeq2)
-require(tidyverse)
-atacDDS <- DESeqDataSetFromMatrix(assay(myCounts),
-                                  colData(newDDS),
-                                  ~Group,
-                                  rowRanges=rowRanges(myCounts))
-atacDDS <- DESeq(atacDDS)
-myRes <- results(atacDDS,contrast = c("Group","Liver","Kidney"),format = "GRanges")
-myRes <- myRes[order(myRes$padj),]
-upRegions <- myRes[myRes$log2FoldChange > 0][1:1000] 
-downRegions <- myRes[myRes$log2FoldChange < 0,][1:1000]
-
-library(BSgenome.Mmusculus.UCSC.mm10)
-upStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(upRegions,fix = "center",width = 100))
-downStrings <- getSeq(BSgenome.Mmusculus.UCSC.mm10,resize(downRegions,fix = "center",width = 100))
-names(upStrings) <- as.character(resize(upRegions,fix = "center",width = 100))
-names(downStrings) <- as.character(resize(downRegions,fix = "center",width = 100))
-writeXStringSet(upStrings,file="UpRegions.fa")
-writeXStringSet(downStrings,file="DownStrings.fa")
-
 ---
 
 ```{r,eval=FALSE,echo=FALSE}
