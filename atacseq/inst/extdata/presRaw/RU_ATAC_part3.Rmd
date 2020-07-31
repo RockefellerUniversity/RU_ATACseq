@@ -649,9 +649,9 @@ We may simply want to map motifs to their ATAC-seq peaks.
 To do this we can set the **out** parameter to **matches**.  This will return a SummarizedExperiment object.
 
 ```{r}
-motif_matches <- matchMotifs(motifsToScan, peakSeqs,out="matches")
-class(motif_matches)
-motif_matches
+motifHits <- matchMotifs(motifsToScan, peakSeqs,out="matches")
+class(motifHits)
+motifHits
 ```
 
 ---
@@ -661,7 +661,7 @@ motif_matches
 We can retrieve a matrix of matches by motif and peak using the motifMatches function.
 
 ```{r}
-mmMatrix <- motifMatches(motif_matches)
+mmMatrix <- motifMatches(motifHits)
 mmMatrix[1:8,1:8]
 ```
 
@@ -780,8 +780,78 @@ devZscores[1:2,]
 The variabilty result contains the ranking of motifs by their variability across samples. Highly variable motifs may indicate motifs assocaited with a particualr sample group or variable across all groups.
 
 ```{r}
-variability_Known[1:4,]
+variability_Known <- variability_Known[order(variability_Known$p_value),]
+variability_Known[1:10,]
 ```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+We can use the results from the variability with our Zscore deviations to identify in which sample our motifs are enriched.
+
+```{r}
+topVariable <- variability_Known[1:20,]
+devTop <- merge(topVariable[,1,drop=FALSE],devZscores,by=0)
+devTop[1:2,]
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+A useful way to visualise these results is using a heatmap. Although we cover this in a later session, here we can use the **pheatmap** library with default settings to illustrate where our most variable motifs are active. 
+
+```{r}
+devToPlot <- as.matrix(devTop[,-c(1:2)])
+rownames(devToPlot) <- devTop[,2]
+library(pheatmap)
+pheatmap(devToPlot)
+```
+
+
+
+---
+```{r, results='asis',include=TRUE,echo=FALSE}
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Identifying Motifs in ATAC
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Identifying Motifs in ATAC
+
+---
+"    
+  )
+  
+}
+```
+
+---
+
+## Denovo Motifs.
+
+So far we have revied how to identify known motifs within our ATAC-seq peaks.
+
+Previously we have seen that we can use the Meme-ChIP software to perform denovo motif identifation.
+
+Here we wll use the Meme-ChIP software in a discriminative mode to identify denove motifs enriched in one set of samples over another.
+
+
+---
+
+## Denovo Motifs.
+
+First we will need to identify a set of peaks enriched for ATAC-seq signal in one group over another. To do this we will use DESeq2 to identify ATAC-seq peaks enriched in 1 set over another.
+
+We can load our Liver, Kindey and Brain counts from earlier into a 
 
 
 plotVariability(variability_Known, use_plotly = FALSE)
