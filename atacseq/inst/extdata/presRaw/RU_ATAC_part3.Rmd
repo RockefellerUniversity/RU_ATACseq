@@ -541,7 +541,7 @@ opts <- list()
 opts[["tax_group"]] <- "vertebrates"
 opts[["collection"]] <- "CORE"
 opts[["all_versions"]] <- FALSE
-motifsToScan <- getMatrixSet(db,opts)
+motifsToScan <- getMatrixSet(JASPAR2020,opts)
 
 ```
 
@@ -688,6 +688,106 @@ We can also identify peaks which contain a hit for a selected motif.
 peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
 peaksWithMA0912
 ```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The **chromVar** package allows for the summarisation of ATAC-seq signal changes to the motifs within peaks.
+
+With this summarisation we can potentially identify whith motifs may have an important role in a set of ATAC samples compared to other samples.
+
+The chromVar package comes from the same lab and author as the motifmatchR package and so will work well together.
+
+First we load the library.
+
+
+```{r}
+library(chromVAR)
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+To identify motifs for chomVar we will use motifMatchr with a different set of inputs. 
+
+Here we will provide our *Ranged*SummarizedExperiment object directly to the matchMotifs function. 
+
+First we will remove any peaks with less than 5 reads across all samples.
+
+
+```{r}
+myCounts <- myCounts[rowSums(assay(myCounts)) > 5,]
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+
+Next we can correct for any potential GC bias which may have arisen in sequencing. Previously we have seen that we have GC bias observable in our FastQ quality checks. 
+
+For comparing across differing sets of peaks with differing sequences compositions we will need to correct for this bias. We can use the **addGCBias** and specify our genome as a BSgenome object to correct in chromVar.
+
+```{r}
+myCounts <- addGCBias(myCounts,
+                    genome = BSgenome.Mmusculus.UCSC.mm10)
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+Having corrected for bias, we can use the matchMotifs function again to identify motifs under our ATAC-seq peaks. 
+
+Here we supply our *Ranged*SummarizedExperiment and the genome of interest to the **matchMotifs** function and use the default **out** of *matches*.
+
+```{r}
+motif_ix <- matchMotifs(motifsToScan, myCounts,
+                        genome = BSgenome.Mmusculus.UCSC.mm10)
+motif_ix
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+Following the identification of motifs in our peaks, we can perform the summarisation of ATAC-seq signal to motifs using the **computeDeviations** and the **computeVariability** functions.
+
+```{r}
+deviations <- computeDeviations(object = myCounts, annotations = motif_ix)
+variability_Known <- computeVariability(deviations)
+```
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The deviations result contains a SummarizedExperiment object with the Z-scores shwoing the enrichment for ATAC-seq signal in each sample for every motif.
+
+```{r}
+devZscores <- deviationScores(deviations)
+devZscores[1:2,]
+```
+
+
+---
+
+## Summarising ATAC signal to Motifs
+
+The variabilty result contains the ranking of motifs by their variability across samples. Highly variable motifs may indicate motifs assocaited with a particualr sample group or variable across all groups.
+
+```{r}
+variability_Known[1:4,]
+```
+
+
+plotVariability(variability_Known, use_plotly = FALSE)
+
+```
+
 
 ---
 
