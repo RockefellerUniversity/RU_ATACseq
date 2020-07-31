@@ -36,13 +36,10 @@ library(ggplot2)
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 library(MotifDb)
 library(Biostrings)
-library(BSgenome.Hsapiens.UCSC.hg19)
-library(ChIPQC)
-library(rtracklayer)
 library(DESeq2)
-load("data/myCounts.RData")
-kindeyBrainCounts <- myCounts[,-c(5:6)]
-save(kindeyBrainCounts,file="data/KidneyBrainCounts.RData")
+# load("data/myCounts.RData")
+# kindeyBrainCounts <- myCounts[,-c(5:6)]
+# save(kindeyBrainCounts,file="data/KidneyBrainCounts.RData")
 ```
 
 
