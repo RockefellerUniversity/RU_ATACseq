@@ -864,7 +864,7 @@ KidneyMinusHindbrain <- KidneyMinusHindbrain[
 makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",'data/')
 ```
 
-```{r processData_DEseq2_ResultsToTSSregions,message=FALSE,warning=FALSE, echo=TRUE,eval=F, cache=TRUE,dependson="processData_DEseq2_Results_ResultsTable"}
+```{r processData_DEseq2_ResultsToTSSregions2,message=FALSE,warning=FALSE, echo=TRUE,eval=F, cache=TRUE,dependson="processData_DEseq2_Results_ResultsTable"}
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 toOverLap <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
                        500,500)
