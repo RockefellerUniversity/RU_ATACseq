@@ -210,7 +210,7 @@ fragLenPlot + scale_y_continuous(trans='log2')+theme_minimal()
 ```{r instacsxuiscsllBSded, echo=toMessage}
 atacReads_Open <- myPairs[IS < 100,]
 atacReads_MonoNuc <- myPairs[IS > 180 &
-                                 IS < 240,]
+                                 IS < 247,]
 atacReads_diNuc <- myPairs[IS > 315 &
                                IS < 437,]
 toPlot <- data.frame(Fraction=c("NucleosomeFree","MonoNucleosome","DiNucleosome"),Total=c(length(atacReads_Open),
