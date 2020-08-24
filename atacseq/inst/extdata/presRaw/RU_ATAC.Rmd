@@ -70,7 +70,6 @@ In contrast to other techniques, ATACseq has several advantages including
 ---
 ## Working with ATACseq data
 
-
 In this session we will look at some of the basics of ATACseq processing in R using some publically available data.
 
 We will look at the alignment, post-alignment processing and plotting of ATACseq data over TSSs.
@@ -105,13 +104,11 @@ Links to data and sample information are included in list below.
 ---
 ## Data
 
-Finally, I have processed some of the data from Christina Leslie's lab at MSKCC exactly as described in this session, so we can review some of the characteristics of ATACseq data alongside the same data processed by ENCODE's pipeline during the practical session.
+Finally, I have processed some of the data from Christina Leslie's lab at MSKCC exactly as described in this session, so we can review some of the characteristics of ATACseq data alongside the same data processed by ENCODE's pipeline in the exercises.
 
 The raw data and processed BAM file is available from ENCODEs portal
 
 * T-Reg - [ENCSR724UJS](https://www.encodeproject.org/experiments/ENCSR724UJS/)
-
-We will work with some of the ATACseq data of T-regulatory cells from Christina Leslie's lab.
 
 FQ files can be found can be found [here for read1](https://www.encodeproject.org/files/ENCFF175VOD/@@download/ENCFF175VOD.fastq.gz) and [here for read2](https://www.encodeproject.org/files/ENCFF447BGX/@@download/ENCFF447BGX.fastq.gz).
 
@@ -129,7 +126,7 @@ This includes:
 
 * Gene models - We will retrieve these from TxDb Bioconductor annotation packages.
 
-* Blacklists - Artefact regions specific to genomes. These can be found in [ENCODE portal here](https://www.encodeproject.org/annotations/ENCSR636HFF/)
+* Blacklists - Artifact regions specific to genomes. These can be found in [ENCODE portal here](https://www.encodeproject.org/annotations/ENCSR636HFF/)
 
 ---
 ## Processed Data
@@ -710,7 +707,7 @@ nonRedundantFraction
 
 We can make it significantly quicker to review the pile-up of ATACseq signal in a genome browser by creating a bigWig file.
 
-Additional normalisation to total mapped reads could be applied at this point.
+Additional normalization to total mapped reads could be applied at this point.
 
 ```{r processData_createOpenRegionBigWig_21, echo=TRUE,eval=FALSE,cache=TRUE,dependson="processData_createOpenRegionBigWig_2"}
 openRegionRPMBigWig <- gsub("\\.bam","_openRegionRPM\\.bw",sortedBAM)
