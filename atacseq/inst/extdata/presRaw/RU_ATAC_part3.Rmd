@@ -47,7 +47,6 @@ library(JASPAR2020)
 ```
 
 
----
 
 ## Data
 
@@ -312,7 +311,7 @@ The seqLogo package offers a simple and intuitive way of visualizing our base fr
 
 A simple seqLogo shows the relative frequency of a base at each motif position by the relative size of the base compared to other bases at the same position. 
 
-```{r,eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE}
+```{r,eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE, fig.height=4,fig.width=6}
 require(seqLogo)
 CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
@@ -327,7 +326,7 @@ To create a seqLogo we must supply a PPM to the **seqLogo** function. Here we gr
 
 Here we set the **ic.scale** to FALSE to show the probability across the Y-axis
 
-```{r,eval=TRUE}
+```{r,eval=TRUE, fig.height=4,fig.width=6}
 library(seqLogo)
 CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
@@ -341,7 +340,7 @@ It may be useful to plot the probabilities as information content. Information c
 
 This allows you to quickly identify the important bases.
 
-```{r,eval=TRUE}
+```{r,eval=TRUE, fig.height=4,fig.width=6}
 seqLogo::seqLogo(CTCFMotifs[[1]])
 ```
 
@@ -888,7 +887,6 @@ memeMotifsTFBStools <- convert_motifs(memeMotifs,"TFBSTools-PWMatrix")
 memeMotifsTFBStools
 ```
 
----
 
 ```{r,eval=FALSE,echo=FALSE}
 require(tidyverse)
