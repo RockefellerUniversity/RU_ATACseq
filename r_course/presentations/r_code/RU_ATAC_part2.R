@@ -463,7 +463,7 @@ KidneyMinusHindbrain <- KidneyMinusHindbrain[
 KidneyMinusHindbrain
 
 
-## ----processData_DEseq2_ResultsToTSSregions,message=FALSE,warning=FALSE, echo=TRUE,eval=TRUE,cache=TRUE,dependson="processData_DEseq2_Results_ResultsTable"----
+## ----processData_DEseq2_ResultsToTSSregions,message=FALSE,warning=FALSE, echo=F,eval=TRUE,cache=TRUE,dependson="processData_DEseq2_Results_ResultsTable"----
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 toOverLap <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
                        500,500)
@@ -471,7 +471,19 @@ KidneyMinusHindbrain <- KidneyMinusHindbrain[
                           (!is.na(KidneyMinusHindbrain$padj) 
                            & KidneyMinusHindbrain$padj < 0.05) 
                            & KidneyMinusHindbrain %over% toOverLap,]
-makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",getwd())
+makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",'data/')
+
+
+## ----processData_DEseq2_ResultsToTSSregions2,message=FALSE,warning=FALSE, echo=TRUE,eval=F, cache=TRUE,dependson="processData_DEseq2_Results_ResultsTable"----
+## library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+## toOverLap <- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene,
+##                        500,500)
+## KidneyMinusHindbrain <- KidneyMinusHindbrain[
+##                           (!is.na(KidneyMinusHindbrain$padj)
+##                            & KidneyMinusHindbrain$padj < 0.05)
+##                            & KidneyMinusHindbrain %over% toOverLap,]
+## myReport<-makebedtable(KidneyMinusHindbrain,"KidneyMinusHindbrain.html",getwd())
+## browseURL(myReport)
 
 
 ## ----processData_DEseq2_functionalEnrichmentAnalysiss, echo=TRUE,eval=TRUE,cache=TRUE, dependson="processData_DEseq2_ResultsToTSSregions",message=FALSE,warning=FALSE----
