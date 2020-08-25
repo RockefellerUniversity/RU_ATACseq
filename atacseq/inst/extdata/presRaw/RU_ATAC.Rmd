@@ -198,6 +198,7 @@ Prior to alignemnt we recommend spending some time reviewing the FASTQ files. So
 
 For guides on how to check your FASTQ quality, check out that section in our [ChIPseq course](https://rockefelleruniversity.github.io/RU_ChIPseq/presentations/slides/ChIPseq_In_Bioconductor.html#6).
 
+---
 ## Align Greenleaf FASTQs
 
 In this section we will work a little with the Greenleaf dataset. 
