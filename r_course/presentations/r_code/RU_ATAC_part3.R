@@ -265,10 +265,10 @@ mmMatrix[1:8,1:8]
 ## totalMotifOccurence[1:4]
 
 
-## ----eval=F, echo=F-----------------------------------------------------------
-## my_mat<-apply(data.matrix(mmMatrix),2,sum)
-## names(my_mat)<-colnames(mmMatrix)
-## my_mat[1:4]
+## ----eval=T, echo=F-----------------------------------------------------------
+my_mat<-apply(data.matrix(mmMatrix),2,sum)
+names(my_mat)<-colnames(mmMatrix)
+my_mat[1:4]
 
 
 ## ----eval=T-------------------------------------------------------------------
