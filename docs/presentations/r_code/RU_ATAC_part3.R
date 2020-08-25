@@ -143,19 +143,19 @@ if(params$isSlides == "yes"){
 }
 
 
-## ----eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE-------------------------
+## ----eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE, fig.height=4,fig.width=6----
 require(seqLogo)
 CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 
 
-## ----eval=TRUE----------------------------------------------------------------
+## ----eval=TRUE, fig.height=4,fig.width=6--------------------------------------
 library(seqLogo)
 CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 
 
-## ----eval=TRUE----------------------------------------------------------------
+## ----eval=TRUE, fig.height=4,fig.width=6--------------------------------------
 seqLogo::seqLogo(CTCFMotifs[[1]])
 
 
