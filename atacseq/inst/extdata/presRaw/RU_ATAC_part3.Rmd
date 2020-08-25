@@ -578,12 +578,12 @@ Although a sparse matrix, we can still use our matrix operations to extract usef
 
 We can use the **colSums()** to identify the total occurrence of motifs in our peak sequences.
 
-```{r,eval=T}
+```{r,eval=F, echo=T}
 totalMotifOccurence <- colSums(mmMatrix)
 totalMotifOccurence[1:4]
 ```
 
-```{r,eval=T, echo=F}
+```{r,eval=F, echo=F}
 my_mat<-apply(data.matrix(mmMatrix),2,sum)
 names(my_mat)<-colnames(mmMatrix)
 my_mat[1:4]
