@@ -566,6 +566,7 @@ We can retrieve a matrix of matches by motif and peak using the motifMatches fun
 
 ```{r}
 mmMatrix <- motifMatches(motifHits)
+dim(mmMatrix)
 mmMatrix[1:8,1:8]
 ```
 
@@ -580,6 +581,12 @@ We can use the **colSums()** to identify the total occurrence of motifs in our p
 ```{r,eval=T}
 totalMotifOccurence <- colSums(mmMatrix)
 totalMotifOccurence[1:4]
+```
+
+```{r,eval=T, echo=F}
+my_mat<-apply(data.matrix(mmMatrix),2,sum)
+names(my_mat)<-colnames(mmMatrix)
+my_mat[1:4]
 ```
 
 ---
