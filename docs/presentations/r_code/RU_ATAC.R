@@ -322,6 +322,27 @@ nonRedundantFraction
 ## export.bw(myCoverage,openRegionRPMBigWig)
 
 
+## ---- results='asis',include=TRUE,echo=FALSE----------------------------------
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# ATACseqQC
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# ATACseqQC
+
+---
+"    
+  )
+  
+}
+
+
 ## ----eval=FALSE---------------------------------------------------------------
 ## BiocManager::install("ATACseqQC")
 

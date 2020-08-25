@@ -30,7 +30,7 @@ library(JASPAR2020)
 if(params$isSlides == "yes"){
   cat("class: inverse, center, middle
 
-# Motifs in ATACseq
+# Motif Databases
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
 
@@ -38,7 +38,7 @@ if(params$isSlides == "yes"){
 "    
   )
 }else{
-  cat("# Post-alignment processing
+  cat("# Motif Databases
 
 ---
 "    
@@ -90,16 +90,14 @@ library(JASPAR2020)
 JASPAR2020
 
 
-## ----eval=TRUE----------------------------------------------------------------
+## ----eval=TRUE, message=F, warning=F------------------------------------------
 library(TFBSTools)
-
-
-## ----eval=FALSE,echo=TRUE-----------------------------------------------------
-## ?getMatrixByID
+?getMatrixByID
 
 
 ## ----eval=TRUE,echo=TRUE------------------------------------------------------
 GATA2mat <- getMatrixByName(JASPAR2020,"GATA2")
+class(GATA2mat)
 
 
 ## ----eval=TRUE,echo=TRUE------------------------------------------------------
@@ -117,10 +115,6 @@ myMatrix
 
 
 ## ----eval=TRUE----------------------------------------------------------------
-?getMatrixSet
-
-
-## ----eval=TRUE----------------------------------------------------------------
 opts <- list()
 opts[["collection"]] <- "CORE"
 opts[["tax_group"]] <- "vertebrates"
@@ -128,19 +122,40 @@ motifList <- getMatrixSet(JASPAR2020, opts)
    
 
 
+## ---- results='asis',include=TRUE,echo=FALSE----------------------------------
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# Visualizing motifs
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# Visualizing motifs
+
+---
+"    
+  )
+  
+}
+
+
 ## ----eval=TRUE,echo=FALSE,warning=FALSE,message=FALSE-------------------------
 require(seqLogo)
-CTCFMotifs <- query(MotifDb,"MYC")
+CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 
 
 ## ----eval=TRUE----------------------------------------------------------------
 library(seqLogo)
+CTCFMotifs <- query(MotifDb,"CTCF")
 seqLogo::seqLogo(CTCFMotifs[[1]],ic.scale = FALSE)
 
 
 ## ----eval=TRUE----------------------------------------------------------------
-library(seqLogo)
 seqLogo::seqLogo(CTCFMotifs[[1]])
 
 
@@ -148,21 +163,21 @@ seqLogo::seqLogo(CTCFMotifs[[1]])
 myMatrix
 
 
-## ----eval=TRUE,echo=TRUE------------------------------------------------------
+## ----eval=TRUE,echo=TRUE, fig.height=4,fig.width=6----------------------------
 ppm <- myMatrix/colSums(myMatrix)
 ppm
 
 
-## ----eval=TRUE,echo=TRUE------------------------------------------------------
+## ----eval=TRUE,echo=TRUE, fig.height=4,fig.width=6----------------------------
 seqLogo::seqLogo(ppm)
 
 
-## ----eval=TRUE,echo=TRUE------------------------------------------------------
+## ----eval=TRUE,echo=TRUE, fig.height=4,fig.width=6----------------------------
 GATA2_IC <- toICM(GATA2mat)
 TFBSTools::seqLogo(GATA2_IC)
 
 
-## ----eval=TRUE,echo=TRUE------------------------------------------------------
+## ----eval=TRUE,echo=TRUE, fig.height=4,fig.width=6----------------------------
 library(ggseqlogo)
 library(ggplot2)
 ggseqlogo(myMatrix)+theme_minimal()
@@ -199,10 +214,6 @@ motifsToScan <- getMatrixSet(JASPAR2020,opts)
 
 
 ## -----------------------------------------------------------------------------
-?matchMatifs.
-
-
-## -----------------------------------------------------------------------------
 load("data/myCounts.RData")
 myCounts
 
@@ -234,28 +245,56 @@ motif_positions$MA0029.1
 
 MA0029hits <- motif_positions$MA0029.1
 names(MA0029hits) <- names(peakSeqs[1:100])
-unlist(MA0029hits,use.names = TRUE)
+unlist(MA0029hits, use.names = TRUE)
 
 
 ## -----------------------------------------------------------------------------
-motifHits <- matchMotifs(motifsToScan, peakSeqs,out="matches")
+motifHits <- matchMotifs(motifsToScan, peakSeqs, out="matches")
 class(motifHits)
 motifHits
 
 
 ## -----------------------------------------------------------------------------
 mmMatrix <- motifMatches(motifHits)
+dim(mmMatrix)
 mmMatrix[1:8,1:8]
 
 
-## ----eval=FALSE---------------------------------------------------------------
+## ----eval=F, echo=T-----------------------------------------------------------
 ## totalMotifOccurence <- colSums(mmMatrix)
 ## totalMotifOccurence[1:4]
 
 
-## ----eval=FALSE---------------------------------------------------------------
-## peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
-## peaksWithMA0912
+## ----eval=F, echo=F-----------------------------------------------------------
+## my_mat<-apply(data.matrix(mmMatrix),2,sum)
+## names(my_mat)<-colnames(mmMatrix)
+## my_mat[1:4]
+
+
+## ----eval=T-------------------------------------------------------------------
+peaksWithMA0912 <- peakRangesCentered[mmMatrix[,"MA0912.2"] == 1]
+peaksWithMA0912
+
+
+## ---- results='asis',include=TRUE,echo=FALSE----------------------------------
+if(params$isSlides == "yes"){
+  cat("class: inverse, center, middle
+
+# summarizing ATAC signal to Motifs
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
+
+---
+"    
+  )
+}else{
+  cat("# summarizing ATAC signal to Motifs
+
+---
+"    
+  )
+  
+}
 
 
 ## -----------------------------------------------------------------------------
@@ -314,7 +353,7 @@ pheatmap(devToPlot)
 if(params$isSlides == "yes"){
   cat("class: inverse, center, middle
 
-# Identifying Motifs in ATAC
+# Identifying Motifs *de novo* in ATAC
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=720px></html> 
 
@@ -322,7 +361,7 @@ if(params$isSlides == "yes"){
 "    
   )
 }else{
-  cat("# Identifying Motifs in ATAC
+  cat("# Identifying Motifs *de novo* in ATAC
 
 ---
 "    
@@ -371,6 +410,7 @@ library(universalmotif)
 
 ## -----------------------------------------------------------------------------
 memeMotifs <- read_meme("data/memeResult_LiverVsBrain/combined.meme")
+memeMotifs
 
 
 ## -----------------------------------------------------------------------------
