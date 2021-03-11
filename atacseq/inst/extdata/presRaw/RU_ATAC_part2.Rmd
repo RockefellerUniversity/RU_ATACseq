@@ -813,7 +813,7 @@ We pass the GRanges of regions we count to DESeqDataSetFromMatrix function so as
 
 
 
-```{r processData_DEseq2_PCA, echo=TRUE,eval=TRUE,cache=TRUE}
+```{r processData_DEseq2_PCA, echo=TRUE, eval=TRUE,cache=F}
 library(DESeq2)
 load("data/myCounts.RData")
 Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
