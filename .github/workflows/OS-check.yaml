@@ -43,7 +43,7 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages('remotes')
-          saveRDS(remotes::dev_package_deps("rnaseq/",dependencies = TRUE), ".github/depends.Rds", version = 2)
+          saveRDS(remotes::dev_package_deps("atacseq/",dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
 
@@ -65,7 +65,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          remotes::install_deps("rnaseq/",dependencies = TRUE)
+          remotes::install_deps("atacseq/",dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
           remotes::install_cran("BiocManager")
           BiocManager::install("rmarkdown")
@@ -83,11 +83,11 @@ jobs:
       - name: Install package
         if: github.ref == 'refs/heads/master' 
         run: |
-          devtools::install("rnaseq/",dependencies = TRUE,quick = TRUE)
+          devtools::install("atacseq/",dependencies = TRUE,quick = TRUE)
         shell: Rscript {0}
 
       - name: CompileCourse
         run: |
           require(compileCourses)
-          compileCourses::compileSingleCourseMaterial(repo="RockefellerUniversity",subdir="rnaseq",branch="master")
+          compileCourses::compileSingleCourseMaterial(repo="RockefellerUniversity",subdir="atacseq",branch="master")
         shell: Rscript {0}
