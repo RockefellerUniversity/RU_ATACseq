@@ -114,10 +114,11 @@ jobs:
           git --version
         shell: bash {0}
         
-      - name: Install GLPK
+      - name: Install GLPK and libV8
         run: |
           sudo apt-get update -y
           sudo apt-get install -y glpk-utils
+          sudo apt-get install -y libv8-dev
         shell: bash {0}
       ## Related to https://github.com/actions/checkout/issues/238
       ## https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-18-04
