@@ -465,16 +465,13 @@ div.tocify {
 </div>
 <div id="install-macs2" class="section level4">
 <h4>Install MACS2</h4>
-<p>You can get help with MACS2 through the maintaner Tao Liu’s dedicated <a href="https://macs3-project.github.io/MACS/">GitHub page</a>.</p>
-<p>Though there are instructions on the GitHub page, the easiest way to install MACS2 on Linux or MacOS is using <a href="https://anaconda.org/bioconda/macs2">Conda and the Bioconda channel</a></p>
-<p>Miniconda can be installed following instructions <a href="https://docs.conda.io/en/latest/miniconda.html">here</a></p>
-<p>Once installed, conda can be used in the terminal to create a MACS2 install.</p>
-<pre><code>conda config --add channels conda-forge
-conda config --add channels bioconda
-conda create -n macs2 macs2</code></pre>
-<p>Once installed Conda environment containing Salmon will be loaded and Salmon command will be available you.</p>
-<pre><code>conda activate macs2
-macs2 -h</code></pre>
+<p>There is no R package for MACS2, but MACS2 is available in the <a href="https://anaconda.org/bioconda/macs2">Anaconda package repository</a> for Linux or MacOS. The easiest way to install MACS2 is using the R package <a href="https://bioconductor.org/packages/release/bioc/html/Herper.html">Herper</a>. Herper allows you to manage and install Anaconda packages from within R.</p>
+<pre><code>BiocManager::install(&quot;Herper&quot;)
+library(Herper)</code></pre>
+<p>Once Herper is installed you can install MACS2 with the <em>install_CondaTools</em> function. Behind the scenes, Herper will install the most minimal version of conda (called miniconda), and then will create a new environment into which MACS2 will be installed. When you run the function it prints out where Salmon is installed.</p>
+<p>The <em>env</em> argument is the name you want to give the environment created. The <em>pathToMiniConda</em> specifies the location you want to install Miniconda, and all the conda tools like Salmon.</p>
+<pre><code>install_CondaTools(tools=&quot;macs2&quot;, env=&quot;RNAseq_analysis&quot;, pathToMiniConda=&quot;/path/to/install&quot;)</code></pre>
+<p>More information on MACS2 and the new version MACS3 is available from the Tao Liu’s dedicated <a href="https://macs3-project.github.io/MACS/">GitHub page</a>.</p>
 <p><br></p>
 </div>
 <div id="install-r" class="section level4">
