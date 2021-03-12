@@ -438,7 +438,7 @@ nrToCount
 ##                         "Liver_1","Liver_2")
 
 
-## ----processData_DEseq2_PCA, echo=TRUE,eval=TRUE,cache=TRUE-------------------
+## ----processData_DEseq2_PCA, echo=TRUE, eval=TRUE,cache=F---------------------
 library(DESeq2)
 load("data/myCounts.RData")
 Group <- factor(c("HindBrain","HindBrain","Kidney","Kidney",
