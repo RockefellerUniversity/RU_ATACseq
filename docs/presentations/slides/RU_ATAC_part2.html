@@ -395,24 +395,45 @@ For the remainder of the workshop we will look at analysing the nucleosome free 
 ---
 ## Peak calling for nucleosome free regions
 
-There are many methods available to call nucleosome free regions from ATACseq data with many borrowed from ChIPseq analysis.
+There are many methods available to call nucleosome free regions from ATACseq data with many borrowed from ChIPseq analysis. One very popular and standard peak caller for ATACseq is MAC2.
 
-One very popular and standard peak caller for ATACseq is MAC2.
+There is no R package for MACS2 (well it just got [released](https://github.com/macs3-project/MACS) but we haven't tested it yet). It is possible to install it on Mac and Linux using the [Anaconda](https://anaconda.org/bioconda/salmon) package repository (unfortunately there is not a Windows implementation). Anaconda is a huge collection of version controlled packages that can be installed through the conda package management system. With conda it is easy to create and manage environments that have a variety of different packages in them. 
 
-MACS2 is well established for identifying punctate peaks in ChIPseq data from transcription factors. Though there is no R wrapper, we can easily run MACS2 on the command line using files we create in R, or run it through R using the **system()** function. We cover its installation and use for ChIPseq [here](https://rockefelleruniversity.github.io/RU_ChIPseq/presentations/slides/ChIPseq_In_Bioconductor2.html#37) 
+Though there is no MACS2 R package, we can interact with the anaconda package system using the R package [Herper](https://bioconductor.org/packages/release/bioc/html/Herper.html). This was created by us here at the BRC and is part of Bioconductor. We cover its installation and use for ChIPseq [here](https://rockefelleruniversity.github.io/RU_ChIPseq/presentations/slides/ChIPseq_In_Bioconductor2.html#37) 
+
+
+```r
+BiocManager::install("Herper")
+library(Herper)
+```
+
+
+---
+## Install MACS2 with Herper
+
+First, we will use Herper to install Salmon with the *install_CondaTools* function. We just need to tell *install_CondaTools* what tool/s you want and the name of the environment you want to build. 
+
+
+```r
+salmon_paths &lt;- install_CondaTools(tools = "macs2", env = "ATACseq_analysis")
+salmon_paths
+```
+
+
+
+Behind the scenes, Herper will install the most minimal version of conda (called miniconda), and then will create a new environment into which MACS2 will be installed. When you run the function it prints out where MACS2 is installed. There are additional arguments to control where miniconda is installed using *pathToMiniConda* and also update an existing environment with *updateEnv*. 
+
 
 ---
 ## Single-end peak calling
 
-With single-end sequencing from ATACseq we do not know how long the fragments are.
-
-To identify open regions therefore requires some different parameters for MACS2 peak calling.
+With single-end sequencing from ATACseq we do not know how long the fragments are. To identify open regions therefore requires some different parameters for MACS2 peak calling  compared to ChIPseq.
 
 One strategy employed is to shift read 5' ends by -100 and then extend from this by 200bp. Considering the expected size of our nucleosome free fragments this should provide a pile-up over nucelosome regions suitable for MACS2 window size. 
 
-*NOTE: These are command line calls. Wrap these in the __system()__ function if you want to run them through R*
+This is the MACS system call we would use to do this.
 
-```bash
+```
 MACS2 callpeak -t singleEnd.bam --nomodel --shift -100
                 --extsize 200 --format BAM -g MyGenome
 ```
@@ -420,44 +441,76 @@ MACS2 callpeak -t singleEnd.bam --nomodel --shift -100
 ---
 ## Single-end peak calling
 
+In R we can run this system call using Herper so we can access our installed MACS2. MACS2 has been installed into *ATACseq_analysis*. So we can use this environment from R using *with_CondaEnv()*.
+
+
+```r
+with_CondaEnv("ATACseq_analysis",
+                      system2(command="macs2",args =c("callpeak", 
+                      "-t", "singleEnd.bam",
+                      "--nomodel",
+                      "--shift","-100",
+                      "--extsize", "200",
+                      "--format", "BAM",
+                      "-g", "hs")),
+                        stdout = TRUE))
+```
+
+---
+## Single-end peak calling
+
 Alternatively for the nucleosome occupied data we can adjust shift and extension to centre the signal on nucleosome centres (nucleosomes wrapped in 147bp of DNA).  
 
-*NOTE: These are command line calls. Wrap these in the __system()__ function if you want to run them through R*
-
-
-```bash
+```
 MACS2 callpeak -t singleEnd.bam --nomodel --shift 37
                --extsize 73 --format BAM -g MyGenome
 ```
+
+
+```r
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
+    "-t", "singleEnd.bam", "--nomodel", "--shift", "37", "--extsize", "73", "--format", 
+    "BAM", "-g", "hs")), stdout = TRUE)
+```
+
 ---
 ## Paired-end peak calling
 
 If we have sequenced paired-end data then we do know the fragment lengths and can provide BAM files to MACS2 which have been prefiltered to properly paired (and fragment size if you want to distinguish nucleosomes from nucleosome free regions)
 
-We have to simply tell MACS2 that the data is paired using the format argument.
+We have to simply tell MACS2 that the data is paired using the format argument. This is important as MACS2 will guess it is single-end BAM by default.
 
-This is important as MACS2 will guess it is single-end BAM by default.
-
-*NOTE: These are command line calls. Wrap these in the __system()__ function if you want to run them through R*
-
-
-```bash
+```
 MACS2 callpeak -t pairedEnd.bam -f BAMPE 
                --outdir path/to/output/
                --name pairedEndPeakName -g MyGenome
 ```
+
+
+```r
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
+    "-t", "pairedEnd.bam", "--format", "BAMPE", "--outdir", "/Documents/ATAC_MACS2_calls/", 
+    "--name", "pairedEndPeakName", "-g", "hs")), stdout = TRUE)
+```
+
+
 ---
 ## Paired-end peak calling
 For our paired-end data here, we call peaks on our nucleosome free regions from our nucleosome free region BAM file.
 
-*NOTE: These are command line calls. Wrap these in the __system()__ function if you want to run them through R*
-
-
-```bash
+```
 MACS2 callpeak  -t ~/Downloads/Sorted_ATAC_50K_2_openRegions.bam
                 --outdir ATAC_Data/ATAC_Peaks/ATAC_50K_2
                 --name Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak
                 -f BAMPE -g hs
+```
+
+
+```r
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
+    "-t", "~/Downloads/Sorted_ATAC_50K_2_openRegions.bam", "--outdir", "ATAC_Data/ATAC_Peaks/ATAC_50K_2", 
+    "--name", "Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak", "-f", "BAMPE", "-g", 
+    "hs")), stdout = TRUE)
 ```
 
 ---
@@ -582,12 +635,12 @@ MacsCalls_Anno &lt;- annotatePeak(MacsCalls, TxDb = TxDb.Hsapiens.UCSC.hg19.know
 ```
 
 ```
-## &gt;&gt; preparing features information...		 2021-03-12 04:24:46 PM 
-## &gt;&gt; identifying nearest features...		 2021-03-12 04:24:47 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2021-03-12 04:24:47 PM 
-## &gt;&gt; assigning genomic annotation...		 2021-03-12 04:24:47 PM 
-## &gt;&gt; assigning chromosome lengths			 2021-03-12 04:25:04 PM 
-## &gt;&gt; done...					 2021-03-12 04:25:04 PM
+## &gt;&gt; preparing features information...		 2021-03-15 10:36:34 PM 
+## &gt;&gt; identifying nearest features...		 2021-03-15 10:36:34 PM 
+## &gt;&gt; calculating distance from peak to TSS...	 2021-03-15 10:36:35 PM 
+## &gt;&gt; assigning genomic annotation...		 2021-03-15 10:36:35 PM 
+## &gt;&gt; assigning chromosome lengths			 2021-03-15 10:36:50 PM 
+## &gt;&gt; done...					 2021-03-15 10:36:50 PM
 ```
 
 ```r

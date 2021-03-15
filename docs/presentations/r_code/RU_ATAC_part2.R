@@ -185,30 +185,84 @@ if(params$isSlides == "yes"){
 }
 
 
-## MACS2 callpeak -t singleEnd.bam --nomodel --shift -100
-
-##                 --extsize 200 --format BAM -g MyGenome
-
-
-## MACS2 callpeak -t singleEnd.bam --nomodel --shift 37
-
-##                --extsize 73 --format BAM -g MyGenome
+## ---- eval=F------------------------------------------------------------------
+## BiocManager::install("Herper")
+## library(Herper)
+## 
 
 
-## MACS2 callpeak -t pairedEnd.bam -f BAMPE
-
-##                --outdir path/to/output/
-
-##                --name pairedEndPeakName -g MyGenome
+## ---- echo=T, eval=F----------------------------------------------------------
+## salmon_paths <- install_CondaTools(tools="macs2", env="ATACseq_analysis")
+## salmon_paths
 
 
-## MACS2 callpeak  -t ~/Downloads/Sorted_ATAC_50K_2_openRegions.bam
+## ---- eval=F, echo=F----------------------------------------------------------
+## tempdir2 <- function() {
+##     tempDir <- tempdir()
+##     if(dir.exists(tempDir)){
+##       tempDir <- file.path(tempDir,"rr")
+##     }
+##     tempDir <- gsub("\\", "/", tempDir, fixed = TRUE)
+##     tempDir
+## }
+## 
+## myMiniconda <- file.path(tempdir2(), "Test")
+## install_CondaTools(tools="macs2", env="ATACseq_analysis", pathToMiniConda = myMiniconda)
+## 
 
-##                 --outdir ATAC_Data/ATAC_Peaks/ATAC_50K_2
 
-##                 --name Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak
+## ----echo=TRUE,eval=F, warning=F----------------------------------------------
+## 
+## with_CondaEnv("ATACseq_analysis",
+##                       system2(command="macs2",args =c("callpeak",
+##                       "-t", "singleEnd.bam",
+##                       "--nomodel",
+##                       "--shift","-100",
+##                       "--extsize", "200",
+##                       "--format", "BAM",
+##                       "-g", "hs")),
+##                         stdout = TRUE))
+## 
 
-##                 -f BAMPE -g hs
+
+## ----echo=TRUE,eval=F, warning=F----------------------------------------------
+## 
+## with_CondaEnv("ATACseq_analysis",
+##                       system2(command="macs2",args =c("callpeak",
+##                       "-t", "singleEnd.bam",
+##                       "--nomodel",
+##                       "--shift","37",
+##                       "--extsize", "73",
+##                       "--format", "BAM",
+##                       "-g", "hs")),
+##                         stdout = TRUE)
+## 
+
+
+## ----echo=TRUE,eval=F, warning=F----------------------------------------------
+## 
+## with_CondaEnv("ATACseq_analysis",
+##                       system2(command="macs2",args =c("callpeak",
+##                       "-t", "pairedEnd.bam",
+##                       "--format", "BAMPE",
+##                       "--outdir", "/Documents/ATAC_MACS2_calls/",
+##                       "--name","pairedEndPeakName",
+##                       "-g", "hs")),
+##                         stdout = TRUE)
+## 
+
+
+## ----echo=TRUE,eval=F, warning=F----------------------------------------------
+## 
+## with_CondaEnv("ATACseq_analysis",
+##                       system2(command="macs2",args =c("callpeak",
+##                       "-t", "~/Downloads/Sorted_ATAC_50K_2_openRegions.bam",
+##                       "--outdir", "ATAC_Data/ATAC_Peaks/ATAC_50K_2",
+##                       "--name","Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak",
+##                       "-f", "BAMPE",
+##                       "-g", "hs")),
+##                         stdout = TRUE)
+## 
 
 
 ## ----processData_callQC,messages=FALSE,warning=FALSE, echo=TRUE,eval=FALSE,cache=TRUE,dependson="readinPeakCalling"----

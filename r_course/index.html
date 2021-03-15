@@ -445,11 +445,19 @@ div.tocify {
 <p><br></p>
 <div id="course-overview" class="section level2">
 <h2>Course Overview</h2>
-<p><br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AR-CMD-check-bioc"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/R-CMD-check-bioc/badge.svg"></a></p>
+<div id="course-integrity" class="section level3">
+<h3>Course Integrity</h3>
+<p><strong>This course is compiled automatically on <em>2021-03-15</em> </strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3compilation-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/compilation-check/badge.svg"></a></p>
+<p><strong>The course is tested and available on MacOS, Windows and Ubuntu Linux for R version 4.0.3 (2020-10-10)</strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AOS-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/OS-check/badge.svg"></a></p>
+<p><br> <br></p>
+</div>
+<div id="overview" class="section level3">
+<h3>Overview</h3>
 <p>This course introduces ATACseq analysis in Bioconductor.</p>
 <p>The course consists of 2 sections. This walk you through each step of a normal ATACseq analysis workflow. It covers alignment, QC, peak calling, testing for enrichment in groups of genes, motif enrichment and testing for differential accessibility. Exercises and answer sheets are included after all subsections to practice techniques and provide future reference examples.</p>
 <p>Course material and exercises are available to view as rendered HTML at <a href="https://rockefelleruniversity.github.io/RU_ATACseq/" class="uri">https://rockefelleruniversity.github.io/RU_ATACseq/</a>. All material is available to download under GPL v2 license.</p>
 <p><br><br></p>
+</div>
 </div>
 <div id="setting-up" class="section level2">
 <h2>Setting up</h2>
@@ -468,8 +476,8 @@ div.tocify {
 <p>There is no R package for MACS2, but MACS2 is available in the <a href="https://anaconda.org/bioconda/macs2">Anaconda package repository</a> for Linux or MacOS. The easiest way to install MACS2 is using the R package <a href="https://bioconductor.org/packages/release/bioc/html/Herper.html">Herper</a>. Herper allows you to manage and install Anaconda packages from within R.</p>
 <pre><code>BiocManager::install(&quot;Herper&quot;)
 library(Herper)</code></pre>
-<p>Once Herper is installed you can install MACS2 with the <em>install_CondaTools</em> function. Behind the scenes, Herper will install the most minimal version of conda (called miniconda), and then will create a new environment into which MACS2 will be installed. When you run the function it prints out where Salmon is installed.</p>
-<p>The <em>env</em> argument is the name you want to give the environment created. The <em>pathToMiniConda</em> specifies the location you want to install Miniconda, and all the conda tools like Salmon.</p>
+<p>Once Herper is installed you can install MACS2 with the <em>install_CondaTools</em> function. Behind the scenes, Herper will install the most minimal version of conda (called miniconda), and then will create a new environment into which MACS2 will be installed. When you run the function it prints out where MACS2 is installed.</p>
+<p>The <em>env</em> argument is the name you want to give the environment created. The <em>pathToMiniConda</em> specifies the location you want to install Miniconda, and all the conda tools like MACS2.</p>
 <pre><code>install_CondaTools(tools=&quot;macs2&quot;, env=&quot;RNAseq_analysis&quot;, pathToMiniConda=&quot;/path/to/install&quot;)</code></pre>
 <p>More information on MACS2 and the new version MACS3 is available from the Tao Liu’s dedicated <a href="https://macs3-project.github.io/MACS/">GitHub page</a>.</p>
 <p><br></p>
