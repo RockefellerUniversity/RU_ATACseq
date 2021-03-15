@@ -1,8 +1,18 @@
 ## Course Overview
 
+### Course Integrity
+**This course is compiled automatically on _`r Sys.Date()`_ **
 <br>
-[<img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/R-CMD-check-bioc/badge.svg">](https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AR-CMD-check-bioc)
+[<img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/compilation-check/badge.svg">](https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3compilation-check)
 
+**The course is tested and available on MacOS, Windows and Ubuntu Linux for `r R.Version()$version.string`**
+<br>
+[<img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/OS-check/badge.svg">](https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AOS-check)
+
+<br>
+<br>
+
+### Overview
 This course introduces ATACseq analysis in Bioconductor.
 
 The course consists of 2 sections. This walk you through each step of a normal ATACseq analysis workflow. It covers alignment, QC, peak calling, testing for enrichment in groups of genes, motif enrichment and testing for differential accessibility. Exercises and answer sheets are included after all subsections to practice techniques and provide future reference examples.
