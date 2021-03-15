@@ -61,6 +61,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y glpk-utils
           sudo apt-get install -y libcurl4-openssl-dev
+          sudo apt-get install libv8-dev
         shell: bash {0}
 
       - name: Install dependencies
