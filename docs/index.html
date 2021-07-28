@@ -14,6 +14,7 @@
 
 <title>ATACseq with Bioconductor</title>
 
+<script src="site_libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -296,12 +297,12 @@ div.tocify {
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row">
-<div class="col-sm-12 col-md-4 col-lg-3">
+<div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
 </div>
 </div>
 
-<div class="toc-content col-sm-12 col-md-8 col-lg-9">
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -447,8 +448,8 @@ div.tocify {
 <h2>Course Overview</h2>
 <div id="course-integrity" class="section level3">
 <h3>Course Integrity</h3>
-<p><strong>This course is compiled automatically on <em>2021-03-15</em> </strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3compilation-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/compilation-check/badge.svg"></a></p>
-<p><strong>The course is tested and available on MacOS, Windows and Ubuntu Linux for R version 4.0.3 (2020-10-10)</strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AOS-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/OS-check/badge.svg"></a></p>
+<p><strong>This course is compiled automatically on <em>2021-07-28</em> </strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3compilation-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/compilation-check/badge.svg"></a></p>
+<p><strong>The course is tested and available on MacOS, Windows and Ubuntu Linux for R version 4.1.0 (2021-05-18)</strong> <br> <a href="https://github.com/RockefellerUniversity/RU_ATACseq/actions?query=workflow%3AOS-check"><img src="https://github.com/RockefellerUniversity/RU_ATACseq/workflows/OS-check/badge.svg"></a></p>
 <p><br> <br></p>
 </div>
 <div id="overview" class="section level3">
@@ -478,7 +479,7 @@ div.tocify {
 library(Herper)</code></pre>
 <p>Once Herper is installed you can install MACS2 with the <em>install_CondaTools</em> function. Behind the scenes, Herper will install the most minimal version of conda (called miniconda), and then will create a new environment into which MACS2 will be installed. When you run the function it prints out where MACS2 is installed.</p>
 <p>The <em>env</em> argument is the name you want to give the environment created. The <em>pathToMiniConda</em> specifies the location you want to install Miniconda, and all the conda tools like MACS2.</p>
-<pre><code>install_CondaTools(tools=&quot;macs2&quot;, env=&quot;RNAseq_analysis&quot;, pathToMiniConda=&quot;/path/to/install&quot;)</code></pre>
+<pre><code>install_CondaTools(tools=&quot;macs2&quot;, env=&quot;PeakCalling_analysis&quot;, pathToMiniConda=&quot;/path/to/install&quot;)</code></pre>
 <p>More information on MACS2 and the new version MACS3 is available from the Tao Liu’s dedicated <a href="https://macs3-project.github.io/MACS/">GitHub page</a>.</p>
 <p><br></p>
 </div>
@@ -487,10 +488,10 @@ library(Herper)</code></pre>
 <p>R can be installed from the R-project website.</p>
 <p>The R website can be found here <a href="http://www.r-project.org/" class="uri">http://www.r-project.org/</a>.</p>
 <p>The download links and associated installation instructions for multiple platforms can be found below provided by Revolution Analytics. <a href="https://cran.revolutionanalytics.com" class="uri">https://cran.revolutionanalytics.com</a></p>
-<p>We recommend installing R 4.0.3 as this is the version used to compile the course. Direct downloads for R 4.0.3 for the main platforms can be found below:</p>
+<p>We recommend installing R 4.1.0 as this is the version used to compile the course. Direct downloads for R 4.1.0 for the main platforms can be found below:</p>
 <ul>
-<li><a href="https://cran.revolutionanalytics.com/bin/macosx/R-4.0.3.pkg">Mac</a></li>
-<li><a href="https://cran.revolutionanalytics.com/bin/windows/base/old/4.0.3/R-4.0.3-win.exe">Windows</a></li>
+<li><a href="https://cran.revolutionanalytics.com/bin/macosx/R-4.1.0.pkg">Mac</a></li>
+<li><a href="https://cran.revolutionanalytics.com/bin/windows/base/old/4.1.0/R-4.1.0-win.exe">Windows</a></li>
 <li><a href="https://cran.revolutionanalytics.com">Linux platforms</a></li>
 </ul>
 <p><br></p>
@@ -680,6 +681,9 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
 
     // move toc-ignore selectors from section div to header
     $('div.section.toc-ignore')

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>RU_ATAC.utf8</title>
+    <title>RU_ATAC.knit</title>
     <meta charset="utf-8" />
     <meta name="author" content="Rockefeller University, Bioinformatics Resource Centre" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="metropolisCustom.css" type="text/css" />
     <link rel="stylesheet" href="metropolis-fontsCustom.css" type="text/css" />
@@ -400,7 +401,7 @@ In this example, we see a case where the mapping rate to mitochondrial genome is
 ```r
 library(ggplot2)
 
-ggplot(mappedReads, aes(seqnames, mapped, fill = seqnames)) + geom_bar(stat = "identity") + 
+ggplot(mappedReads, aes(seqnames, mapped, fill = seqnames)) + geom_bar(stat = "identity") +
     coord_flip()
 ```
 
@@ -444,7 +445,7 @@ To reduce memory footprint we read only information from chromosome 20 by specif
 
 
 ```r
-myParam = ScanBamParam(flag = flags, what = c("qname", "mapq", "isize"), which = GRanges("chr20", 
+myParam = ScanBamParam(flag = flags, what = c("qname", "mapq", "isize"), which = GRanges("chr20",
     IRanges(1, 63025520)))
 myParam
 ```
@@ -584,11 +585,11 @@ Finally we can plot the distributions of MapQ for each read in pair using ggplot
 
 ```r
 library(ggplot2)
-toPlot &lt;- data.frame(MapQ = c(names(read1MapQFreqs), names(read2MapQFreqs)), Frequency = c(read1MapQFreqs, 
-    read2MapQFreqs), Read = c(rep("Read1", length(read1MapQFreqs)), rep("Read2", 
+toPlot &lt;- data.frame(MapQ = c(names(read1MapQFreqs), names(read2MapQFreqs)), Frequency = c(read1MapQFreqs,
+    read2MapQFreqs), Read = c(rep("Read1", length(read1MapQFreqs)), rep("Read2",
     length(read2MapQFreqs))))
 toPlot$MapQ &lt;- factor(toPlot$MapQ, levels = unique(sort(as.numeric(toPlot$MapQ))))
-ggplot(toPlot, aes(x = MapQ, y = Frequency, fill = MapQ)) + geom_bar(stat = "identity") + 
+ggplot(toPlot, aes(x = MapQ, y = Frequency, fill = MapQ)) + geom_bar(stat = "identity") +
     facet_grid(~Read)
 ```
 
@@ -677,8 +678,8 @@ We can now annotate our nucleosome free (&lt; 100bp), mononucleosome (180bp-247b
 
 
 ```r
-fragLenPlot + scale_y_continuous(trans = "log2") + geom_vline(xintercept = c(180, 
-    247), colour = "red") + geom_vline(xintercept = c(315, 437), colour = "darkblue") + 
+fragLenPlot + scale_y_continuous(trans = "log2") + geom_vline(xintercept = c(180,
+    247), colour = "red") + geom_vline(xintercept = c(315, 437), colour = "darkblue") +
     geom_vline(xintercept = c(100), colour = "darkgreen") + theme_bw()
 ```
 
@@ -895,6 +896,8 @@ Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_p
 Answers can be found [here](../../exercises/answers/ATACseq_part1_answers.html)
 
 R code for solutions can be found [here](../../exercises/answers/ATACseq_part1_answers.R)
+
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>RU_ATAC_part2.utf8</title>
+    <title>RU_ATAC_part2.knit</title>
     <meta charset="utf-8" />
     <meta name="author" content="Rockefeller University, Bioinformatics Resource Centre" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="metropolisCustom.css" type="text/css" />
     <link rel="stylesheet" href="metropolis-fontsCustom.css" type="text/css" />
@@ -324,8 +325,8 @@ A useful feature is that we can we can specify the minimum and maximum fragment 
 
 
 ```r
-nucFree &lt;- regionPlot(bamFile = sortedBAM, testRanges = tssLocations, style = "point", 
-    format = "bam", paired = TRUE, minFragmentLength = 0, maxFragmentLength = 100, 
+nucFree &lt;- regionPlot(bamFile = sortedBAM, testRanges = tssLocations, style = "point",
+    format = "bam", paired = TRUE, minFragmentLength = 0, maxFragmentLength = 100,
     forceFragment = 50)
 class(nucFree)
 ```
@@ -356,8 +357,8 @@ We can create a plot for our mono-nucleosome signal by adjusting our **minFragme
 
 
 ```r
-monoNuc &lt;- regionPlot(bamFile = sortedBAM, testRanges = tssLocations, style = "point", 
-    format = "bam", paired = TRUE, minFragmentLength = 180, maxFragmentLength = 240, 
+monoNuc &lt;- regionPlot(bamFile = sortedBAM, testRanges = tssLocations, style = "point",
+    format = "bam", paired = TRUE, minFragmentLength = 180, maxFragmentLength = 240,
     forceFragment = 80)
 ```
 
@@ -468,8 +469,8 @@ MACS2 callpeak -t singleEnd.bam --nomodel --shift 37
 
 
 ```r
-with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
-    "-t", "singleEnd.bam", "--nomodel", "--shift", "37", "--extsize", "73", "--format", 
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak",
+    "-t", "singleEnd.bam", "--nomodel", "--shift", "37", "--extsize", "73", "--format",
     "BAM", "-g", "hs")), stdout = TRUE)
 ```
 
@@ -488,8 +489,8 @@ MACS2 callpeak -t pairedEnd.bam -f BAMPE
 
 
 ```r
-with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
-    "-t", "pairedEnd.bam", "--format", "BAMPE", "--outdir", "/Documents/ATAC_MACS2_calls/", 
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak",
+    "-t", "pairedEnd.bam", "--format", "BAMPE", "--outdir", "/Documents/ATAC_MACS2_calls/",
     "--name", "pairedEndPeakName", "-g", "hs")), stdout = TRUE)
 ```
 
@@ -507,9 +508,9 @@ MACS2 callpeak  -t ~/Downloads/Sorted_ATAC_50K_2_openRegions.bam
 
 
 ```r
-with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak", 
-    "-t", "~/Downloads/Sorted_ATAC_50K_2_openRegions.bam", "--outdir", "ATAC_Data/ATAC_Peaks/ATAC_50K_2", 
-    "--name", "Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak", "-f", "BAMPE", "-g", 
+with_CondaEnv("ATACseq_analysis", system2(command = "macs2", args = c("callpeak",
+    "-t", "~/Downloads/Sorted_ATAC_50K_2_openRegions.bam", "--outdir", "ATAC_Data/ATAC_Peaks/ATAC_50K_2",
+    "--name", "Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak", "-f", "BAMPE", "-g",
     "hs")), stdout = TRUE)
 ```
 
@@ -544,8 +545,8 @@ library(tidyr)
 blkList &lt;- import.bed("~/Downloads/ENCFF001TDO.bed.gz")
 openRegionPeaks &lt;- "~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_Peaks/Sorted_ATAC_50K_2_Small_Paired_peaks.narrowPeak"
 
-qcRes &lt;- ChIPQCsample("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_2_openRegions.bam", 
-    peaks = openRegionPeaks, annotation = "hg19", chromosomes = "chr20", blacklist = blkList, 
+qcRes &lt;- ChIPQCsample("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_BAM/Sorted_ATAC_50K_2_openRegions.bam",
+    peaks = openRegionPeaks, annotation = "hg19", chromosomes = "chr20", blacklist = blkList,
     verboseT = FALSE)
 ```
 
@@ -593,7 +594,7 @@ Removing blacklists too early can hide some of the QC issues in your data. The *
 ```r
 MacsCalls &lt;- granges(qcRes[seqnames(qcRes) %in% "chr20"])
 
-data.frame(Blacklisted = sum(MacsCalls %over% blkList), Not_Blacklisted = sum(!MacsCalls %over% 
+data.frame(Blacklisted = sum(MacsCalls %over% blkList), Not_Blacklisted = sum(!MacsCalls %over%
     blkList))
 
 MacsCalls &lt;- MacsCalls[!MacsCalls %over% blkList]
@@ -635,12 +636,12 @@ MacsCalls_Anno &lt;- annotatePeak(MacsCalls, TxDb = TxDb.Hsapiens.UCSC.hg19.know
 ```
 
 ```
-## &gt;&gt; preparing features information...		 2021-03-15 11:44:14 PM 
-## &gt;&gt; identifying nearest features...		 2021-03-15 11:44:15 PM 
-## &gt;&gt; calculating distance from peak to TSS...	 2021-03-15 11:44:15 PM 
-## &gt;&gt; assigning genomic annotation...		 2021-03-15 11:44:15 PM 
-## &gt;&gt; assigning chromosome lengths			 2021-03-15 11:44:33 PM 
-## &gt;&gt; done...					 2021-03-15 11:44:33 PM
+## &gt;&gt; preparing features information...		 2021-07-28 05:37:21 PM 
+## &gt;&gt; identifying nearest features...		 2021-07-28 05:37:21 PM 
+## &gt;&gt; calculating distance from peak to TSS...	 2021-07-28 05:37:21 PM 
+## &gt;&gt; assigning genomic annotation...		 2021-07-28 05:37:21 PM 
+## &gt;&gt; assigning chromosome lengths			 2021-07-28 05:37:36 PM 
+## &gt;&gt; done...					 2021-07-28 05:37:36 PM
 ```
 
 ```r
@@ -651,18 +652,17 @@ MacsCalls_Anno
 ## Annotated peaks generated by ChIPseeker
 ## 596/596  peaks were annotated
 ## Genomic Annotation Summary:
-##               Feature  Frequency
-## 9    Promoter (&lt;=1kb) 40.2684564
-## 10   Promoter (1-2kb)  2.0134228
-## 11   Promoter (2-3kb)  2.1812081
-## 4              5' UTR  0.1677852
-## 3              3' UTR  1.0067114
-## 1            1st Exon  0.1677852
-## 7          Other Exon  1.5100671
-## 2          1st Intron  6.0402685
-## 8        Other Intron 19.9664430
-## 6  Downstream (&lt;=300)  0.8389262
-## 5   Distal Intergenic 25.8389262
+##              Feature  Frequency
+## 8   Promoter (&lt;=1kb) 40.2684564
+## 9   Promoter (1-2kb)  2.0134228
+## 10  Promoter (2-3kb)  2.1812081
+## 4             5' UTR  0.1677852
+## 3             3' UTR  1.0067114
+## 1           1st Exon  0.1677852
+## 6         Other Exon  1.5100671
+## 2         1st Intron  6.0402685
+## 7       Other Intron 19.9664430
+## 5  Distal Intergenic 26.6778523
 ```
 
 ---
@@ -832,7 +832,7 @@ We take peaks across all our samples and reduce them into a single set of non-re
 
 
 ```r
-peaks &lt;- dir("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_Peaks_forCounting/", pattern = "*.narrowPeak", 
+peaks &lt;- dir("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_Peaks_forCounting/", pattern = "*.narrowPeak",
     full.names = TRUE)
 ```
 
@@ -901,7 +901,7 @@ We filter out peaks in blacklists and in ChrM prior to testing to eliminate pote
 
 ```r
 blklist &lt;- import.bed("data/ENCFF547MET.bed.gz")
-nrToCount &lt;- allPeaksSet_nR[!allPeaksSet_nR %over% blklist &amp; !seqnames(allPeaksSet_nR) %in% 
+nrToCount &lt;- allPeaksSet_nR[!allPeaksSet_nR %over% blklist &amp; !seqnames(allPeaksSet_nR) %in%
     "chrM"]
 nrToCount
 ```
@@ -1125,12 +1125,12 @@ We have to adjust our counting for paired-end reads so we additionally set the *
 
 ```r
 library(GenomicAlignments)
-bamsToCount &lt;- dir("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_BAM_forCounting/", full.names = TRUE, 
+bamsToCount &lt;- dir("~/Downloads/ATAC_Workshop/ATAC_Data/ATAC_BAM_forCounting/", full.names = TRUE,
     pattern = "*.\\.bam$")
 
 myCounts &lt;- summarizeOverlaps(consensusToCount, bamsToCount, singleEnd = FALSE)
 
-colnames(myCounts) &lt;- c("HindBrain_1", "HindBrain_2", "Kidney_1", "Kidney_2", "Liver_1", 
+colnames(myCounts) &lt;- c("HindBrain_1", "HindBrain_2", "Kidney_1", "Kidney_2", "Liver_1",
     "Liver_2")
 ```
 ---
@@ -1246,7 +1246,7 @@ You can see the result [here](https://rockefelleruniversity.github.io/RU_ATACseq
 ```r
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 toOverLap &lt;- promoters(TxDb.Mmusculus.UCSC.mm10.knownGene, 500, 500)
-KidneyMinusHindbrain &lt;- KidneyMinusHindbrain[(!is.na(KidneyMinusHindbrain$padj) &amp; 
+KidneyMinusHindbrain &lt;- KidneyMinusHindbrain[(!is.na(KidneyMinusHindbrain$padj) &amp;
     KidneyMinusHindbrain$padj &lt; 0.05) &amp; KidneyMinusHindbrain %over% toOverLap, ]
 myReport &lt;- makebedtable(KidneyMinusHindbrain, "KidneyMinusHindbrain.html", getwd())
 browseURL(myReport)
@@ -1261,7 +1261,7 @@ Since we have subset regions to those within +/- 500bp of a TSS we can use a sta
 
 
 ```r
-anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain, TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene, 
+anno_KidneyMinusHindbrain &lt;- annotatePeak(KidneyMinusHindbrain, TxDb = TxDb.Mmusculus.UCSC.mm10.knownGene,
     verbose = FALSE)
 DB_ATAC &lt;- as.data.frame(anno_KidneyMinusHindbrain)
 DB_ATAC[1, ]
@@ -1293,8 +1293,8 @@ go[1:2, 1:6]
 ## GO:0120036 GO:0120036 plasma membrane bounded cell projection organization
 ## GO:0030030 GO:0030030                         cell projection organization
 ##            GeneRatio    BgRatio       pvalue     p.adjust
-## GO:0120036    93/511 1581/23328 1.393024e-18 6.203136e-15
-## GO:0030030    94/511 1628/23328 2.991023e-18 6.659513e-15
+## GO:0120036    94/511 1609/23355 1.279533e-18 5.672171e-15
+## GO:0030030    95/511 1656/23355 2.713130e-18 6.013653e-15
 ```
 
 ---
@@ -1418,6 +1418,17 @@ library(seqLogo)
 
 ```
 ## Loading required package: grid
+```
+
+```
+## 
+## Attaching package: 'grid'
+```
+
+```
+## The following object is masked from 'package:Biostrings':
+## 
+##     pattern
 ```
 
 ```r
@@ -1582,7 +1593,7 @@ We change the **format** to rlelist and the **distanceAround** parameter to 500b
 
 
 ```r
-CTCF_Cuts_open &lt;- regionPlot(cutsCoverage20, testRanges = toCompare, style = "point", 
+CTCF_Cuts_open &lt;- regionPlot(cutsCoverage20, testRanges = toCompare, style = "point",
     format = "rlelist", distanceAround = 500)
 ```
 
@@ -1594,7 +1605,7 @@ Now we can now plot our cut-sites using the **plotRegion()** function.
 
 
 ```r
-plotRegion(CTCF_Cuts_open, outliers = 0.001) + ggtitle("NucFree Cuts Centred on CTCF") + 
+plotRegion(CTCF_Cuts_open, outliers = 0.001) + ggtitle("NucFree Cuts Centred on CTCF") +
     theme_bw()
 ```
 
@@ -1609,6 +1620,9 @@ Exercise on ATACseq data can be found [here](../../exercises/exercises/ATACseq_p
 ## Answers to exercise
 
 Answers can be found [here](../../exercises/answers/ATACseq_part2_answers.html)
+
+
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
